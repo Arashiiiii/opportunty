@@ -2,13 +2,13 @@
  * POST /api/cv/parse — turns an uploaded PDF/DOCX résumé into a starting
  * CVData the builder can load.
  *
- * This is real text extraction (pdf-parse / mammoth) plus a heuristic
- * structuring pass — NOT an LLM call, since opportunity.com has no AI
- * backend wired up yet. It reliably pulls out name/email/phone and a
- * skills line when the résumé has one, and drops the rest of the text
- * into the summary so nothing the visitor uploaded is lost — they can
- * then reorganize it by hand in the editor, which is always faster than
- * starting from a blank page.
+ * Real text extraction (pdf-parse / mammoth) feeds Claude
+ * (cv/_lib/ai.ts), which structures it into the full CV schema —
+ * experience, education, skills, dates, the works. If the AI call fails
+ * for any reason (no API key configured, rate limit, bad response), we
+ * fall back to a deterministic regex pass so uploading never just breaks;
+ * the visitor still gets name/email/phone/skills pulled out and the rest
+ * of the text dropped into summary to reorganize by hand.
  *
  * No auth required: uploading and editing is anonymous. Nothing here is
  * persisted server-side — the parsed CV is returned directly to the
@@ -17,6 +17,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { EMPTY_CV, uid } from "@/app/cv/_lib/schema";
 import type { CVData } from "@/app/cv/_lib/schema";
+import { structureResumeWithAI } from "@/app/cv/_lib/ai";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -65,8 +66,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Couldn't read that file — it may be corrupted or scanned as an image." }, { status: 422 });
   }
 
-  const cv = structureResume(text);
-  return NextResponse.json({ cv });
+  if (!text.trim()) {
+    return NextResponse.json({ error: "Couldn't find any text in that file — if it's a scanned image, try a text-based PDF or DOCX instead." }, { status: 422 });
+  }
+
+  try {
+    const cv = await structureResumeWithAI(text);
+    return NextResponse.json({ cv, source: "ai" });
+  } catch (err) {
+    console.error("AI résumé structuring failed, falling back to heuristic parse:", err);
+    const cv = structureResume(text);
+    return NextResponse.json({ cv, source: "heuristic" });
+  }
 }
 
 function structureResume(rawText: string): CVData {

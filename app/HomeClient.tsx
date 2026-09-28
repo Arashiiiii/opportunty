@@ -11,10 +11,10 @@
  * account at the one point that matters: downloading (Topbar), which is
  * also where a signed-in visitor is sent on to pay.
  *
- * "Tailoring" here is a real, deterministic pass (see cv/_lib/tailor.ts)
- * — there's no AI backend wired up yet, so it sets the target title,
- * writes a lead sentence naming the role/company, and surfaces the job's
- * tags as a skills group, rather than faking a smarter rewrite.
+ * "Tailoring" calls Claude (via /api/cv/tailor) to rewrite the title,
+ * summary and a highlighted-skills group for the dropped job — falling
+ * back to a deterministic tag-matching pass (cv/_lib/tailor.ts) if that
+ * call fails, so dragging a job never just breaks.
  */
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
@@ -93,7 +93,7 @@ export default function HomeClient() {
     router.push("/cv/builder");
   }, [router]);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
     const id = e.dataTransfer.getData("text/plain");
@@ -101,12 +101,25 @@ export default function HomeClient() {
     if (!job) return;
     setCvJobId(id);
     setTailoring(true);
+
     const base = useCVStore.getState().cv ?? EMPTY_CV;
-    const result = tailorCVForJob(base, job);
-    setTimeout(() => {
-      setTailoredCV(result);
+    try {
+      const res = await fetch("/api/cv/tailor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cv: base, job }),
+      });
+      const json = await res.json();
+      if (res.ok && json.cv) {
+        setTailoredCV(json.cv as CVData);
+      } else {
+        setTailoredCV(tailorCVForJob(base, job));
+      }
+    } catch {
+      setTailoredCV(tailorCVForJob(base, job));
+    } finally {
       setTailoring(false);
-    }, 1100);
+    }
   }, [jobs]);
 
   const handleUploadClick = useCallback(() => {
@@ -192,7 +205,7 @@ export default function HomeClient() {
         <div style={{ fontSize: 14, fontWeight: 500, letterSpacing: 1, textTransform: "uppercase", color: PRIMARY, marginBottom: 12 }}>Morocco&apos;s job board</div>
         <h1 style={{ margin: "0 0 12px", fontSize: "clamp(32px, 6vw, 56px)", lineHeight: 1.05, fontWeight: 500, maxWidth: 680 }}>Find work you actually want</h1>
         <p style={{ margin: "0 0 32px", fontSize: "clamp(16px, 3vw, 20px)", lineHeight: 1.5, letterSpacing: "-0.2px", color: "#605d52", maxWidth: 480 }}>
-          Search open roles across Morocco, then drag one into your CV and we&apos;ll tailor it to the job — no account needed to try it.
+          Search open roles across Morocco, then drag one into your CV and let AI tailor it to the job — no account needed to try it.
         </p>
 
         <div className="opp-search" style={{ width: "100%", maxWidth: 720, display: "flex", alignItems: "center", background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 6, gap: 4 }}>
