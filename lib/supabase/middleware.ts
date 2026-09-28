@@ -3,11 +3,19 @@ import { NextResponse, type NextRequest } from "next/server";
 
 /**
  * Refreshes the Supabase auth session on every request and gates the
- * CV builder behind real accounts.
+ * parts of the CV builder that touch a saved account.
  *
  * opportunity.com intentionally has NO anonymous-session fallback: unlike
- * talentmaroc, a signed-out visitor hitting /cv/* is redirected to /login
- * rather than being silently signed in as an anonymous user.
+ * talentmaroc, a signed-out visitor hitting a *saved* CV (/cv/[id]) is
+ * redirected to /login rather than being silently signed in as an
+ * anonymous user.
+ *
+ * /cv/builder is the one deliberate exception: it's the anonymous-capable
+ * editor. A signed-out visitor can upload a CV or drag a job onto it and
+ * land there to edit freely — the CV data lives in the browser only
+ * (localStorage), never in Supabase, until they sign in. Auth is only
+ * enforced at the point of real value: downloading (which first saves the
+ * draft to their account) and its /checkout step.
  */
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -36,9 +44,10 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
+  const isBuilderListRoot  = path === "/cv"; // /cv itself renders its own landing state
+  const isAnonymousBuilder = path === "/cv/builder" || path.startsWith("/cv/builder/");
   const requiresAuth = path.startsWith("/cv/") || path === "/cv";
-  const isBuilderListRoot = path === "/cv"; // /cv itself renders its own landing state; only /cv/:id is hard-gated
-  const isProtectedBuilderPage = requiresAuth && !isBuilderListRoot;
+  const isProtectedBuilderPage = requiresAuth && !isBuilderListRoot && !isAnonymousBuilder;
 
   if (!user && isProtectedBuilderPage) {
     const redirectUrl = new URL("/login", request.url);

@@ -23,6 +23,7 @@
 
 import { useState, useLayoutEffect, useEffect, useRef } from "react";
 import { useCVStore } from "../../_store/cv-store";
+import { useAuthState } from "../../_hooks/useAuthState";
 import { CVRender, A4_W, A4_H } from "./templates";
 import { TemplateStrip } from "./TemplateStrip";
 import { ZoomControls }  from "./ZoomControls";
@@ -30,6 +31,7 @@ import { ZoomControls }  from "./ZoomControls";
 type ZoomState = number | "fit";
 
 export function CVPreview() {
+  const authed     = useAuthState();
   const template   = useCVStore((s) => s.template);
   const accent     = useCVStore((s) => s.accent);
   const lang       = useCVStore((s) => s.lang);
@@ -156,6 +158,30 @@ export function CVPreview() {
               onUpdate={updatePath}
             />
           </div>
+
+          {authed === false && (
+            <div
+              aria-hidden
+              style={{
+                position:      "absolute",
+                inset:         0,
+                zIndex:        4,
+                pointerEvents: "none",
+                overflow:      "hidden",
+                display:       "flex",
+                flexWrap:      "wrap",
+                alignContent:  "space-evenly",
+                justifyContent: "space-evenly",
+                transform:     "rotate(-28deg) scale(1.4)",
+              }}
+            >
+              {Array.from({ length: 24 }).map((_, i) => (
+                <span key={i} style={{ fontSize: 22, fontWeight: 800, color: "rgba(15,23,42,0.09)", whiteSpace: "nowrap", letterSpacing: 1 }}>
+                  opportunity.com
+                </span>
+              ))}
+            </div>
+          )}
 
           {overflowing && (
             <div style={{ position: "absolute", left: 0, right: 0, top: A4_H, zIndex: 5, pointerEvents: "none" }}>

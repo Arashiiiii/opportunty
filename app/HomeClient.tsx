@@ -4,26 +4,29 @@
  * (Artifact 6eda429d…): search bar, job feed (left) + CV space (right),
  * CV template strip below.
  *
- * Differences from a static mockup:
- *  - Job feed reads from the real `jobs` table (falls back to the same
- *    placeholder listings the mockup used if the table is still empty —
- *    clearly a placeholder, swap for real postings).
- *  - Dragging a job onto the CV panel, or clicking "Download tailored CV" /
- *    "Upload your CV", requires a signed-in account — opportunity.com has
- *    no anonymous sessions, so a signed-out visitor sees a login prompt
- *    instead of the action silently doing nothing.
- *  - The tailoring step is still a visual placeholder (spinner + a generic
- *    "matches" card) — there's no AI tailoring endpoint wired up yet, so a
- *    signed-in user is routed into the real CV builder afterwards rather
- *    than a fake PDF download.
+ * No login required to use the CV workspace: uploading a résumé, dragging
+ * a job onto it, and picking a template all work signed out — the CV
+ * lives in the browser (Zustand store, mirrored to localStorage) and
+ * hands off into /cv/builder. opportunity.com only asks for a real
+ * account at the one point that matters: downloading (Topbar), which is
+ * also where a signed-in visitor is sent on to pay.
+ *
+ * "Tailoring" here is a real, deterministic pass (see cv/_lib/tailor.ts)
+ * — there's no AI backend wired up yet, so it sets the target title,
+ * writes a lead sentence naming the role/company, and surfaces the job's
+ * tags as a skills group, rather than faking a smarter rewrite.
  */
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { TEMPLATE_REGISTRY } from "./cv/_lib/schema";
-import type { TemplateId } from "./cv/_lib/schema";
+import { TEMPLATE_REGISTRY, EMPTY_CV } from "./cv/_lib/schema";
+import type { TemplateId, CVData } from "./cv/_lib/schema";
+import { useCVStore } from "./cv/_store/cv-store";
+import { tailorCVForJob } from "./cv/_lib/tailor";
+import { markHandoff } from "./cv/_lib/handoff";
 import { TemplateThumb } from "./TemplateThumb";
+import { LoginGateModal } from "./_components/LoginGateModal";
 
 const PRIMARY = "#ff4f00";
 
@@ -58,8 +61,12 @@ export default function HomeClient() {
   const [dragOver, setDragOver] = useState(false);
   const [cvJobId, setCvJobId] = useState<string | null>(null);
   const [tailoring, setTailoring] = useState(false);
+  const [tailoredCV, setTailoredCV] = useState<CVData | null>(null);
   const [templateId, setTemplateId] = useState<TemplateId | null>(null);
   const [showLoginGate, setShowLoginGate] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => setAuthed(!!user));
@@ -78,30 +85,91 @@ export default function HomeClient() {
       });
   }, []);
 
-  const requireAuth = useCallback((): boolean => {
-    if (!authed) {
-      setShowLoginGate(true);
-      return false;
-    }
-    return true;
-  }, [authed]);
+  const enterBuilder = useCallback((cv: CVData, template?: TemplateId) => {
+    const store = useCVStore.getState();
+    store.loadCV(cv);
+    if (template) { store.setTemplate(template); }
+    markHandoff();
+    router.push("/cv/builder");
+  }, [router]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    if (!requireAuth()) return;
     const id = e.dataTransfer.getData("text/plain");
+    const job = jobs.find((j) => j.id === id);
+    if (!job) return;
     setCvJobId(id);
     setTailoring(true);
-    setTimeout(() => setTailoring(false), 1300);
-  }, [requireAuth]);
+    const base = useCVStore.getState().cv ?? EMPTY_CV;
+    const result = tailorCVForJob(base, job);
+    setTimeout(() => {
+      setTailoredCV(result);
+      setTailoring(false);
+    }, 1100);
+  }, [jobs]);
+
+  const handleUploadClick = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileSelected = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file later
+    if (!file) return;
+
+    setUploadError(null);
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/cv/parse", { method: "POST", body: formData });
+      const json = await res.json();
+      if (!res.ok) {
+        setUploadError(json.error ?? "Couldn't read that file.");
+        return;
+      }
+      enterBuilder(json.cv as CVData);
+    } catch {
+      setUploadError("Upload failed — check your connection and try again.");
+    } finally {
+      setUploading(false);
+    }
+  }, [enterBuilder]);
+
+  const useSavedCV = useCallback(async () => {
+    if (!authed) { setShowLoginGate(true); return; }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setShowLoginGate(true); return; }
+    const { data } = await supabase
+      .from("cvs")
+      .select("id")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data?.id) {
+      router.push(`/cv/${data.id}`);
+    } else {
+      // No saved CV yet — anonymous builder is the right place to start one.
+      enterBuilder(EMPTY_CV);
+    }
+  }, [authed, router, enterBuilder]);
 
   const cvJob = jobs.find((j) => j.id === cvJobId) ?? null;
-  const showResult = !!cvJob && !tailoring;
+  const showResult = !!cvJob && !tailoring && !!tailoredCV;
   const showEmpty = !cvJob && !tailoring;
 
   return (
     <div style={{ width: "100%", minHeight: "100vh", background: "#fffefb", display: "flex", flexDirection: "column", fontFamily: "'Inter', system-ui, -apple-system, sans-serif", color: "#201515" }}>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        onChange={handleFileSelected}
+        style={{ display: "none" }}
+      />
 
       {/* Header */}
       <header style={{ position: "sticky", top: 0, zIndex: 20, background: "#fffefb", borderBottom: "1px solid rgba(32,21,21,0.12)", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
@@ -124,7 +192,7 @@ export default function HomeClient() {
         <div style={{ fontSize: 14, fontWeight: 500, letterSpacing: 1, textTransform: "uppercase", color: PRIMARY, marginBottom: 12 }}>Morocco&apos;s job board</div>
         <h1 style={{ margin: "0 0 12px", fontSize: 56, lineHeight: "56px", fontWeight: 500, maxWidth: 680 }}>Find work you actually want</h1>
         <p style={{ margin: "0 0 32px", fontSize: 20, lineHeight: "30px", letterSpacing: "-0.2px", color: "#605d52", maxWidth: 480 }}>
-          Search open roles across Morocco, then drag one into your CV and let AI tailor it to the job.
+          Search open roles across Morocco, then drag one into your CV and we&apos;ll tailor it to the job — no account needed to try it.
         </p>
 
         <div style={{ width: "100%", maxWidth: 720, display: "flex", alignItems: "center", background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 6, gap: 4 }}>
@@ -201,7 +269,14 @@ export default function HomeClient() {
         <div style={{ position: "sticky", top: 88 }}>
           <div style={{ background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 24 }}>
             <div style={{ fontSize: 20, lineHeight: "25px", fontWeight: 700, letterSpacing: "-0.5px", marginBottom: 4 }}>Your CV</div>
-            <p style={{ fontSize: 16, lineHeight: "24px", color: "#605d52", margin: "0 0 24px" }}>Drag a job from the left and we&apos;ll tailor your CV to it.</p>
+            <p style={{ fontSize: 16, lineHeight: "24px", color: "#605d52", margin: "0 0 24px" }}>Drag a job from the left and we&apos;ll tailor your CV to it. No account needed until you download.</p>
+
+            {uploadError && (
+              <div style={{ marginBottom: 16, padding: "10px 14px", borderRadius: 10, background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", fontSize: 13.5, display: "flex", justifyContent: "space-between", gap: 10 }}>
+                <span>⚠ {uploadError}</span>
+                <button type="button" onClick={() => setUploadError(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#991b1b", fontSize: 15 }}>×</button>
+              </div>
+            )}
 
             {showEmpty && (
               <div
@@ -212,12 +287,12 @@ export default function HomeClient() {
               >
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
                 <div style={{ fontSize: 16, color: "#605d52", maxWidth: 220 }}>Drop a job here, or</div>
-                <button type="button" onClick={() => (requireAuth() ? router.push("/cv") : null)} style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 24px", borderRadius: 12, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: "pointer", fontFamily: "inherit" }}>
-                  Upload your CV
+                <button type="button" onClick={handleUploadClick} disabled={uploading} style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 24px", borderRadius: 12, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.6 : 1 }}>
+                  {uploading ? "Reading your CV…" : "Upload your CV"}
                 </button>
                 <a
                   href="#"
-                  onClick={(e) => { e.preventDefault(); if (requireAuth()) router.push("/cv"); }}
+                  onClick={(e) => { e.preventDefault(); useSavedCV(); }}
                   style={{ fontSize: 14, color: "#605d52", textDecoration: "underline", textUnderlineOffset: 2 }}
                 >
                   Use my saved CV instead
@@ -232,7 +307,7 @@ export default function HomeClient() {
               </div>
             )}
 
-            {showResult && cvJob && (
+            {showResult && cvJob && tailoredCV && (
               <div>
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: PRIMARY, color: "#fffefb", fontSize: 14, fontWeight: 600, borderRadius: 9999, padding: "5px 14px", marginBottom: 16 }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fffefb" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
@@ -240,17 +315,21 @@ export default function HomeClient() {
                 </div>
 
                 <div style={{ border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 20, background: "#fffefb" }}>
-                  <div style={{ fontSize: 20, lineHeight: "25px", fontWeight: 700, letterSpacing: "-0.5px" }}>[Your name]</div>
+                  <div style={{ fontSize: 20, lineHeight: "25px", fontWeight: 700, letterSpacing: "-0.5px" }}>
+                    {tailoredCV.profile.firstName || tailoredCV.profile.lastName
+                      ? `${tailoredCV.profile.firstName} ${tailoredCV.profile.lastName}`.trim()
+                      : "[Your name]"}
+                  </div>
                   <div style={{ fontSize: 16, lineHeight: "24px", color: "#605d52", marginBottom: 16 }}>{cvJob.title} · {cvJob.location}</div>
                   <p style={{ fontSize: 16, lineHeight: "24px", color: "#36342e", margin: "0 0 16px" }}>
-                    Summary rewritten to lead with the experience {cvJob.company} is asking for, matched against your saved CV and past uploads.
+                    {tailoredCV.summary}
                   </p>
 
                   <div style={{ fontSize: 14, fontWeight: 600, color: "#605d52", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Key matches</div>
                   {cvJob.tags.map((tag) => (
                     <div key={tag} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 16, color: "#36342e", marginBottom: 6 }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PRIMARY} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                      {tag} — carried over from your CV
+                      {tag}
                     </div>
                   ))}
                 </div>
@@ -258,16 +337,16 @@ export default function HomeClient() {
                 <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
                   <button
                     type="button"
-                    onClick={() => { if (requireAuth()) router.push("/cv"); }}
+                    onClick={() => enterBuilder(tailoredCV, templateId ?? undefined)}
                     style={{ flexGrow: 1, fontSize: 18, lineHeight: "27px", fontWeight: 600, padding: 12, borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}
                   >
                     Continue in CV builder
                   </button>
-                  <button type="button" onClick={() => { setCvJobId(null); setTailoring(false); setDragOver(false); }} style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 16px", borderRadius: 12, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: "pointer", fontFamily: "inherit" }}>
+                  <button type="button" onClick={() => { setCvJobId(null); setTailoring(false); setTailoredCV(null); setDragOver(false); }} style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 16px", borderRadius: 12, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: "pointer", fontFamily: "inherit" }}>
                     Start over
                   </button>
                 </div>
-                <p style={{ fontSize: 14, color: "#c5c0b1", margin: "12px 0 0" }}>Based on your saved CV and previous uploads.</p>
+                <p style={{ fontSize: 14, color: "#c5c0b1", margin: "12px 0 0" }}>Free to edit — sign in only when you&apos;re ready to download.</p>
               </div>
             )}
           </div>
@@ -279,7 +358,7 @@ export default function HomeClient() {
         <div style={{ fontSize: 14, fontWeight: 500, letterSpacing: 1, textTransform: "uppercase", color: PRIMARY, marginBottom: 8 }}>Pay once, no subscription</div>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 16, marginBottom: 20, flexWrap: "wrap" }}>
           <div style={{ fontSize: 32, lineHeight: "36px", fontWeight: 500, letterSpacing: 1 }}>Choose a CV template</div>
-          <div style={{ fontSize: 16, color: "#605d52" }}>10 ATS-compatible templates · used to build the CV on the right</div>
+          <div style={{ fontSize: 16, color: "#605d52" }}>10 ATS-compatible templates · free to edit, pay only to download</div>
         </div>
 
         <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8 }}>
@@ -293,7 +372,7 @@ export default function HomeClient() {
                   </div>
                 )}
 
-                <div style={{ background: "#fffefb", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 8, padding: 10, height: 130, marginBottom: 10, overflow: "hidden" }}>
+                <div style={{ background: "#fffefb", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 8, height: 190, marginBottom: 10, overflow: "hidden" }}>
                   <TemplateThumb id={tpl.id} accent={tpl.accent} />
                 </div>
 
@@ -305,10 +384,13 @@ export default function HomeClient() {
 
                 <button
                   type="button"
-                  onClick={() => { setTemplateId(selected ? null : tpl.id); if (requireAuth()) router.push("/cv"); }}
+                  onClick={() => {
+                    setTemplateId(tpl.id);
+                    enterBuilder(useCVStore.getState().cv ?? EMPTY_CV, tpl.id);
+                  }}
                   style={{ width: "100%", fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: 8, borderRadius: 8, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: "pointer", fontFamily: "inherit" }}
                 >
-                  {selected ? "Selected" : "Use this template"}
+                  Use this template
                 </button>
               </div>
             );
@@ -329,26 +411,4 @@ function hexToRgbaLite(hex: string) {
   const g = parseInt(h.substring(2, 4), 16);
   const b = parseInt(h.substring(4, 6), 16);
   return `rgba(${r},${g},${b},0.1)`;
-}
-
-function LoginGateModal({ onClose }: { onClose: () => void }) {
-  return (
-    <div
-      style={{ position: "fixed", inset: 0, zIndex: 9000, background: "rgba(32,21,21,0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      <div style={{ background: "#fffefb", borderRadius: 16, padding: 32, width: "100%", maxWidth: 380, textAlign: "center", boxShadow: "0 24px 64px rgba(0,0,0,.2)" }}>
-        <div style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg, #ff4f00 0%, #ff4f00 50%, #201515 50%, #201515 100%)", margin: "0 auto 16px" }} />
-        <h2 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 8px" }}>Sign in to continue</h2>
-        <p style={{ fontSize: 14, color: "#605d52", margin: "0 0 24px", lineHeight: 1.5 }}>
-          opportunity.com saves your CV to a real account — no anonymous sessions — so tailoring and downloads need you signed in.
-        </p>
-        <div style={{ display: "flex", gap: 10 }}>
-          <Link href="/login" style={{ flex: 1, padding: "11px 0", borderRadius: 10, border: "1px solid rgba(32,21,21,0.24)", color: "#201515", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>Sign in</Link>
-          <Link href="/signup" style={{ flex: 1, padding: "11px 0", borderRadius: 10, border: "none", background: "#ff4f00", color: "#fffefb", textDecoration: "none", fontSize: 14, fontWeight: 700 }}>Create account</Link>
-        </div>
-        <button type="button" onClick={onClose} style={{ marginTop: 16, background: "none", border: "none", color: "#939084", fontSize: 13, cursor: "pointer" }}>Not now</button>
-      </div>
-    </div>
-  );
 }

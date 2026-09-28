@@ -2,9 +2,11 @@
 /**
  * CV Builder — /cv/[id]
  *
- * Ported from talentmaroc. Auth is enforced upstream by middleware
- * (lib/supabase/middleware.ts) — no anonymous sessions, ever — so by the
- * time this component mounts a real user is already signed in.
+ * This is the *saved* builder: it loads and autosaves a real `cvs` row in
+ * Supabase, so it's only reachable signed in (enforced upstream by
+ * lib/supabase/middleware.ts — no anonymous sessions, ever). A signed-out
+ * visitor who just wants to try the editor lands on /cv/builder instead,
+ * which works the same way but keeps everything in the browser.
  */
 
 import { useEffect, useState } from "react";
@@ -13,6 +15,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useCVStore } from "../_store/cv-store";
 import { CVDataSchema, DEFAULT_SECTION_ORDER, DEFAULT_SECTIONS_ENABLED } from "../_lib/schema";
 import type { TemplateId, Lang, SectionId } from "../_lib/schema";
+import { BuilderShell } from "../_components/BuilderShell";
 
 const supabase = createClient();
 
@@ -65,47 +68,4 @@ export default function CVBuilderPage() {
   );
 
   return <BuilderShell cvId={id} />;
-}
-
-import { CVForm }      from "./_components/CVForm";
-import { CVPreview }   from "./_components/CVPreview";
-import { Topbar }      from "./_components/Topbar";
-import { useAutosave } from "./_hooks/useAutosave";
-
-function BuilderShell({ cvId }: { cvId: string }) {
-  useAutosave(cvId);
-
-  const [isMobile,  setIsMobile]  = useState(false);
-  const [mobileTab, setMobileTab] = useState<"form" | "preview">("form");
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  return (
-    <div style={{ height: "100dvh", display: "flex", flexDirection: "column", background: "#fafbfc", fontFamily: "'Inter', system-ui, sans-serif", color: "#0f172a" }}>
-      <Topbar
-        cvId={cvId}
-        mobileTab={isMobile ? mobileTab : undefined}
-        onToggleMobile={isMobile ? () => setMobileTab((t) => t === "form" ? "preview" : "form") : undefined}
-      />
-
-      {!isMobile && (
-        <div style={{ flex: 1, display: "grid", gridTemplateColumns: "minmax(380px, 480px) 1fr", minHeight: 0 }}>
-          <CVForm />
-          <CVPreview />
-        </div>
-      )}
-
-      {isMobile && (
-        <div style={{ flex: 1, minHeight: 0, overflow: "auto" }}>
-          {mobileTab === "form"    && <CVForm />}
-          {mobileTab === "preview" && <CVPreview />}
-        </div>
-      )}
-    </div>
-  );
 }

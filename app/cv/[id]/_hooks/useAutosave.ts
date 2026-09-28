@@ -1,19 +1,25 @@
 "use client";
 /**
- * useAutosave — subscribes to the CV store and persists to Supabase
- * 800 ms after the last change. Ported from talentmaroc; only the
- * client constructor changed (real cookie-session browser client
- * instead of a bare anon-key client).
+ * useAutosave — subscribes to the CV store and persists 800 ms after the
+ * last change.
+ *
+ * Two targets depending on `cvId`:
+ *  - cvId is a real id  → persists to the `cvs` row in Supabase (signed-in,
+ *    saved-CV builder at /cv/[id]).
+ *  - cvId is null       → persists to localStorage only (anonymous draft
+ *    at /cv/builder) — opportunity.com never creates a Supabase row for a
+ *    signed-out visitor.
  */
 
 import { useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useCVStore } from "../../_store/cv-store";
+import { saveLocalDraft } from "../../_lib/local-draft";
 import type { Json } from "../../_lib/db-types";
 
 const supabase = createClient();
 
-export function useAutosave(cvId: string) {
+export function useAutosave(cvId: string | null) {
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | null = null;
 
@@ -29,7 +35,7 @@ export function useAutosave(cvId: string) {
       ) return;
 
       if (timer) clearTimeout(timer);
-      timer = setTimeout(() => doPersist(cvId), 800);
+      timer = setTimeout(() => (cvId ? doPersistCloud(cvId) : doPersistLocal()), 800);
     });
 
     return () => {
@@ -39,7 +45,22 @@ export function useAutosave(cvId: string) {
   }, [cvId]);
 }
 
-async function doPersist(cvId: string) {
+function doPersistLocal() {
+  const s = useCVStore.getState();
+  s.markSaving();
+  saveLocalDraft({
+    cv:       s.cv,
+    template: s.template,
+    accent:   s.accent,
+    lang:     s.lang,
+    order:    s.order,
+    enabled:  s.enabled,
+    cvName:   s.cvName,
+  });
+  s.markSaved();
+}
+
+async function doPersistCloud(cvId: string) {
   const s = useCVStore.getState();
   s.markSaving();
   try {

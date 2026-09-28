@@ -1,24 +1,43 @@
 "use client";
 /**
- * Topbar — ported from talentmaroc, stripped of the Dodo Payments
- * per-template unlock flow: opportunity.com has no template paywall,
- * so "Download PDF" opens the print tab directly for any template.
+ * Topbar — every template is free to edit; the "Download PDF" button is
+ * where opportunity.com actually asks for something:
+ *
+ *  - signed out            → show the login gate, don't navigate anywhere.
+ *  - signed in, local draft → claim the draft into a real `cvs` row (the
+ *    ONE moment an anonymous visitor's CV ever touches Supabase — because
+ *    by then they're not anonymous anymore), swap the URL to /cv/[id],
+ *    then continue to checkout.
+ *  - signed in, saved CV    → straight to checkout.
+ *
+ * Checkout is a placeholder today (Dodo Payments wiring comes later); the
+ * print/export route itself is only reachable from there.
  */
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { useCVStore } from "../../_store/cv-store";
 import { computeScore } from "../../_lib/score";
+import { clearLocalDraft } from "../../_lib/local-draft";
+import { useAuthState } from "../../_hooks/useAuthState";
+import { LoginGateModal } from "../../../_components/LoginGateModal";
+import type { Json } from "../../_lib/db-types";
 import { ScoreRing }    from "./ScoreRing";
 import { ScorePopover } from "./ScorePopover";
 import { LangToggle }   from "./LangToggle";
 
+const supabase = createClient();
+
 interface Props {
-  cvId:            string;
+  cvId:            string | null;
   mobileTab?:      "form" | "preview";
   onToggleMobile?: () => void;
 }
 
 export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
+  const router    = useRouter();
+  const authed    = useAuthState();
   const cvName    = useCVStore((s) => s.cvName);
   const setCVName = useCVStore((s) => s.setCVName);
   const saving    = useCVStore((s) => s.saving);
@@ -27,11 +46,49 @@ export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
   const order     = useCVStore((s) => s.order);
   const enabled   = useCVStore((s) => s.enabled);
 
-  const [scoreOpen, setScoreOpen] = useState(false);
+  const [scoreOpen, setScoreOpen]     = useState(false);
+  const [showGate, setShowGate]       = useState(false);
+  const [claiming, setClaiming]       = useState(false);
 
-  const openPrintTab = useCallback(() => {
-    window.open(`/cv/${cvId}/print?autoprint=1`, "_blank");
-  }, [cvId]);
+  const isLocalDraft = !cvId || cvId === "__local__";
+
+  const handleDownloadClick = useCallback(async () => {
+    if (!authed) { setShowGate(true); return; }
+
+    if (!isLocalDraft) {
+      router.push(`/cv/${cvId}/checkout`);
+      return;
+    }
+
+    // Claim: this is the one point a signed-out-turned-signed-in visitor's
+    // browser-only draft becomes a real, owned `cvs` row.
+    setClaiming(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setClaiming(false); setShowGate(true); return; }
+
+    const s = useCVStore.getState();
+    const { data, error } = await supabase
+      .from("cvs")
+      .insert({
+        user_id:          user.id,
+        name:             s.cvName,
+        data:             s.cv        as unknown as Json,
+        template:         s.template,
+        accent:           s.accent,
+        lang:             s.lang,
+        section_order:    s.order     as unknown as Json,
+        sections_enabled: s.enabled   as unknown as Json,
+      })
+      .select("id")
+      .single();
+
+    setClaiming(false);
+    if (data && !error) {
+      clearLocalDraft();
+      useCVStore.setState({ cvId: data.id });
+      router.push(`/cv/${data.id}/checkout`);
+    }
+  }, [authed, isLocalDraft, cvId, router]);
 
   const { value: score } = useMemo(
     () => computeScore(cv, order, enabled),
@@ -65,6 +122,7 @@ export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
   } as const;
 
   const isMobile = mobileTab !== undefined;
+  const downloadDisabled = score < 30 || claiming;
 
   return (
     <div style={{
@@ -92,7 +150,7 @@ export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
         )}
       </Link>
 
-      {!isMobile && (
+      {!isMobile && !isLocalDraft && (
         <Link href="/cv" style={{ fontSize: 12, color: "#64748b", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
           ← CVs
         </Link>
@@ -133,7 +191,7 @@ export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
       {!isMobile && (
         <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "#94a3b8", flexShrink: 0 }}>
           <span style={{ width: 6, height: 6, borderRadius: "50%", background: dotColor, animation: saving ? "pulse 1.2s infinite" : "none", flexShrink: 0 }} />
-          {saving ? "Enregistrement…" : lastSaved ? "Enregistré" : ""}
+          {saving ? "Enregistrement…" : lastSaved ? (isLocalDraft ? "Saved on this device" : "Enregistré") : ""}
         </div>
       )}
 
@@ -183,13 +241,22 @@ export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
 
       <button
         type="button"
-        onClick={openPrintTab}
-        style={{ ...primary, opacity: score < 30 ? 0.6 : 1, cursor: score < 30 ? "not-allowed" : "pointer", padding: isMobile ? "6px 10px" : "7px 12px" }}
-        disabled={score < 30}
-        title={score < 30 ? "Atteignez 30% pour télécharger" : "Télécharger en PDF"}
+        onClick={handleDownloadClick}
+        style={{ ...primary, opacity: downloadDisabled ? 0.6 : 1, cursor: downloadDisabled ? "not-allowed" : "pointer", padding: isMobile ? "6px 10px" : "7px 12px" }}
+        disabled={downloadDisabled}
+        title={score < 30 ? "Atteignez 30% pour télécharger" : authed === false ? "Sign in to download" : "Télécharger en PDF"}
       >
-        ↓{!isMobile && <> Télécharger PDF</>}
+        {claiming ? "…" : "↓"}{!isMobile && <> {claiming ? "Saving…" : "Télécharger PDF"}</>}
       </button>
+
+      {showGate && (
+        <LoginGateModal
+          onClose={() => setShowGate(false)}
+          next={typeof window !== "undefined" ? window.location.pathname : undefined}
+          title="Sign in to download"
+          message="Your CV stays saved in this browser while you edit. Downloading it needs a real account — that's also where you'll complete payment."
+        />
+      )}
     </div>
   );
 }
