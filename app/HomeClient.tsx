@@ -172,47 +172,47 @@ export default function HomeClient() {
       />
 
       {/* Header */}
-      <header style={{ position: "sticky", top: 0, zIndex: 20, background: "#fffefb", borderBottom: "1px solid rgba(32,21,21,0.12)", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
+      <header className="opp-header" style={{ position: "sticky", top: 0, zIndex: 20, background: "#fffefb", borderBottom: "1px solid rgba(32,21,21,0.12)", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
         <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px" }}>opportunity<span style={{ color: PRIMARY }}>.</span></div>
         <nav style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <a href="#" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>For employers</a>
+          <a href="#" className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>For employers</a>
           {authed ? (
             <Link href="/cv" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>My CVs</Link>
           ) : (
             <Link href="/login" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>Sign in</Link>
           )}
-          <button type="button" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 24px", borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>
+          <button type="button" className="opp-post-btn" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 24px", borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>
             Post a job
           </button>
         </nav>
       </header>
 
       {/* Hero + search */}
-      <div style={{ padding: "64px 24px 40px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+      <div className="opp-hero" style={{ padding: "64px 24px 40px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
         <div style={{ fontSize: 14, fontWeight: 500, letterSpacing: 1, textTransform: "uppercase", color: PRIMARY, marginBottom: 12 }}>Morocco&apos;s job board</div>
-        <h1 style={{ margin: "0 0 12px", fontSize: 56, lineHeight: "56px", fontWeight: 500, maxWidth: 680 }}>Find work you actually want</h1>
-        <p style={{ margin: "0 0 32px", fontSize: 20, lineHeight: "30px", letterSpacing: "-0.2px", color: "#605d52", maxWidth: 480 }}>
+        <h1 style={{ margin: "0 0 12px", fontSize: "clamp(32px, 6vw, 56px)", lineHeight: 1.05, fontWeight: 500, maxWidth: 680 }}>Find work you actually want</h1>
+        <p style={{ margin: "0 0 32px", fontSize: "clamp(16px, 3vw, 20px)", lineHeight: 1.5, letterSpacing: "-0.2px", color: "#605d52", maxWidth: 480 }}>
           Search open roles across Morocco, then drag one into your CV and we&apos;ll tailor it to the job — no account needed to try it.
         </p>
 
-        <div style={{ width: "100%", maxWidth: 720, display: "flex", alignItems: "center", background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 6, gap: 4 }}>
+        <div className="opp-search" style={{ width: "100%", maxWidth: 720, display: "flex", alignItems: "center", background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 6, gap: 4 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexGrow: 1, padding: "8px 12px" }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
             <input type="text" placeholder="Job title, skill or company" style={{ border: "none", outline: "none", fontSize: 16, fontFamily: "inherit", width: "100%", color: "#201515", background: "transparent" }} />
           </div>
-          <div style={{ width: 1, height: 24, background: "rgba(32,21,21,0.12)" }} />
+          <div className="opp-search-divider" style={{ width: 1, height: 24, background: "rgba(32,21,21,0.12)" }} />
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", minWidth: 160 }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
             <span style={{ fontSize: 16, color: "#605d52" }}>All of Morocco</span>
           </div>
-          <button type="button" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 24px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" }}>
+          <button type="button" className="opp-search-btn" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 24px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" }}>
             Search
           </button>
         </div>
       </div>
 
       {/* Two-column workspace */}
-      <div style={{ width: "100%", maxWidth: 1280, margin: "0 auto", padding: "8px 24px 32px", display: "grid", gridTemplateColumns: "minmax(320px, 1fr) minmax(380px, 1.15fr)", gap: 24, alignItems: "start" }}>
+      <div className="opp-workspace" style={{ width: "100%", maxWidth: 1280, margin: "0 auto", padding: "8px 24px 32px", display: "grid", gridTemplateColumns: "minmax(320px, 1fr) minmax(380px, 1.15fr)", gap: 24, alignItems: "start" }}>
 
         {/* Left: job feed */}
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -266,7 +266,7 @@ export default function HomeClient() {
         </div>
 
         {/* Right: CV space */}
-        <div style={{ position: "sticky", top: 88 }}>
+        <div className="opp-cv-panel" style={{ position: "sticky", top: 88 }}>
           <div style={{ background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 24 }}>
             <div style={{ fontSize: 20, lineHeight: "25px", fontWeight: 700, letterSpacing: "-0.5px", marginBottom: 4 }}>Your CV</div>
             <p style={{ fontSize: 16, lineHeight: "24px", color: "#605d52", margin: "0 0 24px" }}>Drag a job from the left and we&apos;ll tailor your CV to it. No account needed until you download.</p>
@@ -400,7 +400,25 @@ export default function HomeClient() {
 
       {showLoginGate && <LoginGateModal onClose={() => setShowLoginGate(false)} />}
 
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 900px) {
+          .opp-workspace { grid-template-columns: 1fr !important; }
+          .opp-cv-panel  { position: static !important; top: auto !important; }
+        }
+
+        @media (max-width: 640px) {
+          .opp-hero        { padding: 40px 16px 28px !important; }
+          .opp-workspace   { padding: 8px 16px 24px !important; gap: 20px !important; }
+          .opp-hide-mobile { display: none !important; }
+          .opp-post-btn    { padding: 10px 16px !important; font-size: 13px !important; }
+          .opp-header      { padding: 0 16px !important; }
+          .opp-search      { flex-direction: column; align-items: stretch !important; padding: 10px !important; gap: 8px; }
+          .opp-search-divider { display: none !important; }
+          .opp-search-btn  { width: 100%; padding: 13px 0 !important; }
+        }
+      `}</style>
     </div>
   );
 }
