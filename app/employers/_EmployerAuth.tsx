@@ -60,7 +60,7 @@ function Form({ mode }: { mode: "login" | "signup" }) {
   const note = mode === "login" ? e.loginNote : e.signupNote;
 
   return (
-    <div dir={rtl ? "rtl" : "ltr"} style={{ minHeight: "100vh", display: "grid", gridTemplateColumns: "minmax(0, 1fr)", background: "#fffefb", fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div dir={rtl ? "rtl" : "ltr"} className="emp-auth" style={{ minHeight: "100vh", display: "grid", gridTemplateColumns: "minmax(0, 1fr)", background: "#fffefb", fontFamily: "'Inter', system-ui, sans-serif" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
         <div style={{ width: "100%", maxWidth: 400 }}>
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 24, textDecoration: "none" }}>
@@ -106,6 +106,14 @@ function Form({ mode }: { mode: "login" | "signup" }) {
           </p>
         </div>
       </div>
+      <div className="emp-photo" aria-hidden="true" style={{ backgroundImage: "linear-gradient(to top, rgba(32,21,21,.55), rgba(32,21,21,0) 45%), url(/employers-hero.jpg)", backgroundSize: "cover", backgroundPosition: "75% center" }} />
+      <style>{`
+        .emp-photo{display:none}
+        @media (min-width: 900px){
+          .emp-auth{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important}
+          .emp-photo{display:block;min-height:100vh}
+        }
+      `}</style>
     </div>
   );
 }
