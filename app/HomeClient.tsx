@@ -448,6 +448,9 @@ export default function HomeClient() {
         </div>
       </div>
 
+      {/* Decorative photo strip */}
+      <div className="opp-photo" aria-hidden="true" style={{ width: "calc(100% - 48px)", maxWidth: 1012, height: 220, margin: "4px auto 16px", borderRadius: 14, backgroundImage: "linear-gradient(90deg, rgba(32,21,21,.25), rgba(32,21,21,0) 40%), url(/employers-hero.jpg)", backgroundSize: "cover", backgroundPosition: "50% 40%", border: "1px solid rgba(32,21,21,0.12)" }} />
+
       {/* Two-column workspace */}
       <div className="opp-workspace" style={{ width: "100%", maxWidth: 1060, margin: "0 auto", padding: "4px 24px 96px", display: "grid", gridTemplateColumns: "minmax(300px, 1fr) minmax(340px, 1.1fr)", gap: 20, justifyContent: "center", alignItems: "start" }}>
 
@@ -706,6 +709,7 @@ export default function HomeClient() {
           .opp-band        { padding: 16px 16px 8px !important; }
           .opp-workspace   { padding: 8px 16px 24px !important; gap: 20px !important; }
           .opp-hide-mobile { display: none !important; }
+          .opp-photo { height: 120px !important; width: calc(100% - 32px) !important; }
           .opp-post-btn { display: none !important; }
           .opp-topbar { padding: 0 16px !important; }
           .opp-topbar nav { gap: 10px !important; }
