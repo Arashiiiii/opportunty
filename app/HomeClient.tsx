@@ -367,7 +367,7 @@ export default function HomeClient() {
       </div>
 
       {/* Two-column workspace */}
-      <div className="opp-workspace" style={{ width: "100%", maxWidth: 1280, margin: "0 auto", padding: "4px 24px 96px", display: "grid", gridTemplateColumns: "minmax(320px, 1fr) minmax(380px, 1.15fr)", gap: 24, alignItems: "start" }}>
+      <div className="opp-workspace" style={{ width: "100%", maxWidth: 1060, margin: "0 auto", padding: "4px 24px 96px", display: "grid", gridTemplateColumns: "minmax(300px, 1fr) minmax(340px, 1.1fr)", gap: 20, justifyContent: "center", alignItems: "start" }}>
 
         {/* Left: job feed */}
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
