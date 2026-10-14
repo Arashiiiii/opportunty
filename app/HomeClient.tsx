@@ -94,6 +94,7 @@ export default function HomeClient() {
   const [jobs, setJobs] = useState<Job[]>(PLACEHOLDER_JOBS);
   const [feedLoading, setFeedLoading] = useState(false);
   const [query, setQuery] = useState("");
+  const [previewId, setPreviewId] = useState<TemplateId | null>(null);
   const [usingPlaceholders, setUsingPlaceholders] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -336,41 +337,57 @@ export default function HomeClient() {
           <div style={{ fontSize: 16, color: "#605d52" }}>10 ATS-compatible templates · free to edit, pay only to download</div>
         </div>
 
-        <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8 }}>
-          {TEMPLATE_REGISTRY.map((tpl) => {
-            const selected = templateId === tpl.id;
-            return (
-              <div key={tpl.id} style={{ flex: "0 0 200px", background: "#f8f4f0", border: `2px solid ${selected ? PRIMARY : "rgba(32,21,21,0.12)"}`, borderRadius: 12, padding: 12, position: "relative" }}>
-                {selected && (
-                  <div style={{ position: "absolute", top: 10, right: 10, width: 20, height: 20, borderRadius: 9999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fffefb" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                  </div>
-                )}
-
-                <div style={{ background: "#fffefb", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 8, height: 190, marginBottom: 10, overflow: "hidden" }}>
-                  <TemplateThumb id={tpl.id} accent={tpl.accent} />
+        {(() => {
+          const shown = TEMPLATE_REGISTRY.find((t) => t.id === (previewId ?? templateId)) ?? TEMPLATE_REGISTRY[0];
+          return (
+            <div className="opp-tpl-showcase" style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 24, alignItems: "start" }}>
+              {/* Big preview of the hovered / selected template */}
+              <div style={{ background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 16, padding: 16 }}>
+                <div style={{ aspectRatio: "1653 / 2339", background: "#fffefb", borderRadius: 8, overflow: "hidden", boxShadow: "0 8px 24px rgba(32,21,21,0.12)" }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img key={shown.id} src={`/templates/${shown.id}.png`} alt={`${shown.name} CV template`} className="opp-tpl-fade" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
                 </div>
-
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
-                  <div style={{ fontSize: 16, lineHeight: "24px", fontWeight: 600 }}>{tpl.name}</div>
-                  <span style={{ fontSize: 11, lineHeight: "15px", fontWeight: 700, letterSpacing: "0.144px", color: tpl.accent, background: hexToRgbaLite(tpl.accent), borderRadius: 9999, padding: "1px 8px", whiteSpace: "nowrap" }}>Pro</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "14px 0 2px" }}>
+                  <div style={{ fontSize: 18, fontWeight: 600 }}>{shown.name}</div>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: shown.accent, background: hexToRgbaLite(shown.accent), borderRadius: 9999, padding: "1px 8px" }}>Pro</span>
                 </div>
-                <div style={{ fontSize: 14, lineHeight: "21px", color: "#939084", marginBottom: 10 }}>{tpl.sub}</div>
-
+                <div style={{ fontSize: 14, color: "#939084", marginBottom: 14 }}>{shown.sub}</div>
                 <button
                   type="button"
-                  onClick={() => {
-                    setTemplateId(tpl.id);
-                    enterBuilder(useCVStore.getState().cv ?? EMPTY_CV, tpl.id);
-                  }}
-                  style={{ width: "100%", fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: 8, borderRadius: 8, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: "pointer", fontFamily: "inherit" }}
+                  onClick={() => { setTemplateId(shown.id); enterBuilder(useCVStore.getState().cv ?? EMPTY_CV, shown.id); }}
+                  style={{ width: "100%", fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: 12, borderRadius: 10, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}
                 >
-                  Use this template
+                  Use this template →
                 </button>
               </div>
-            );
-          })}
-        </div>
+
+              {/* All templates at once — no scrolling */}
+              <div className="opp-tpl-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 14 }}>
+                {TEMPLATE_REGISTRY.map((tpl) => {
+                  const active = shown.id === tpl.id;
+                  return (
+                    <button
+                      key={tpl.id}
+                      type="button"
+                      className="opp-tpl-card"
+                      onMouseEnter={() => setPreviewId(tpl.id)}
+                      onFocus={() => setPreviewId(tpl.id)}
+                      onClick={() => { setPreviewId(tpl.id); setTemplateId(tpl.id); }}
+                      aria-pressed={active}
+                      style={{ padding: 0, background: "none", border: "none", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
+                    >
+                      <div style={{ aspectRatio: "1653 / 2339", borderRadius: 8, overflow: "hidden", background: "#fffefb", border: `2px solid ${active ? PRIMARY : "rgba(32,21,21,0.12)"}`, boxShadow: active ? "0 6px 18px rgba(255,79,0,0.25)" : "none" }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={`/templates/${tpl.id}.png`} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
+                      </div>
+                      <div style={{ fontSize: 13.5, fontWeight: 600, marginTop: 6, color: active ? PRIMARY : "#201515" }}>{tpl.name}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Two-column workspace */}
@@ -598,7 +615,14 @@ export default function HomeClient() {
         .opp-apply { transition: transform 140ms, background 140ms; }
         .opp-apply:hover { transform: translateY(-1px); background: #ff4f00 !important; border-color: #ff4f00 !important; }
 
+        .opp-tpl-card { transition: transform .15s ease; }
+        .opp-tpl-card:hover { transform: translateY(-3px); }
+        .opp-tpl-fade { animation: oppFade .25s ease; }
+        @keyframes oppFade { from { opacity: .4 } to { opacity: 1 } }
         @media (max-width: 900px) {
+          .opp-tpl-showcase { grid-template-columns: 1fr !important; }
+          .opp-tpl-showcase > div:first-child { max-width: 320px; margin: 0 auto; width: 100%; }
+          .opp-tpl-grid { grid-template-columns: repeat(5, 1fr) !important; }
           .opp-workspace { grid-template-columns: 1fr !important; }
           .opp-cv-panel  { position: static !important; top: auto !important; }
         }
@@ -607,6 +631,7 @@ export default function HomeClient() {
           .opp-hero        { padding: 40px 16px 28px !important; }
           .opp-workspace   { padding: 8px 16px 24px !important; gap: 20px !important; }
           .opp-hide-mobile { display: none !important; }
+          .opp-tpl-grid { grid-template-columns: repeat(3, 1fr) !important; }
           .opp-post-btn    { padding: 10px 16px !important; font-size: 13px !important; }
           .opp-header      { padding: 0 16px !important; }
           .opp-search      { flex-direction: column; align-items: stretch !important; padding: 10px !important; gap: 8px; }
