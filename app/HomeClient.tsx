@@ -27,6 +27,8 @@ import { tailorCVForJob } from "./cv/_lib/tailor";
 import { markHandoff } from "./cv/_lib/handoff";
 import { readLocalDraft } from "./cv/_lib/local-draft";
 import { TemplateCarousel } from "./TemplateCarousel";
+import { DICT, LANGS } from "./i18n";
+import type { Lang, CountryCode } from "./i18n";
 import { LoginGateModal } from "./_components/LoginGateModal";
 
 const PRIMARY = "#ff4f00";
@@ -64,18 +66,20 @@ const PLACEHOLDER_JOBS: Job[] = [
 
 const supabase = createClient();
 
-type CountryCode = "MA" | "FR" | "DE" | "BE" | "NL";
-const COUNTRIES: { code: CountryCode; flag: string; name: string; hero: string }[] = [
-  { code: "MA", flag: "🇲🇦", name: "Morocco", hero: "Morocco" },
-  { code: "FR", flag: "🇫🇷", name: "France", hero: "France" },
-  { code: "DE", flag: "🇩🇪", name: "Germany", hero: "Germany" },
-  { code: "BE", flag: "🇧🇪", name: "Belgium", hero: "Belgium" },
-  { code: "NL", flag: "🇳🇱", name: "Netherlands", hero: "the Netherlands" },
+const COUNTRIES: { code: CountryCode; flag: string }[] = [
+  { code: "MA", flag: "🇲🇦" },
+  { code: "FR", flag: "🇫🇷" },
+  { code: "DE", flag: "🇩🇪" },
+  { code: "BE", flag: "🇧🇪" },
+  { code: "NL", flag: "🇳🇱" },
+  { code: "SA", flag: "🇸🇦" },
 ];
 const COUNTRY_KEY = "opportunity_country_v1";
+const LANG_KEY = "opportunity_lang_v1";
 
 /** Fallback only for rows/DBs without a `country` value: guess from the location text. */
 const CITY_COUNTRY: [CountryCode, RegExp][] = [
+  ["SA", /saudi|ksa|riyadh|jeddah|jidda|makkah|mecca|medina|madinah|dammam|khobar|dhahran|jubail|tabuk|abha|taif|yanbu|neom|qassim|hail\b|jazan|najran|الرياض|جدة|مكة|المدينة|الدمام|الخبر|السعودية/i],
   ["MA", /morocco|maroc|casablanca|rabat|marrakesh|marrakech|tangier|tanger|agadir|f[eè]s\b|mekn[eè]s|oujda|t[eé]touan|kenitra|k[eé]nitra|settat|mellal|safi|el jadida|nador|laayoune|essaouira|mohammedia|sal[eé]\b/i],
   ["NL", /tilburg|den haag|the hague|enschede|utrecht|barendrecht|oldenzaal|gulpen|holland|amsterdam|rotterdam|eindhoven|groningen|breda|nijmegen|arnhem|almere|maastricht|delft|leiden|haarlem|zwolle|apeldoorn|nederland|netherlands/i],
   ["BE", /anderlecht|la hulpe|bruxelles|brussel|charleroi|braine|seneffe|gand\b|gent\b|mons\b|dinant|brabant|li[eè]ge|luik|antwerp|anvers|namur|leuven|louvain|mechelen|bruges|brugge|wavre|nivelles|belg/i],
@@ -91,6 +95,7 @@ export default function HomeClient() {
   const router = useRouter();
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [country, setCountry] = useState<CountryCode>("MA");
+  const [lang, setLang] = useState<Lang>("en");
   const [jobs, setJobs] = useState<Job[]>(PLACEHOLDER_JOBS);
   const [feedLoading, setFeedLoading] = useState(false);
   const [query, setQuery] = useState("");
@@ -132,6 +137,28 @@ export default function HomeClient() {
     } catch { /* storage unavailable */ }
   }, []);
 
+  // Remembered language, else the browser's. Also drives <html lang/dir>.
+  useEffect(() => {
+    let l: Lang = "en";
+    try {
+      const saved = localStorage.getItem(LANG_KEY) as Lang | null;
+      if (saved && saved in DICT) l = saved;
+      else {
+        const nav = (navigator.language || "en").slice(0, 2).toLowerCase();
+        if (nav === "ar" || nav === "fr") l = nav;
+      }
+    } catch { /* storage unavailable */ }
+    setLang(l);
+  }, []);
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  }, [lang]);
+  const switchLang = useCallback((l: Lang) => {
+    setLang(l);
+    try { localStorage.setItem(LANG_KEY, l); } catch { /* ignore */ }
+  }, []);
+
   // One country's feed at a time.
   useEffect(() => {
     let cancelled = false;
@@ -160,10 +187,24 @@ export default function HomeClient() {
     return () => { cancelled = true; };
   }, [country]);
 
+  const T = DICT[lang];
+  const rtl = lang === "ar";
+  const cName = (c: CountryCode) => T.countries[c].name;
+  const cIn = T.countries[country].in;
+  /** Fill {job}/{company} placeholders, bolding the job title. */
+  const fill = (tpl: string, job: string, company: string): React.ReactNode =>
+    tpl.split(/(\{job\})/).map((part, i) =>
+      part === "{job}" ? <b key={i}>{job}</b> : part.replace("{company}", company));
+
   const q = query.trim().toLowerCase();
   const visibleJobs = q
     ? jobs.filter((j) => [j.title, j.company, j.location, ...(j.tags ?? [])].some((t) => t?.toLowerCase().includes(q)))
     : jobs;
+
+  useEffect(() => {
+    document.querySelector<HTMLElement>('.opp-country-tabs [aria-selected="true"]')
+      ?.scrollIntoView({ inline: "nearest", block: "nearest" });
+  }, [country, lang]);
 
   const switchCountry = useCallback((c: CountryCode) => {
     setCountry(c);
@@ -229,7 +270,7 @@ export default function HomeClient() {
       const res = await fetch("/api/cv/parse", { method: "POST", body: formData });
       const json = await res.json();
       if (!res.ok) {
-        setUploadError(json.error ?? "Couldn't read that file.");
+        setUploadError(json.error ?? T.couldntRead);
         return;
       }
       const parsed = json.cv as CVData;
@@ -238,11 +279,11 @@ export default function HomeClient() {
       const pending = jobs.find((j) => j.id === pendingJobId);
       if (pending) await runTailor(pending, parsed);
     } catch {
-      setUploadError("Upload failed — check your connection and try again.");
+      setUploadError(T.uploadFailed);
     } finally {
       setUploading(false);
     }
-  }, [jobs, pendingJobId, runTailor]);
+  }, [jobs, pendingJobId, runTailor, T]);
 
   const useSavedCV = useCallback(async () => {
     if (!authed) { setShowLoginGate(true); return; }
@@ -269,7 +310,7 @@ export default function HomeClient() {
   const showEmpty = !cvJob && !tailoring;
 
   return (
-    <div style={{ width: "100%", minHeight: "100vh", background: "#fffefb", display: "flex", flexDirection: "column", fontFamily: "'Inter', system-ui, -apple-system, sans-serif", color: "#201515" }}>
+    <div dir={rtl ? "rtl" : "ltr"} style={{ width: "100%", minHeight: "100vh", background: "#fffefb", display: "flex", flexDirection: "column", fontFamily: "'Inter', system-ui, -apple-system, sans-serif", color: "#201515" }}>
 
       <input
         ref={fileInputRef}
@@ -280,60 +321,69 @@ export default function HomeClient() {
       />
 
       {/* Header */}
-      <header className="opp-header" style={{ position: "sticky", top: 0, zIndex: 20, background: "#fffefb", borderBottom: "1px solid rgba(32,21,21,0.12)", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
+      <header className="opp-topbar" style={{ position: "sticky", top: 0, zIndex: 20, background: "#fffefb", borderBottom: "1px solid rgba(32,21,21,0.12)", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
         <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px" }}>opportunity<span style={{ color: PRIMARY }}>.</span></div>
         <nav style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <a href="#" className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>For employers</a>
+          <div role="group" aria-label="Language" style={{ flex: "0 0 auto", display: "flex", border: "1px solid rgba(32,21,21,0.15)", borderRadius: 9999, overflow: "hidden" }}>
+            {LANGS.map((l) => (
+              <button key={l.code} type="button" onClick={() => switchLang(l.code)} aria-pressed={lang === l.code}
+                style={{ padding: "6px 11px", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 700, background: lang === l.code ? "#201515" : "transparent", color: lang === l.code ? "#fffefb" : "#605d52" }}>
+                {l.label}
+              </button>
+            ))}
+          </div>
+          <a href="#" className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.employers}</a>
           {authed ? (
-            <Link href="/cv" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>My CVs</Link>
+            <Link href="/cv" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.myCVs}</Link>
           ) : (
-            <Link href="/login" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>Sign in</Link>
+            <Link href="/login" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.signIn}</Link>
           )}
           <button type="button" className="opp-post-btn" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 24px", borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>
-            Post a job
+            {T.nav.postJob}
           </button>
         </nav>
       </header>
 
       {/* Header band: slogan + search | CV template carousel */}
-      <div className="opp-header" style={{ width: "100%", maxWidth: 1280, margin: "0 auto", padding: "20px 24px 12px", display: "grid", gridTemplateColumns: "minmax(320px, 1fr) minmax(380px, 1.15fr)", gap: 24, alignItems: "center" }}>
+      <div className="opp-band" style={{ width: "100%", maxWidth: 1280, margin: "0 auto", padding: "20px 24px 12px", display: "grid", gridTemplateColumns: "minmax(320px, 1fr) minmax(380px, 1.15fr)", gap: 24, alignItems: "center" }}>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", color: PRIMARY, marginBottom: 8 }}>Job board · Morocco &amp; Europe</div>
-          <h1 style={{ margin: "0 0 8px", fontSize: "clamp(28px, 4vw, 42px)", lineHeight: 1.05, fontWeight: 500 }}>Find work you actually want</h1>
+          <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", color: PRIMARY, marginBottom: 8 }}>{T.eyebrow}</div>
+          <h1 style={{ margin: "0 0 8px", fontSize: "clamp(28px, 4vw, 42px)", lineHeight: 1.05, fontWeight: 500 }}>{T.h1}</h1>
           <p style={{ margin: 0, fontSize: 16, lineHeight: 1.5, color: "#605d52", maxWidth: 480 }}>
-            Pick a country, browse its roles, then drag one into your CV and let AI tailor it — no account needed.
+            {T.sub}
           </p>
         <div className="opp-search" style={{ width: "100%", maxWidth: 560, marginTop: 20, display: "flex", alignItems: "center", background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 6, gap: 4 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexGrow: 1, padding: "8px 12px" }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-            <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Job title, skill or company" style={{ border: "none", outline: "none", fontSize: 16, fontFamily: "inherit", width: "100%", color: "#201515", background: "transparent" }} />
+            <input type="text" dir="auto" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={T.searchPlaceholder} style={{ border: "none", outline: "none", fontSize: 16, fontFamily: "inherit", width: "100%", color: "#201515", background: "transparent" }} />
           </div>
           <div className="opp-search-divider" style={{ width: 1, height: 24, background: "rgba(32,21,21,0.12)" }} />
-          <label style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", minWidth: 150, cursor: "pointer" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", flex: "0 0 auto", cursor: "pointer" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
             <select
-              aria-label="Country"
+              aria-label={T.countryLabel}
               value={country}
               onChange={(e) => switchCountry(e.target.value as CountryCode)}
-              style={{ flexGrow: 1, border: "none", outline: "none", background: "transparent", fontSize: 16, fontFamily: "inherit", color: "#201515", cursor: "pointer", appearance: "auto" }}
+              style={{ border: "none", outline: "none", background: "transparent", fontSize: 16, fontFamily: "inherit", color: "#201515", cursor: "pointer", appearance: "auto" }}
             >
               {COUNTRIES.map((c) => (
-                <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
+                <option key={c.code} value={c.code}>{c.flag} {cName(c.code)}</option>
               ))}
             </select>
           </label>
           <button type="button" className="opp-search-btn" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "10px 18px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" }}>
-            Search
+            {T.search}
           </button>
         </div>
         </div>
         <div>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-            <div style={{ fontSize: 16, fontWeight: 600 }}>Pick a CV template</div>
-            <div style={{ fontSize: 13, color: "#605d52" }}>10 ATS-friendly · free to edit, pay only to download</div>
+            <div style={{ fontSize: 16, fontWeight: 600 }}>{T.pickTemplate}</div>
+            <div style={{ fontSize: 13, color: "#605d52" }}>{T.templatesMeta}</div>
           </div>
         <TemplateCarousel
           compact
+          labels={{ use: T.useTemplate + " " + T.arrow, prev: T.prevTemplate, next: T.nextTemplate }}
           templates={TEMPLATE_REGISTRY.map((t) => ({ id: t.id, name: t.name, sub: t.sub, accent: t.accent }))}
           onUse={(id) => {
             const tid = id as TemplateId;
@@ -349,7 +399,7 @@ export default function HomeClient() {
 
         {/* Left: job feed */}
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-          <div role="tablist" aria-label="Country" className="opp-country-tabs" style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 2 }}>
+          <div role="tablist" aria-label={T.countryLabel} className="opp-country-tabs" style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 2 }}>
             {COUNTRIES.map((c) => {
               const active = c.code === country;
               return (
@@ -366,20 +416,20 @@ export default function HomeClient() {
                     fontSize: 14.4, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap",
                   }}
                 >
-                  <span style={{ fontSize: 18, lineHeight: 1 }}>{c.flag}</span>{c.name}
+                  <span style={{ fontSize: 18, lineHeight: 1 }}>{c.flag}</span>{cName(c.code)}
                 </button>
               );
             })}
           </div>
 
           <div style={{ fontSize: 14, color: "#605d52" }}>
-            {feedLoading ? "Loading…" : `${visibleJobs.length} open roles in ${COUNTRIES.find((c) => c.code === country)!.hero}`} · drag any card into your CV
-            {usingPlaceholders && <span style={{ color: "#c5a15a" }}> (sample listings — connect real postings)</span>}
+            {feedLoading ? T.loading : T.rolesIn(visibleJobs.length, cIn)} · {T.dragHint}
+            {usingPlaceholders && <span style={{ color: "#c5a15a" }}> {T.sample}</span>}
           </div>
 
           {!feedLoading && visibleJobs.length === 0 && (
             <div style={{ background: "#f8f4f0", border: "1px dashed rgba(32,21,21,0.2)", borderRadius: 12, padding: 32, textAlign: "center", color: "#605d52", fontSize: 16 }}>
-              {q ? `No roles matching “${query.trim()}” in ${COUNTRIES.find((c) => c.code === country)!.name}.` : `No open roles in ${COUNTRIES.find((c) => c.code === country)!.name} yet — check back soon, or try another country.`}
+              {q ? T.noMatch(query.trim(), cIn) : T.noRoles(cIn)}
             </div>
           )}
 
@@ -399,11 +449,11 @@ export default function HomeClient() {
                   <div style={{ display: "flex", gap: 14, minWidth: 0 }}>
                     <CompanyLogo company={job.company} logoUrl={job.logo_url} />
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: 24, lineHeight: "30px", fontWeight: 600, letterSpacing: "-0.6px", marginBottom: 4 }}>{job.title}</div>
-                      <div style={{ fontSize: 16, lineHeight: "24px", color: "#605d52" }}>{job.company} · {job.location} · {job.job_type}</div>
+                      <div dir="auto" style={{ fontSize: 24, lineHeight: "30px", fontWeight: 600, letterSpacing: "-0.6px", marginBottom: 4 }}>{job.title}</div>
+                      <div dir="auto" style={{ fontSize: 16, lineHeight: "24px", color: "#605d52" }}>{job.company} · {job.location} · {job.job_type}</div>
                     </div>
                   </div>
-                  <div style={{ fontSize: 14, fontWeight: 600, background: "#fffefb", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 9999, padding: "4px 12px", whiteSpace: "nowrap" }}>{job.salary_range}</div>
+                  <div dir="ltr" style={{ fontSize: 14, fontWeight: 600, background: "#fffefb", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 9999, padding: "4px 12px", whiteSpace: "nowrap", unicodeBidi: "isolate" }}>{job.salary_range}</div>
                 </div>
 
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 14 }}>
@@ -418,20 +468,20 @@ export default function HomeClient() {
 
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(32,21,21,0.12)" }}>
                   <button type="button" onClick={() => setExpandedId(isExpanded ? null : job.id)} style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", background: "none", border: "none", padding: 0, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 2, fontFamily: "inherit" }}>
-                    {isExpanded ? "Hide details" : "View details"}
+                    {isExpanded ? T.hideDetails : T.viewDetails}
                   </button>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
                     {applyUrl(job) ? (
                       <a href={applyUrl(job)!} target="_blank" rel="noopener noreferrer" className="opp-apply" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "9px 20px", borderRadius: 9999, border: "1.5px solid #201515", background: "#201515", color: "#fffefb", textDecoration: "none", whiteSpace: "nowrap" }}>
-                        Apply ↗
+                        {T.apply} ↗
                       </a>
                     ) : (
-                      <span title="Sample listing — no application link" style={{ fontSize: 14.4, fontWeight: 700, padding: "9px 20px", borderRadius: 9999, border: "1.5px solid rgba(32,21,21,0.2)", color: "#a39c8f", whiteSpace: "nowrap", cursor: "not-allowed" }}>Apply</span>
+                      <span title={T.applySample} style={{ fontSize: 14.4, fontWeight: 700, padding: "9px 20px", borderRadius: 9999, border: "1.5px solid rgba(32,21,21,0.2)", color: "#a39c8f", whiteSpace: "nowrap", cursor: "not-allowed" }}>{T.apply}</span>
                     )}
-                    <span className="opp-drag-pill" title="Drag this job onto your CV" style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 14.4, fontWeight: 800, letterSpacing: "0.2px", padding: "9px 16px 9px 12px", borderRadius: 9999, background: "linear-gradient(135deg, #ff4f00, #ff8a3d)", color: "#fffefb", whiteSpace: "nowrap", userSelect: "none" }}>
+                    <span className="opp-drag-pill" title={T.dragTitle} style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 14.4, fontWeight: 800, letterSpacing: "0.2px", padding: "9px 16px 9px 12px", borderRadius: 9999, background: "linear-gradient(135deg, #ff4f00, #ff8a3d)", color: "#fffefb", whiteSpace: "nowrap", userSelect: "none" }}>
                       <svg width="14" height="16" viewBox="0 0 14 18" fill="#fffefb"><circle cx="4" cy="3" r="1.6" /><circle cx="10" cy="3" r="1.6" /><circle cx="4" cy="9" r="1.6" /><circle cx="10" cy="9" r="1.6" /><circle cx="4" cy="15" r="1.6" /><circle cx="10" cy="15" r="1.6" /></svg>
-                      Drag to CV
-                      <span className="opp-drag-arrow" aria-hidden>→</span>
+                      {T.dragToCV}
+                      <span className="opp-drag-arrow" aria-hidden>{T.arrow}</span>
                     </span>
                   </div>
                 </div>
@@ -443,8 +493,8 @@ export default function HomeClient() {
         {/* Right: CV space */}
         <div className="opp-cv-panel" style={{ position: "sticky", top: 88 }}>
           <div style={{ background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 24 }}>
-            <div style={{ fontSize: 20, lineHeight: "25px", fontWeight: 700, letterSpacing: "-0.5px", marginBottom: 4 }}>Your CV</div>
-            <p style={{ fontSize: 16, lineHeight: "24px", color: "#605d52", margin: "0 0 24px" }}>Drag a job from the left and we&apos;ll tailor your CV to it. No account needed until you download.</p>
+            <div style={{ fontSize: 20, lineHeight: "25px", fontWeight: 700, letterSpacing: "-0.5px", marginBottom: 4 }}>{T.yourCV}</div>
+            <p style={{ fontSize: 16, lineHeight: "24px", color: "#605d52", margin: "0 0 24px" }}>{T.panelIntro}</p>
 
             {uploadError && (
               <div style={{ marginBottom: 16, padding: "10px 14px", borderRadius: 10, background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", fontSize: 13.5, display: "flex", justifyContent: "space-between", gap: 10 }}>
@@ -462,24 +512,24 @@ export default function HomeClient() {
               >
                 {pendingJob ? (
                   <div style={{ background: "#fff1e8", border: "1px solid #ffcbab", borderRadius: 10, padding: "10px 14px", fontSize: 14.5, color: "#8a3a10", lineHeight: 1.45 }}>
-                    To tailor your CV for <b>{pendingJob.title}</b> at {pendingJob.company}, first add your CV below.
+                    {fill(T.pending, pendingJob.title, pendingJob.company)}
                   </div>
                 ) : (
-                  <div style={{ fontSize: 16, color: "#605d52", maxWidth: 300 }}>Start with your CV — then drag any job here to tailor it.</div>
+                  <div style={{ fontSize: 16, color: "#605d52", maxWidth: 300 }}>{T.startWithCV}</div>
                 )}
                 <button type="button" onClick={handleUploadClick} disabled={uploading} style={{ width: "100%", maxWidth: 260, fontSize: 15, fontWeight: 700, padding: "13px 24px", borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.7 : 1 }}>
-                  {uploading ? "Reading your CV…" : "Upload your CV"}
+                  {uploading ? T.reading : T.uploadCV}
                 </button>
-                <div style={{ fontSize: 13, color: "#939084" }}>PDF or DOCX · or</div>
+                <div style={{ fontSize: 13, color: "#939084" }}>{T.pdfDocx}</div>
                 <button type="button" onClick={() => enterBuilder(EMPTY_CV)} style={{ width: "100%", maxWidth: 260, fontSize: 14.4, fontWeight: 700, padding: "12px 24px", borderRadius: 12, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: "pointer", fontFamily: "inherit" }}>
-                  Create one from scratch
+                  {T.createScratch}
                 </button>
                 <a
                   href="#"
                   onClick={(e) => { e.preventDefault(); useSavedCV(); }}
                   style={{ fontSize: 14, color: "#605d52", textDecoration: "underline", textUnderlineOffset: 2 }}
                 >
-                  Use my saved CV instead
+                  {T.useSaved}
                 </a>
               </div>
             )}
@@ -491,15 +541,15 @@ export default function HomeClient() {
                 onDrop={handleDrop}
                 style={{ border: `2px dashed ${dragOver ? PRIMARY : "rgba(32,21,21,0.24)"}`, borderRadius: 12, padding: "32px 24px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 12, transition: "border-color 120ms", background: dragOver ? "#fff1e8" : "#fffefb" }}
               >
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#e8f7ee", color: "#166534", fontSize: 13.5, fontWeight: 700, borderRadius: 9999, padding: "4px 12px" }}>✓ CV ready</div>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#e8f7ee", color: "#166534", fontSize: 13.5, fontWeight: 700, borderRadius: 9999, padding: "4px 12px" }}>{T.cvReady}</div>
                 <div style={{ fontSize: 18, fontWeight: 700 }}>
-                  {`${homeCV.profile.firstName} ${homeCV.profile.lastName}`.trim() || "Your CV"}
+                  {`${homeCV.profile.firstName} ${homeCV.profile.lastName}`.trim() || T.cvFallback}
                 </div>
                 {homeCV.profile.title && <div style={{ fontSize: 14.5, color: "#605d52", marginTop: -6 }}>{homeCV.profile.title}</div>}
-                <div style={{ fontSize: 16, color: PRIMARY, fontWeight: 700 }}>{dragOver ? "Drop it!" : "Now drag a job here to tailor it →"}</div>
+                <div style={{ fontSize: 16, color: PRIMARY, fontWeight: 700 }}>{dragOver ? T.dropIt : `${T.nowDrag} ${T.arrow}`}</div>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
-                  <button type="button" onClick={() => enterBuilder(homeCV, templateId ?? undefined)} style={{ fontSize: 14.4, fontWeight: 700, padding: "10px 18px", borderRadius: 10, border: "none", background: "#201515", color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>Open in builder</button>
-                  <button type="button" onClick={handleUploadClick} disabled={uploading} style={{ fontSize: 14.4, fontWeight: 700, padding: "10px 18px", borderRadius: 10, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit" }}>{uploading ? "Reading…" : "Replace CV"}</button>
+                  <button type="button" onClick={() => enterBuilder(homeCV, templateId ?? undefined)} style={{ fontSize: 14.4, fontWeight: 700, padding: "10px 18px", borderRadius: 10, border: "none", background: "#201515", color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>{T.openBuilder}</button>
+                  <button type="button" onClick={handleUploadClick} disabled={uploading} style={{ fontSize: 14.4, fontWeight: 700, padding: "10px 18px", borderRadius: 10, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit" }}>{uploading ? T.readingShort : T.replaceCV}</button>
                 </div>
               </div>
             )}
@@ -507,7 +557,7 @@ export default function HomeClient() {
             {tailoring && (
               <div style={{ border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: "40px 24px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 14, background: "#fffefb" }}>
                 <div style={{ width: 32, height: 32, borderRadius: 9999, border: "3px solid rgba(32,21,21,0.12)", borderTopColor: PRIMARY, animation: "spin 0.8s linear infinite" }} />
-                <div style={{ fontSize: 16, color: "#36342e" }}>Tailoring your CV for <span style={{ fontWeight: 600 }}>{cvJob?.title}</span> at {cvJob?.company}…</div>
+                <div style={{ fontSize: 16, color: "#36342e" }}>{fill(T.tailoring, cvJob?.title ?? "", cvJob?.company ?? "")}</div>
               </div>
             )}
 
@@ -515,21 +565,21 @@ export default function HomeClient() {
               <div>
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: PRIMARY, color: "#fffefb", fontSize: 14, fontWeight: 600, borderRadius: 9999, padding: "5px 14px", marginBottom: 16 }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fffefb" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                  Tailored for {cvJob.title}
+                  {T.tailoredFor.replace("{job}", cvJob.title)}
                 </div>
 
                 <div style={{ border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 20, background: "#fffefb" }}>
                   <div style={{ fontSize: 20, lineHeight: "25px", fontWeight: 700, letterSpacing: "-0.5px" }}>
                     {tailoredCV.profile.firstName || tailoredCV.profile.lastName
                       ? `${tailoredCV.profile.firstName} ${tailoredCV.profile.lastName}`.trim()
-                      : "[Your name]"}
+                      : T.nameFallback}
                   </div>
                   <div style={{ fontSize: 16, lineHeight: "24px", color: "#605d52", marginBottom: 16 }}>{cvJob.title} · {cvJob.location}</div>
                   <p style={{ fontSize: 16, lineHeight: "24px", color: "#36342e", margin: "0 0 16px" }}>
                     {tailoredCV.summary}
                   </p>
 
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "#605d52", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Key matches</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#605d52", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>{T.keyMatches}</div>
                   {cvJob.tags.map((tag) => (
                     <div key={tag} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 16, color: "#36342e", marginBottom: 6 }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PRIMARY} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
@@ -544,13 +594,13 @@ export default function HomeClient() {
                     onClick={() => enterBuilder(tailoredCV, templateId ?? undefined)}
                     style={{ flexGrow: 1, fontSize: 18, lineHeight: "27px", fontWeight: 600, padding: 12, borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}
                   >
-                    Continue in CV builder
+                    {T.continueBuilder}
                   </button>
                   <button type="button" onClick={() => { setCvJobId(null); setTailoring(false); setTailoredCV(null); setDragOver(false); }} style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 16px", borderRadius: 12, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: "pointer", fontFamily: "inherit" }}>
-                    Start over
+                    {T.startOver}
                   </button>
                 </div>
-                <p style={{ fontSize: 14, color: "#c5c0b1", margin: "12px 0 0" }}>Free to edit — sign in only when you&apos;re ready to download.</p>
+                <p style={{ fontSize: 14, color: "#c5c0b1", margin: "12px 0 0" }}>{T.freeToEdit}</p>
               </div>
             )}
           </div>
@@ -569,7 +619,7 @@ export default function HomeClient() {
         .opp-apply { transition: transform 140ms, background 140ms; }
         .opp-apply:hover { transform: translateY(-1px); background: #ff4f00 !important; border-color: #ff4f00 !important; }
 
-        .opp-header > div, .opp-workspace > div { min-width: 0; }
+        .opp-band > div, .opp-workspace > div { min-width: 0; }
         .opp-tpl-card { transition: transform .15s ease; }
         .opp-tpl-card:hover { transform: translateY(-3px); }
         .opp-tpl-fade { animation: oppFade .25s ease; }
@@ -579,14 +629,18 @@ export default function HomeClient() {
           .opp-tpl-showcase > div:first-child { max-width: 320px; margin: 0 auto; width: 100%; }
           .opp-tpl-grid { grid-template-columns: repeat(5, 1fr) !important; }
           .opp-workspace { grid-template-columns: minmax(0, 1fr) !important; }
-          .opp-header { grid-template-columns: minmax(0, 1fr) !important; }
+          .opp-band { grid-template-columns: minmax(0, 1fr) !important; }
           .opp-cv-panel  { position: static !important; top: auto !important; }
         }
 
         @media (max-width: 640px) {
-          .opp-header      { padding: 16px 16px 8px !important; }
+          .opp-band        { padding: 16px 16px 8px !important; }
           .opp-workspace   { padding: 8px 16px 24px !important; gap: 20px !important; }
           .opp-hide-mobile { display: none !important; }
+          .opp-post-btn { display: none !important; }
+          .opp-topbar { padding: 0 16px !important; }
+          .opp-topbar nav { gap: 10px !important; }
+          .opp-topbar nav a { white-space: nowrap; font-size: 14px !important; }
           .opp-tpl-grid { grid-template-columns: repeat(3, 1fr) !important; }
           .opp-post-btn    { padding: 10px 16px !important; font-size: 13px !important; }
           .opp-header      { padding: 0 16px !important; }

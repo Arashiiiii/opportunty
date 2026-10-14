@@ -16,13 +16,15 @@ const EASE = "transform 450ms cubic-bezier(0.165, 0.84, 0.44, 1)"; // Glide's de
 const PRIMARY = "#ff4f00";
 
 export function TemplateCarousel({
-  templates, onUse, autoplayMs = 4500, compact = false,
+  templates, onUse, autoplayMs = 4500, compact = false, labels,
 }: {
   templates: CarouselTemplate[];
   onUse: (id: string) => void;
   autoplayMs?: number;
   compact?: boolean;
+  labels?: { use: string; prev: string; next: string };
 }) {
+  const L = labels ?? { use: "Use this template →", prev: "Previous template", next: "Next template" };
   const [index, setIndex] = useState(0);
   const [width, setWidth] = useState(1000);
   const [dragDx, setDragDx] = useState(0);
@@ -100,6 +102,7 @@ export function TemplateCarousel({
     >
       <div
         ref={rootRef}
+        dir="ltr"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
@@ -139,7 +142,7 @@ export function TemplateCarousel({
           <button
             key={dir}
             type="button"
-            aria-label={dir === "prev" ? "Previous template" : "Next template"}
+            aria-label={dir === "prev" ? L.prev : L.next}
             disabled={disabled}
             onClick={() => go(index + (dir === "prev" ? -1 : 1))}
             className="opp-car-arrow"
@@ -170,7 +173,7 @@ export function TemplateCarousel({
           onClick={() => onUse(active.id)}
           style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: compact ? "9px 18px" : "12px 28px", borderRadius: 10, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}
         >
-          Use this template →
+          {L.use}
         </button>
       </div>
 
