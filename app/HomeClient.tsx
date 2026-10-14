@@ -297,14 +297,8 @@ export default function HomeClient() {
       </header>
 
       {/* Hero + search */}
-      <div className="opp-hero" style={{ padding: "64px 24px 40px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-        <div style={{ fontSize: 14, fontWeight: 500, letterSpacing: 1, textTransform: "uppercase", color: PRIMARY, marginBottom: 12 }}>Job board · Morocco &amp; Europe</div>
-        <h1 style={{ margin: "0 0 12px", fontSize: "clamp(32px, 6vw, 56px)", lineHeight: 1.05, fontWeight: 500, maxWidth: 680 }}>Find work you actually want</h1>
-        <p style={{ margin: "0 0 32px", fontSize: "clamp(16px, 3vw, 20px)", lineHeight: 1.5, letterSpacing: "-0.2px", color: "#605d52", maxWidth: 480 }}>
-          Pick a country, browse its open roles, then drag one into your CV and let AI tailor it to the job — no account needed to try it.
-        </p>
-
-        <div className="opp-search" style={{ width: "100%", maxWidth: 720, display: "flex", alignItems: "center", background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 6, gap: 4 }}>
+      <div className="opp-hero" style={{ padding: "40px 24px 40px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+        <div className="opp-search" style={{ width: "100%", maxWidth: 720, marginBottom: 32, display: "flex", alignItems: "center", background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 6, gap: 4 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexGrow: 1, padding: "8px 12px" }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
             <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Job title, skill or company" style={{ border: "none", outline: "none", fontSize: 16, fontFamily: "inherit", width: "100%", color: "#201515", background: "transparent" }} />
@@ -327,6 +321,12 @@ export default function HomeClient() {
             Search
           </button>
         </div>
+        <div style={{ fontSize: 14, fontWeight: 500, letterSpacing: 1, textTransform: "uppercase", color: PRIMARY, marginBottom: 12 }}>Job board · Morocco &amp; Europe</div>
+        <h1 style={{ margin: "0 0 12px", fontSize: "clamp(32px, 6vw, 56px)", lineHeight: 1.05, fontWeight: 500, maxWidth: 680 }}>Find work you actually want</h1>
+        <p style={{ margin: "0", fontSize: "clamp(16px, 3vw, 20px)", lineHeight: 1.5, letterSpacing: "-0.2px", color: "#605d52", maxWidth: 480 }}>
+          Pick a country, browse its open roles, then drag one into your CV and let AI tailor it to the job — no account needed to try it.
+        </p>
+
       </div>
 
       {/* CV templates */}
