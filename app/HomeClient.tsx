@@ -88,6 +88,8 @@ export default function HomeClient() {
   const [query, setQuery] = useState("");
   const [usingPlaceholders, setUsingPlaceholders] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [detailsSeen, setDetailsSeen] = useState<Set<string>>(new Set());
+  const [confirmJob, setConfirmJob] = useState<Job | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [cvJobId, setCvJobId] = useState<string | null>(null);
   const [tailoring, setTailoring] = useState(false);
@@ -229,12 +231,8 @@ export default function HomeClient() {
     return { cv: parsed.data, id: data.id as string };
   }, []);
 
-  const handleDrop = useCallback(async (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-    const id = e.dataTransfer.getData("text/plain");
-    const job = jobs.find((j) => j.id === id);
-    if (!job) return;
+  /** Tailor `job` to the visitor's CV; asks for an upload first when there isn't one. */
+  const startTailor = useCallback(async (job: Job) => {
     if (homeCV) { void runTailor(job, homeCV); return; }
     // No CV on this device: use the one saved in the user's dashboard…
     const saved = await loadSavedCV();
@@ -247,7 +245,29 @@ export default function HomeClient() {
     // …otherwise ask for an upload first instead of tailoring a blank page.
     setPendingJobId(job.id);
     setUploadError(null);
-  }, [jobs, homeCV, runTailor, loadSavedCV]);
+    document.querySelector(".opp-cv-panel")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [homeCV, runTailor, loadSavedCV]);
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const id = e.dataTransfer.getData("text/plain");
+    const job = jobs.find((j) => j.id === id);
+    if (job) await startTailor(job);
+  }, [jobs, startTailor]);
+
+  /** Apply: first click reveals the details; after that, nudge towards tailoring before leaving. */
+  const handleApply = useCallback((job: Job) => {
+    const url = applyUrl(job);
+    if (!url) return;
+    if (!detailsSeen.has(job.id)) {
+      setDetailsSeen((s) => new Set(s).add(job.id));
+      setExpandedId(job.id);
+      return;
+    }
+    if (cvJobId === job.id) { window.open(url, "_blank", "noopener,noreferrer"); return; }
+    setConfirmJob(job);
+  }, [detailsSeen, cvJobId]);
 
   const handleUploadClick = useCallback(() => {
     fileInputRef.current?.click();
@@ -459,14 +479,14 @@ export default function HomeClient() {
                 )}
 
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(32,21,21,0.12)" }}>
-                  <button type="button" onClick={() => setExpandedId(isExpanded ? null : job.id)} style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", background: "none", border: "none", padding: 0, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 2, fontFamily: "inherit" }}>
+                  <button type="button" onClick={() => { setExpandedId(isExpanded ? null : job.id); if (!isExpanded) setDetailsSeen((s) => new Set(s).add(job.id)); }} style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", background: "none", border: "none", padding: 0, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 2, fontFamily: "inherit" }}>
                     {isExpanded ? T.hideDetails : T.viewDetails}
                   </button>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
                     {applyUrl(job) ? (
-                      <a href={applyUrl(job)!} target="_blank" rel="noopener noreferrer" className="opp-apply" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "9px 20px", borderRadius: 9999, border: "1.5px solid #201515", background: "#201515", color: "#fffefb", textDecoration: "none", whiteSpace: "nowrap" }}>
+                      <button type="button" onClick={() => handleApply(job)} className="opp-apply" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "9px 20px", borderRadius: 9999, border: "1.5px solid #201515", background: "#201515", color: "#fffefb", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
                         {T.apply} ↗
-                      </a>
+                      </button>
                     ) : (
                       <span title={T.applySample} style={{ fontSize: 14.4, fontWeight: 700, padding: "9px 20px", borderRadius: 9999, border: "1.5px solid rgba(32,21,21,0.2)", color: "#a39c8f", whiteSpace: "nowrap", cursor: "not-allowed" }}>{T.apply}</span>
                     )}
@@ -599,6 +619,21 @@ export default function HomeClient() {
         </div>
       </div>
 
+      {confirmJob && (
+        <div role="dialog" aria-modal="true" onClick={(e) => { if (e.target === e.currentTarget) setConfirmJob(null); }}
+          style={{ position: "fixed", inset: 0, zIndex: 9000, background: "rgba(32,21,21,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div style={{ background: "#fffefb", borderRadius: 16, maxWidth: 440, width: "100%", padding: 28, boxShadow: "0 24px 64px rgba(0,0,0,.25)" }}>
+            <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.4px", marginBottom: 8 }}>{T.confirmTitle}</div>
+            <p style={{ fontSize: 15.5, lineHeight: 1.5, color: "#36342e", margin: "0 0 22px" }}>{fill(T.confirmMsg, confirmJob.title, confirmJob.company)}</p>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <button type="button" onClick={() => { const j = confirmJob; setConfirmJob(null); void startTailor(j); }}
+                style={{ flex: "1 1 180px", fontSize: 14.4, fontWeight: 700, padding: "12px 18px", borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>{T.tailorFirst}</button>
+              <button type="button" onClick={() => { const url = applyUrl(confirmJob); setConfirmJob(null); if (url) window.open(url, "_blank", "noopener,noreferrer"); }}
+                style={{ flex: "1 1 140px", fontSize: 14.4, fontWeight: 700, padding: "12px 18px", borderRadius: 12, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: "pointer", fontFamily: "inherit" }}>{T.applyAnyway} ↗</button>
+            </div>
+          </div>
+        </div>
+      )}
       {showLoginGate && <LoginGateModal onClose={() => setShowLoginGate(false)} />}
 
       <style>{`

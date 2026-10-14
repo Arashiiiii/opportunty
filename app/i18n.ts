@@ -17,7 +17,7 @@ export interface Dict {
   rolesIn: (n: number, inCountry: string) => string;
   noMatch: (q: string, inCountry: string) => string;
   noRoles: (inCountry: string) => string;
-  viewDetails: string; hideDetails: string; apply: string; applySample: string; dragToCV: string; dragTitle: string;
+  viewDetails: string; hideDetails: string; apply: string; applySample: string; confirmTitle: string; confirmMsg: string; tailorFirst: string; applyAnyway: string; dragToCV: string; dragTitle: string;
   yourCV: string; panelIntro: string; startWithCV: string; pending: string;
   uploadCV: string; reading: string; pdfDocx: string; createScratch: string; useSaved: string;
   cvReady: string; cvFallback: string; dropIt: string; nowDrag: string; openBuilder: string; replaceCV: string; readingShort: string;
@@ -40,7 +40,7 @@ export const DICT: Record<Lang, Dict> = {
     rolesIn: (n, c) => `${n} open roles ${c}`,
     noMatch: (q, c) => `No roles matching “${q}” ${c}.`,
     noRoles: (c) => `No open roles ${c} yet — check back soon, or try another country.`,
-    viewDetails: "View details", hideDetails: "Hide details", apply: "Apply", applySample: "Sample listing — no application link",
+    viewDetails: "View details", hideDetails: "Hide details", apply: "Apply", confirmTitle: "Apply without tailoring your CV?", confirmMsg: "A CV tailored to {job} gets noticed more often. Are you sure you don't want to tailor your CV first?", tailorFirst: "Tailor my CV first", applyAnyway: "Apply anyway", applySample: "Sample listing — no application link",
     dragToCV: "Drag to CV", dragTitle: "Drag this job onto your CV",
     yourCV: "Your CV", panelIntro: "Drag a job from the list and we'll tailor your CV to it. No account needed until you download.",
     startWithCV: "Start with your CV — then drag any job here to tailor it.",
@@ -71,7 +71,7 @@ export const DICT: Record<Lang, Dict> = {
     rolesIn: (n, c) => `${n} offres ${c}`,
     noMatch: (q, c) => `Aucune offre correspondant à « ${q} » ${c}.`,
     noRoles: (c) => `Aucune offre ${c} pour le moment — revenez bientôt ou essayez un autre pays.`,
-    viewDetails: "Voir les détails", hideDetails: "Masquer les détails", apply: "Postuler", applySample: "Offre d'exemple — pas de lien de candidature",
+    viewDetails: "Voir les détails", hideDetails: "Masquer les détails", apply: "Postuler", confirmTitle: "Postuler sans adapter votre CV ?", confirmMsg: "Un CV adapté à {job} est plus souvent remarqué. Êtes-vous sûr de ne pas vouloir adapter votre CV d'abord ?", tailorFirst: "Adapter mon CV d'abord", applyAnyway: "Postuler quand même", applySample: "Offre d'exemple — pas de lien de candidature",
     dragToCV: "Glisser vers le CV", dragTitle: "Glissez cette offre sur votre CV",
     yourCV: "Votre CV", panelIntro: "Glissez une offre depuis la liste et nous adapterons votre CV. Aucun compte requis avant le téléchargement.",
     startWithCV: "Commencez par votre CV — puis glissez une offre ici pour l'adapter.",
@@ -102,7 +102,7 @@ export const DICT: Record<Lang, Dict> = {
     rolesIn: (n, c) => `${n} وظيفة ${c}`,
     noMatch: (q, c) => `لا توجد وظائف مطابقة لـ «${q}» ${c}.`,
     noRoles: (c) => `لا توجد وظائف مفتوحة ${c} حالياً — عد قريباً أو جرّب دولة أخرى.`,
-    viewDetails: "عرض التفاصيل", hideDetails: "إخفاء التفاصيل", apply: "قدّم الآن", applySample: "وظيفة تجريبية — لا يوجد رابط تقديم",
+    viewDetails: "عرض التفاصيل", hideDetails: "إخفاء التفاصيل", apply: "قدّم الآن", confirmTitle: "التقديم دون تخصيص سيرتك الذاتية؟", confirmMsg: "السيرة الذاتية المخصّصة لوظيفة {job} تلفت الانتباه أكثر. هل أنت متأكد أنك لا تريد تخصيص سيرتك أولاً؟", tailorFirst: "خصّص سيرتي أولاً", applyAnyway: "قدّم على أي حال", applySample: "وظيفة تجريبية — لا يوجد رابط تقديم",
     dragToCV: "اسحب إلى السيرة", dragTitle: "اسحب هذه الوظيفة إلى سيرتك الذاتية",
     yourCV: "سيرتك الذاتية", panelIntro: "اسحب وظيفة من القائمة وسنكيّف سيرتك الذاتية معها. لا حاجة لحساب حتى تقوم بالتحميل.",
     startWithCV: "ابدأ بسيرتك الذاتية — ثم اسحب أي وظيفة إلى هنا لتكييفها.",
