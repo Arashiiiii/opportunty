@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { isEmployer } from "@/app/employers/_role";
 import { CVDataSchema, DEFAULT_SECTION_ORDER, DEFAULT_SECTIONS_ENABLED } from "@/app/cv/_lib/schema";
 import type { CVData, SectionId } from "@/app/cv/_lib/schema";
 import { computeScore, scoreColor, type ScoreResult } from "@/app/cv/_lib/score";
@@ -31,6 +32,7 @@ export default function SeekerDashboard() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) { window.location.href = "/login?next=/dashboard"; return; }
+        if (isEmployer(user)) { window.location.href = "/dashboard/employer"; return; }
         const [cvs, tl, jobs] = await Promise.all([
           supabase.from("cvs").select("id, name, updated_at, data, section_order, sections_enabled").eq("user_id", user.id).order("updated_at", { ascending: false }),
           supabase.from("cv_job_tailorings").select("id, cv_id, job_id, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(100),

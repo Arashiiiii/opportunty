@@ -5,9 +5,10 @@ import Link from "next/link";
 import { UiLangSwitch } from "@/app/_components/UiLangSwitch";
 import { createClient } from "@/lib/supabase/client";
 import { useUI } from "@/app/_lib/useUiLang";
+import { EMP } from "@/app/employers/_dict";
 
 function LoginForm() {
-  const { u, rtl } = useUI();
+  const { u, rtl, lang } = useUI();
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get("next") ?? "/cv";
@@ -62,6 +63,9 @@ function LoginForm() {
 
         <p style={{ fontSize: 13, color: "#6b6259", marginTop: 20, textAlign: "center" }}>
           {u.noAccount} <Link href="/signup" style={{ color: "#ff4f00", fontWeight: 600, textDecoration: "none" }}>{u.createOne}</Link>
+        </p>
+        <p style={{ fontSize: 13, color: "#6b6259", marginTop: 8, textAlign: "center" }}>
+          <Link href="/employers/login" style={{ color: "#6b6259", textDecoration: "underline", textUnderlineOffset: 2 }}>{EMP[lang].hiringLink}</Link>
         </p>
       </div>
     </div>

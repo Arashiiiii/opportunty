@@ -20,10 +20,6 @@ export function useDash() {
 export function Shell({ active, title, sub, children }: { active: "seeker" | "employer"; title: string; sub: string; children: ReactNode }) {
   const { d, rtl } = useDash();
   const router = useRouter();
-  const tab = (on: boolean): React.CSSProperties => ({
-    padding: "8px 16px", borderRadius: 9999, fontSize: 14, fontWeight: 700, textDecoration: "none",
-    background: on ? INK : "transparent", color: on ? "#fffefb" : MUTED,
-  });
   return (
     <div dir={rtl ? "rtl" : "ltr"} style={{ minHeight: "100vh", background: "#fffefb", color: INK, fontFamily: "'Inter', system-ui, sans-serif" }}>
       <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#fffefb", borderBottom: `1px solid ${LINE}`, height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", gap: 12 }}>
@@ -36,10 +32,6 @@ export function Shell({ active, title, sub, children }: { active: "seeker" | "em
         </nav>
       </header>
       <main style={{ maxWidth: 1080, margin: "0 auto", padding: "28px 24px 96px" }}>
-        <div style={{ display: "inline-flex", gap: 4, padding: 4, border: `1px solid ${LINE}`, borderRadius: 9999, background: "#fff", marginBottom: 20 }}>
-          <Link href="/dashboard" style={tab(active === "seeker")}>{d.seeker}</Link>
-          <Link href="/dashboard/employer" style={tab(active === "employer")}>{d.employer}</Link>
-        </div>
         <h1 style={{ margin: "0 0 6px", fontSize: "clamp(26px, 4vw, 36px)", fontWeight: 500, lineHeight: 1.1 }}>{title}</h1>
         <p style={{ margin: "0 0 24px", color: MUTED, fontSize: 16, maxWidth: 640, lineHeight: 1.5 }}>{sub}</p>
         {children}

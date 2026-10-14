@@ -34,6 +34,7 @@ import { useUiLang } from "./_lib/useUiLang";
 import { UiLangSwitch } from "./_components/UiLangSwitch";
 import { LoginGateModal } from "./_components/LoginGateModal";
 import { inferCountry } from "./_lib/country";
+import { isEmployer } from "./employers/_role";
 
 const PRIMARY = "#ff4f00";
 
@@ -90,6 +91,7 @@ function cityOf(location: string | null | undefined): string | null {
 export default function HomeClient() {
   const router = useRouter();
   const [authed, setAuthed] = useState<boolean | null>(null);
+  const [employer, setEmployer] = useState(false);
   const [country, setCountry] = useState<CountryCode>("MA");
   const [lang] = useUiLang();
   const [jobs, setJobs] = useState<Job[]>(PLACEHOLDER_JOBS);
@@ -113,7 +115,7 @@ export default function HomeClient() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setAuthed(!!user));
+    supabase.auth.getUser().then(({ data: { user } }) => { setAuthed(!!user); setEmployer(isEmployer(user)); });
 
     // Only a CV uploaded/created during this visit counts. A leftover browser draft must not
     // silently skip the upload step when a job is dropped.
@@ -368,16 +370,16 @@ export default function HomeClient() {
         <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px" }}>opportunity<span style={{ color: PRIMARY }}>.</span></div>
         <nav style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <UiLangSwitch />
-          <Link href="/dashboard/employer" className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.employers}</Link>
+          <Link href={employer ? "/dashboard/employer" : "/employers/login"} className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.employers}</Link>
           {authed ? (
             <>
-              <Link href="/dashboard" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.dashboard}</Link>
-              <Link href="/cv" className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.myCVs}</Link>
+              <Link href={employer ? "/dashboard/employer" : "/dashboard"} style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.dashboard}</Link>
+              {!employer && <Link href="/cv" className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.myCVs}</Link>}
             </>
           ) : (
             <Link href="/login" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.signIn}</Link>
           )}
-          <button type="button" className="opp-post-btn" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 24px", borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>
+          <button type="button" onClick={() => router.push(employer ? "/dashboard/employer" : "/employers/signup")} className="opp-post-btn" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 24px", borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>
             {T.nav.postJob}
           </button>
         </nav>

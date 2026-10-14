@@ -49,6 +49,11 @@ export async function updateSession(request: NextRequest) {
   const requiresAuth = path.startsWith("/cv/") || path === "/cv";
   const isProtectedBuilderPage = (requiresAuth && !isBuilderListRoot && !isAnonymousBuilder) || path === "/dashboard" || path.startsWith("/dashboard/");
 
+  // Employer area has its own sign-in page (job seekers use /login).
+  if (!user && path.startsWith("/dashboard/employer")) {
+    return NextResponse.redirect(new URL("/employers/login", request.url));
+  }
+
   if (!user && isProtectedBuilderPage) {
     const redirectUrl = new URL("/login", request.url);
     redirectUrl.searchParams.set("next", path);

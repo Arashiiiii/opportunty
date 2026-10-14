@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { inferCountry } from "@/app/_lib/country";
+import { isEmployer } from "@/app/employers/_role";
 import { BarList, Card, Columns, Grid, Kpis, Shell, Table, MUTED, useDash } from "../_ui";
 
 const supabase = createClient();
@@ -23,7 +24,7 @@ export default function EmployerDashboard() {
   useEffect(() => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { window.location.href = "/login?next=/dashboard/employer"; return; }
+      if (!user || !isEmployer(user)) { window.location.href = user ? "/employers/login?wrong=1" : "/employers/login"; return; }
       const { data, error } = await supabase.from("jobs").select("id, title, company, location, job_type, tags, created_at")
         .eq("is_active", true).order("created_at", { ascending: false }).limit(1000);
       if (error) setFailed(true); else setJobs((data ?? []) as Job[]);
