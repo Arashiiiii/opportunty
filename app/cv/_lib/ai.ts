@@ -11,6 +11,7 @@
  */
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
+import type { TailorReport } from "./tailor-report";
 import { CVDataSchema, EMPTY_CV, uid } from "./schema";
 import type { CVData } from "./schema";
 
@@ -145,16 +146,32 @@ export async function structureResumeWithAI(rawText: string): Promise<CVData> {
 
 const TAILOR_TOOL = {
   name: "submit_tailoring",
-  description: "Submit the tailored title, summary and highlighted skills for this CV/job pairing.",
+  description: "Submit the tailored CV text and a short honest fit report for this CV/job pairing.",
   input_schema: {
     type: "object" as const,
     properties: {
       title:           { type: "string", description: "The candidate's professional headline. Move it toward the target role ONLY where their real experience supports that; otherwise keep their current headline. Never claim a title they haven't held." },
       summary:         { type: "string", description: "The CV summary text itself (2-4 sentences, CV voice, no first-person commentary). Lead with the parts of the candidate's REAL background most relevant to this job, framing transferable strengths positively. Never invent experience. NEVER write commentary about fit, mismatch or what the candidate lacks — only the CV text." },
       skill_group_name:{ type: "string", description: "Short label for the highlighted-skills group, e.g. 'Relevant to this role'" },
-      skills:          { type: "array", items: { type: "string" }, description: "Skills from the job listing that genuinely match the candidate's background, plus any of the candidate's own skills worth surfacing for this role" },
+      skills:          { type: "array", items: { type: "string" }, description: "Skills the candidate genuinely has (from their CV) that matter for this role, ordered by relevance" },
+      experience: {
+        type: "array",
+        description: "Rewritten bullets for the experience entries, one object per entry you changed. Reorder bullets so the most relevant come first and reword them with the job's vocabulary. Same facts only: do not add bullets, numbers, tools, results or responsibilities that are not already in that entry's bullets. Never output more bullets than the entry already has.",
+        items: {
+          type: "object",
+          properties: {
+            index:   { type: "integer", description: "0-based position of the entry in the CV's experience array" },
+            bullets: { type: "array", items: { type: "string" } },
+          },
+          required: ["index", "bullets"],
+        },
+      },
+      match_score:    { type: "integer", description: "0-100: how much of the job's key requirements the candidate's REAL background covers. Be strict and honest." },
+      matched_skills: { type: "array", items: { type: "string" }, description: "Up to 8 job requirements/skills the candidate's CV genuinely covers" },
+      missing_skills: { type: "array", items: { type: "string" }, description: "Up to 6 important job requirements/skills the CV does not show. These are suggestions for the candidate, not added to the CV." },
+      changes:        { type: "array", items: { type: "string" }, description: "3-6 short plain statements of what you changed on the CV (e.g. 'Reworded 3 bullets at Acme to stress API design')" },
     },
-    required: ["title", "summary", "skill_group_name", "skills"],
+    required: ["title", "summary", "skill_group_name", "skills", "match_score", "matched_skills", "missing_skills", "changes"],
   },
 };
 
@@ -166,39 +183,59 @@ export interface TailorJobInput {
   description: string;
 }
 
-export async function tailorCVWithAI(cv: CVData, job: TailorJobInput): Promise<CVData> {
+export async function tailorCVWithAI(cv: CVData, job: TailorJobInput): Promise<{ cv: CVData; report: TailorReport }> {
   const anthropic = getClient();
   const msg = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 1200,
+    max_tokens: 3000,
     tools: [TAILOR_TOOL],
     tool_choice: { type: "tool", name: "submit_tailoring" },
     messages: [{
       role: "user",
-      content: `Candidate's current CV (JSON):\n${JSON.stringify(cv)}\n\nTarget job:\nTitle: ${job.title}\nCompany: ${job.company}\nLocation: ${job.location ?? ""}\nTags: ${job.tags.join(", ")}\nDescription: ${job.description}\n\nTailor the headline, summary, and a short highlighted-skills group for this candidate applying to this job. Stay honest — don't claim experience or skills the candidate's CV doesn't support — but even when the match is weak, write the best truthful CV text that foregrounds their transferable strengths. The output goes straight onto their CV, so it must be CV text only: no notes, warnings or explanations. For the skills list, include only skills the candidate genuinely has (from their CV); do not add job-listing skills they lack.`,
+      content: `Candidate's current CV (JSON; experience entries are identified by their 0-based position in "experience"):\n${JSON.stringify(cv)}\n\nTarget job:\nTitle: ${job.title}\nCompany: ${job.company}\nLocation: ${job.location ?? ""}\nTags: ${job.tags.join(", ")}\nDescription: ${job.description}\n\nTailor this CV for this job.\n\nRules:\n- Stay honest. Never claim experience, titles, tools, numbers or results the CV does not support. Rephrase and reorder only; the facts must stay the same.\n- Headline and summary: CV text only, no notes or commentary about fit.\n- Experience: for each entry that benefits, return its bullets reordered (most relevant first) and reworded with the job's own vocabulary where it is truthful. Keep the original language of the CV. Do not add bullets. Leave entries untouched if nothing helps.\n- Skills list: only skills the candidate really has.\n- match_score, matched_skills and missing_skills describe the real fit, strictly. missing_skills are suggestions for the candidate and are NOT added to the CV.\n- changes: 3-6 short factual lines about what you changed.\nThe output goes straight onto the candidate's CV, so no markup, notes or warnings inside the CV fields.`,
     }],
   });
 
   const toolUse = msg.content.find((b) => b.type === "tool_use");
   if (!toolUse || toolUse.type !== "tool_use") throw new Error("Claude did not return structured output");
 
-  const out = toolUse.input as { title: string; summary: string; skill_group_name: string; skills: string[] };
+  const out = toolUse.input as {
+    title: string; summary: string; skill_group_name: string; skills: string[];
+    experience?: { index: number; bullets: string[] }[];
+    match_score?: number; matched_skills?: string[]; missing_skills?: string[]; changes?: string[];
+  };
+  const list = (v: unknown, n: number) => (Array.isArray(v) ? v : []).map(cleanText).filter(Boolean).slice(0, n);
   out.title = cleanText(out.title);
   out.summary = cleanText(out.summary);
   out.skill_group_name = cleanText(out.skill_group_name);
-  out.skills = (Array.isArray(out.skills) ? out.skills : []).map(cleanText).filter(Boolean);
+  out.skills = list(out.skills, 20);
 
   const next: CVData = JSON.parse(JSON.stringify(cv));
   next.profile.title = out.title || next.profile.title;
   next.summary = out.summary || next.summary;
-  if (Array.isArray(out.skills) && out.skills.length > 0) {
+
+  // Bullets: accept rewording/reordering only — never more bullets than the entry had.
+  for (const e of Array.isArray(out.experience) ? out.experience : []) {
+    const item = Number.isInteger(e?.index) ? next.experience[e.index] : undefined;
+    if (!item) continue;
+    const bullets = list(e.bullets, item.bullets.length);
+    if (bullets.length > 0) item.bullets = bullets;
+  }
+
+  if (out.skills.length > 0) {
     const existing = new Set(next.skills.flatMap((g) => g.items.map((i) => i.toLowerCase().trim())));
     const fresh = out.skills.filter((s) => !existing.has(s.toLowerCase().trim()));
     if (fresh.length > 0) {
       next.skills = [{ id: uid(), group: out.skill_group_name || `Relevant to ${job.title}`, items: fresh }, ...next.skills];
     }
   }
-  return next;
+
+  const score = Math.max(0, Math.min(100, Math.round(Number(out.match_score) || 0)));
+  const report: TailorReport = {
+    score, source: "ai", jobTitle: job.title, company: job.company,
+    matched: list(out.matched_skills, 8), missing: list(out.missing_skills, 6), changes: list(out.changes, 6),
+  };
+  return { cv: next, report };
 }
 
 // ─────────────────────────────────────────────────────────────────────────

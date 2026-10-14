@@ -22,6 +22,7 @@ import { useCVStore } from "../_store/cv-store";
 import { readLocalDraft } from "../_lib/local-draft";
 import { HANDOFF_KEY } from "../_lib/handoff";
 import { BuilderShell } from "../_components/BuilderShell";
+import { TailorReportPanel } from "../_components/TailorReportPanel";
 
 export default function AnonymousBuilderPage() {
   const init  = useCVStore((s) => s.init);
@@ -69,5 +70,10 @@ export default function AnonymousBuilderPage() {
     </div>
   );
 
-  return <BuilderShell cvId={null} />;
+  return (
+    <>
+      <BuilderShell cvId={null} />
+      <TailorReportPanel />
+    </>
+  );
 }

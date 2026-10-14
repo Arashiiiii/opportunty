@@ -25,6 +25,8 @@ import type { TemplateId, CVData } from "./cv/_lib/schema";
 import { useCVStore } from "./cv/_store/cv-store";
 import { tailorCVForJob } from "./cv/_lib/tailor";
 import { markHandoff } from "./cv/_lib/handoff";
+import { saveReport } from "./cv/_lib/tailor-report";
+import type { TailorReport } from "./cv/_lib/tailor-report";
 import { TemplateCarousel } from "./TemplateCarousel";
 import { DICT } from "./i18n";
 import type { CountryCode } from "./i18n";
@@ -206,6 +208,7 @@ export default function HomeClient() {
       });
       const json = await res.json();
       const out = res.ok && json.cv ? (json.cv as CVData) : tailorCVForJob(base, job);
+      if (res.ok && json.report) saveReport(json.report as TailorReport, base);
       setTailoredCV(out);
       await recordTailoring(save?.cvId, job.id, out);
       // Straight into the builder with the tailored CV, ready to edit or download.
