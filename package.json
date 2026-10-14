@@ -18,11 +18,11 @@
     "lucide-react": "^0.511.0",
     "mammoth": "^1.13.0",
     "next": "latest",
-    "pdf-parse": "^2.4.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-easy-crop": "^5.5.7",
     "server-only": "^0.0.1",
+    "unpdf": "^1.8.1",
     "zod": "^4.4.3",
     "zustand": "^5.0.13"
   },

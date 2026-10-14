@@ -48,9 +48,11 @@ export async function POST(req: NextRequest) {
   let text = "";
   try {
     if (name.endsWith(".pdf") || file.type === "application/pdf") {
-      const { PDFParse } = await import("pdf-parse");
-      const parser = new PDFParse({ data: new Uint8Array(buffer) });
-      const result = await parser.getText();
+      // unpdf ships a serverless build of pdf.js with no worker file or native
+      // canvas, so it works on Vercel's function runtime (pdf-parse didn't).
+      const { extractText, getDocumentProxy } = await import("unpdf");
+      const pdf = await getDocumentProxy(new Uint8Array(buffer));
+      const result = await extractText(pdf, { mergePages: true });
       text = result.text;
     } else if (
       name.endsWith(".docx") ||
