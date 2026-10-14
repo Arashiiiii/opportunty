@@ -80,6 +80,13 @@ const COUNTRIES: { code: CountryCode; flag: string }[] = [
 ];
 const COUNTRY_KEY = "opportunity_country_v1";
 
+/** "Casablanca, Morocco" / "Paris (75)" → "Casablanca" / "Paris" (null for remote/unknown). */
+function cityOf(location: string | null | undefined): string | null {
+  const c = (location ?? "").split(/[,(–—]|\s-\s/)[0].trim();
+  if (!c || c.length > 40 || /^(anywhere|remote|télétravail|n\/a)$/i.test(c)) return null;
+  return c;
+}
+
 export default function HomeClient() {
   const router = useRouter();
   const [authed, setAuthed] = useState<boolean | null>(null);
@@ -88,6 +95,7 @@ export default function HomeClient() {
   const [jobs, setJobs] = useState<Job[]>(PLACEHOLDER_JOBS);
   const [feedLoading, setFeedLoading] = useState(false);
   const [query, setQuery] = useState("");
+  const [city, setCity] = useState("");
   const [usingPlaceholders, setUsingPlaceholders] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [detailsSeen, setDetailsSeen] = useState<Set<string>>(new Set());
@@ -158,10 +166,24 @@ export default function HomeClient() {
     tpl.split(/(\{job\})/).map((part, i) =>
       part === "{job}" ? <b key={i}>{job}</b> : part.replace("{company}", company));
 
+  // Cities that actually have listings in this country's feed, most listings first.
+  const cityOptions = (() => {
+    const m = new Map<string, { label: string; n: number }>();
+    for (const j of jobs) {
+      const c = cityOf(j.location);
+      if (!c) continue;
+      const k = c.toLowerCase();
+      const cur = m.get(k);
+      if (cur) cur.n += 1; else m.set(k, { label: c, n: 1 });
+    }
+    return [...m.entries()].sort((a, b) => b[1].n - a[1].n || a[1].label.localeCompare(b[1].label)).map(([key, v]) => ({ key, ...v }));
+  })();
+  const activeCity = cityOptions.some((o) => o.key === city) ? city : "";
+
   const q = query.trim().toLowerCase();
-  const visibleJobs = q
-    ? jobs.filter((j) => [j.title, j.company, j.location, ...(j.tags ?? [])].some((t) => t?.toLowerCase().includes(q)))
-    : jobs;
+  const visibleJobs = jobs.filter((j) =>
+    (!activeCity || cityOf(j.location)?.toLowerCase() === activeCity) &&
+    (!q || [j.title, j.company, j.location, ...(j.tags ?? [])].some((t) => t?.toLowerCase().includes(q))));
 
   useEffect(() => {
     document.querySelector<HTMLElement>('.opp-country-tabs [aria-selected="true"]')
@@ -170,6 +192,7 @@ export default function HomeClient() {
 
   const switchCountry = useCallback((c: CountryCode) => {
     setCountry(c);
+    setCity("");
     try { localStorage.setItem(COUNTRY_KEY, c); } catch { /* ignore */ }
   }, []);
 
@@ -368,12 +391,12 @@ export default function HomeClient() {
           <p style={{ margin: 0, fontSize: 16, lineHeight: 1.5, color: "#605d52", maxWidth: 480 }}>
             {T.sub}
           </p>
-        <div className="opp-search" style={{ width: "100%", maxWidth: 560, marginTop: 20, display: "flex", alignItems: "center", background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 6, gap: 4 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flexGrow: 1, padding: "8px 12px" }}>
+        <div className="opp-search" style={{ width: "100%", maxWidth: 560, marginTop: 20, display: "flex", flexWrap: "wrap", alignItems: "center", background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 6, gap: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flex: "1 1 100%", padding: "8px 12px", borderBottom: "1px solid rgba(32,21,21,0.08)", marginBottom: 2 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
             <input type="text" dir="auto" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={T.searchPlaceholder} style={{ border: "none", outline: "none", fontSize: 16, fontFamily: "inherit", width: "100%", color: "#201515", background: "transparent" }} />
           </div>
-          <div className="opp-search-divider" style={{ width: 1, height: 24, background: "rgba(32,21,21,0.12)" }} />
+          <div className="opp-search-divider" style={{ display: "none", width: 1, height: 24, background: "rgba(32,21,21,0.12)" }} />
           <label style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", flex: "0 0 auto", cursor: "pointer" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
             <select
@@ -387,7 +410,20 @@ export default function HomeClient() {
               ))}
             </select>
           </label>
-          <button type="button" className="opp-search-btn" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "10px 18px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" }}>
+          <div className="opp-search-divider" style={{ width: 1, height: 24, background: "rgba(32,21,21,0.12)" }} />
+          <label style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", flex: "0 0 auto", cursor: "pointer", minWidth: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6" /></svg>
+            <select
+              aria-label={T.cityLabel}
+              value={activeCity}
+              onChange={(e) => setCity(e.target.value)}
+              style={{ border: "none", outline: "none", background: "transparent", fontSize: 16, fontFamily: "inherit", color: "#201515", cursor: "pointer", appearance: "auto", maxWidth: 150 }}
+            >
+              <option value="">{T.allCities}</option>
+              {cityOptions.map((o) => <option key={o.key} value={o.key}>{o.label} ({o.n})</option>)}
+            </select>
+          </label>
+          <button type="button" className="opp-search-btn" style={{ flex: "1 1 auto", fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "10px 18px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" }}>
             {T.search}
           </button>
         </div>

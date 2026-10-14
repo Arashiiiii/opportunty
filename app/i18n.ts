@@ -11,7 +11,7 @@ export interface Dict {
   arrow: string;
   nav: { employers: string; myCVs: string; signIn: string; postJob: string; dashboard: string };
   eyebrow: string; h1: string; sub: string;
-  searchPlaceholder: string; search: string; countryLabel: string;
+  searchPlaceholder: string; search: string; countryLabel: string; cityLabel: string; allCities: string;
   pickTemplate: string; templatesMeta: string; useTemplate: string; prevTemplate: string; nextTemplate: string;
   loading: string; dragHint: string; sample: string;
   rolesIn: (n: number, inCountry: string) => string;
@@ -33,7 +33,7 @@ export const DICT: Record<Lang, Dict> = {
     eyebrow: "Job board · Morocco, Europe & Saudi Arabia",
     h1: "Find work you actually want",
     sub: "Pick a country, browse its roles, then drag one into your CV and let AI tailor it — no account needed.",
-    searchPlaceholder: "Job title, skill or company", search: "Search", countryLabel: "Country",
+    searchPlaceholder: "Job title, skill or company", search: "Search", countryLabel: "Country", cityLabel: "City", allCities: "All cities",
     pickTemplate: "Pick a CV template", templatesMeta: "10 ATS-friendly · free to edit, pay only to download",
     useTemplate: "Use this template", prevTemplate: "Previous template", nextTemplate: "Next template",
     loading: "Loading…", dragHint: "drag any card into your CV", sample: "(sample listings)",
@@ -64,7 +64,7 @@ export const DICT: Record<Lang, Dict> = {
     eyebrow: "Offres d'emploi · Maroc, Europe & Arabie saoudite",
     h1: "Trouvez le travail qui vous plaît vraiment",
     sub: "Choisissez un pays, parcourez les offres, puis glissez-en une dans votre CV et laissez l'IA l'adapter — sans compte.",
-    searchPlaceholder: "Poste ou entreprise", search: "Rechercher", countryLabel: "Pays",
+    searchPlaceholder: "Poste ou entreprise", search: "Rechercher", countryLabel: "Pays", cityLabel: "Ville", allCities: "Toutes les villes",
     pickTemplate: "Choisissez un modèle de CV", templatesMeta: "10 modèles compatibles ATS · modification gratuite, paiement au téléchargement",
     useTemplate: "Utiliser ce modèle", prevTemplate: "Modèle précédent", nextTemplate: "Modèle suivant",
     loading: "Chargement…", dragHint: "glissez une carte dans votre CV", sample: "(offres d'exemple)",
@@ -95,7 +95,7 @@ export const DICT: Record<Lang, Dict> = {
     eyebrow: "وظائف · المغرب وأوروبا والسعودية",
     h1: "ابحث عن عمل تحبه فعلاً",
     sub: "اختر دولة، تصفّح الوظائف، ثم اسحب وظيفة إلى سيرتك الذاتية ودع الذكاء الاصطناعي يكيّفها — بدون حساب.",
-    searchPlaceholder: "المسمى الوظيفي أو الشركة", search: "بحث", countryLabel: "الدولة",
+    searchPlaceholder: "المسمى الوظيفي أو الشركة", search: "بحث", countryLabel: "الدولة", cityLabel: "المدينة", allCities: "كل المدن",
     pickTemplate: "اختر قالب السيرة الذاتية", templatesMeta: "10 قوالب متوافقة مع ATS · التعديل مجاني والدفع عند التحميل فقط",
     useTemplate: "استخدم هذا القالب", prevTemplate: "القالب السابق", nextTemplate: "القالب التالي",
     loading: "جارٍ التحميل…", dragHint: "اسحب أي بطاقة إلى سيرتك الذاتية", sample: "(وظائف تجريبية)",
