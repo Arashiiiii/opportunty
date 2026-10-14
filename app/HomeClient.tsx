@@ -203,6 +203,7 @@ export default function HomeClient() {
     setPendingJobId(null);
     setTailoredCV(null);
     setTailoring(true);
+    let leaving = false;
     try {
       const res = await fetch("/api/cv/tailor", {
         method: "POST",
@@ -212,13 +213,17 @@ export default function HomeClient() {
       const json = await res.json();
       const out = res.ok && json.cv ? (json.cv as CVData) : tailorCVForJob(base, job);
       setTailoredCV(out);
-      void recordTailoring(save?.cvId, job.id, out);
+      await recordTailoring(save?.cvId, job.id, out);
+      // Straight into the builder with the tailored CV, ready to edit or download.
+      leaving = true;
+      enterBuilder(out, templateId ?? undefined);
+      return;
     } catch {
       setTailoredCV(tailorCVForJob(base, job));
     } finally {
-      setTailoring(false);
+      if (!leaving) setTailoring(false); // stay on the "tailoring…" state while the builder opens
     }
-  }, [recordTailoring]);
+  }, [recordTailoring, enterBuilder, templateId]);
 
   /** Newest CV saved to the signed-in user's dashboard (null if signed out or none). */
   const loadSavedCV = useCallback(async (): Promise<{ cv: CVData; id: string } | null> => {

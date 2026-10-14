@@ -8,7 +8,7 @@ export interface UiDict {
   signupTitle: string; signupNote: string; passwordMin: string; creatingAccount: string; checkInbox: string; haveAccount: string;
   payTitle: string; cvSavedNamed: string; cvSaved: string; payNote: string; payBtn: string; payBtnTitle: string; backToEditor: string;
   needSignInBuild: string; needSignInNote: string; myCVs: string; home: string; firstCV: string; nCVs: (n: number) => string;
-  newCV: string; noCVs: string; noCVsNote: string; createFirst: string; chooseTemplate: string;
+  newCV: string; deleteCV: string; clearAll: string; confirmDelete: string; confirmClear: string; deleteFailed: string; noCVs: string; noCVsNote: string; createFirst: string; chooseTemplate: string;
   saving: string; saved: string; savedDevice: string; downloadPdf: string; reach30: string; signInToDownload: string; downloadTitle: string;
   complete: string; savingShort: string; previewTab: string; formTab: string; gateDownloadTitle: string; gateDownloadMsg: string;
   scoreTitle: string; scoreImprove: string; scoreDone: string; scoreGate: string; scoreItems: Record<string, string>;
@@ -37,7 +37,7 @@ const en: UiDict = {
   payBtn: "Pay & download — coming soon", payBtnTitle: "Checkout isn't live yet", backToEditor: "← Back to editor",
   needSignInBuild: "Sign in to build your CV", needSignInNote: "opportunity.com saves your CVs to a real account — no anonymous sessions.",
   myCVs: "My CVs", home: "← Home", firstCV: "Create your first professional CV", nCVs: (n) => `${n} CV${n > 1 ? "s" : ""} saved`,
-  newCV: "+ New CV", noCVs: "No CVs yet", noCVsNote: "Create a professional CV in a few minutes.", createFirst: "Create my first CV", chooseTemplate: "Choose a template",
+  newCV: "+ New CV", deleteCV: "Delete", clearAll: "Clear all CVs", confirmDelete: "Delete this CV? This cannot be undone.", confirmClear: "Delete ALL your saved CVs? This cannot be undone.", deleteFailed: "Could not delete. Please try again.", noCVs: "No CVs yet", noCVsNote: "Create a professional CV in a few minutes.", createFirst: "Create my first CV", chooseTemplate: "Choose a template",
   saving: "Saving…", saved: "Saved", savedDevice: "Saved on this device", downloadPdf: "Download PDF", reach30: "Reach 30% to download",
   signInToDownload: "Sign in to download", downloadTitle: "Download as PDF", complete: "complete", savingShort: "Saving…",
   previewTab: "👁 Preview", formTab: "✎ Form", gateDownloadTitle: "Sign in to download",
@@ -74,7 +74,7 @@ const fr: UiDict = {
   payBtn: "Payer et télécharger — bientôt", payBtnTitle: "Le paiement n'est pas encore en ligne", backToEditor: "← Retour à l'éditeur",
   needSignInBuild: "Connectez-vous pour créer votre CV", needSignInNote: "opportunity.com enregistre vos CV sur un vrai compte — sans session anonyme.",
   myCVs: "Mes CV", home: "← Accueil", firstCV: "Créez votre premier CV professionnel", nCVs: (n) => `${n} CV enregistré${n > 1 ? "s" : ""}`,
-  newCV: "+ Nouveau CV", noCVs: "Aucun CV pour l'instant", noCVsNote: "Créez un CV professionnel en quelques minutes.", createFirst: "Créer mon premier CV", chooseTemplate: "Choisissez un modèle",
+  newCV: "+ Nouveau CV", deleteCV: "Supprimer", clearAll: "Supprimer tous les CV", confirmDelete: "Supprimer ce CV ? Action irréversible.", confirmClear: "Supprimer TOUS vos CV enregistrés ? Action irréversible.", deleteFailed: "Suppression impossible. Réessayez.", noCVs: "Aucun CV pour l'instant", noCVsNote: "Créez un CV professionnel en quelques minutes.", createFirst: "Créer mon premier CV", chooseTemplate: "Choisissez un modèle",
   saving: "Enregistrement…", saved: "Enregistré", savedDevice: "Enregistré sur cet appareil", downloadPdf: "Télécharger PDF", reach30: "Atteignez 30 % pour télécharger",
   signInToDownload: "Connectez-vous pour télécharger", downloadTitle: "Télécharger en PDF", complete: "complet", savingShort: "Enregistrement…",
   previewTab: "👁 Aperçu", formTab: "✎ Formulaire", gateDownloadTitle: "Connectez-vous pour télécharger",
@@ -111,7 +111,7 @@ const ar: UiDict = {
   payBtn: "ادفع وحمّل — قريباً", payBtnTitle: "الدفع غير متاح بعد", backToEditor: "← العودة إلى المحرر",
   needSignInBuild: "سجّل الدخول لإنشاء سيرتك الذاتية", needSignInNote: "يحفظ opportunity.com سيرك الذاتية في حساب حقيقي — بدون جلسات مجهولة.",
   myCVs: "سيرتي الذاتية", home: "→ الرئيسية", firstCV: "أنشئ أول سيرة ذاتية احترافية", nCVs: (n) => `${n} سيرة محفوظة`,
-  newCV: "+ سيرة جديدة", noCVs: "لا توجد سير ذاتية بعد", noCVsNote: "أنشئ سيرة ذاتية احترافية في دقائق.", createFirst: "أنشئ أول سيرة ذاتية", chooseTemplate: "اختر قالباً",
+  newCV: "+ سيرة جديدة", deleteCV: "حذف", clearAll: "حذف كل السير", confirmDelete: "حذف هذه السيرة؟ لا يمكن التراجع.", confirmClear: "حذف كل سيرك المحفوظة؟ لا يمكن التراجع.", deleteFailed: "تعذّر الحذف. حاول مجدداً.", noCVs: "لا توجد سير ذاتية بعد", noCVsNote: "أنشئ سيرة ذاتية احترافية في دقائق.", createFirst: "أنشئ أول سيرة ذاتية", chooseTemplate: "اختر قالباً",
   saving: "جارٍ الحفظ…", saved: "تم الحفظ", savedDevice: "محفوظ على هذا الجهاز", downloadPdf: "تحميل PDF", reach30: "اصل إلى 30% للتحميل",
   signInToDownload: "سجّل الدخول للتحميل", downloadTitle: "تحميل بصيغة PDF", complete: "مكتمل", savingShort: "جارٍ الحفظ…",
   previewTab: "👁 معاينة", formTab: "✎ النموذج", gateDownloadTitle: "سجّل الدخول للتحميل",

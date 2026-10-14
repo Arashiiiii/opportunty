@@ -49,6 +49,16 @@ export default function CVListPage() {
     });
   }, []);
 
+  const removeCVs = useCallback(async (ids: string[]) => {
+    if (!userId || ids.length === 0) return;
+    setCreateError(null);
+    // tailoring history points at the CV — remove it first so the delete can't be blocked
+    await supabase.from("cv_job_tailorings").delete().eq("user_id", userId).in("cv_id", ids);
+    const { error } = await supabase.from("cvs").delete().eq("user_id", userId).in("id", ids);
+    if (error) { setCreateError(u.deleteFailed); return; }
+    setCvs((prev) => prev.filter((c) => !ids.includes(c.id)));
+  }, [userId, u]);
+
   const createCV = useCallback(async (template: string) => {
     setCreateError(null);
     if (!userId) {
@@ -133,9 +143,16 @@ export default function CVListPage() {
               {cvs.length === 0 ? u.firstCV : u.nCVs(cvs.length)}
             </p>
           </div>
-          <button type="button" onClick={() => setShowModal(true)} style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: "#ff4f00", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-            {u.newCV}
-          </button>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            {cvs.length > 0 && (
+              <button type="button" onClick={() => { if (window.confirm(u.confirmClear)) void removeCVs(cvs.map((c) => c.id)); }} style={{ padding: "9px 16px", borderRadius: 8, border: "1px solid #fecaca", background: "#fff", color: "#b91c1c", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                {u.clearAll}
+              </button>
+            )}
+            <button type="button" onClick={() => setShowModal(true)} style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: "#ff4f00", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+              {u.newCV}
+            </button>
+          </div>
         </div>
 
         {cvs.length === 0 && (
@@ -151,7 +168,7 @@ export default function CVListPage() {
 
         {cvs.length > 0 && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 16 }}>
-            {cvs.map((cv) => <CVCard key={cv.id} cv={cv} />)}
+            {cvs.map((cv) => <CVCard key={cv.id} cv={cv} onDelete={() => { if (window.confirm(u.confirmDelete)) void removeCVs([cv.id]); }} />)}
           </div>
         )}
       </div>
@@ -225,7 +242,8 @@ function TemplateModal({ onClose, onCreate }: { onClose: () => void; onCreate: (
   );
 }
 
-function CVCard({ cv }: { cv: CVRow }) {
+function CVCard({ cv, onDelete }: { cv: CVRow; onDelete: () => void }) {
+  const { u } = useUI();
   const [hov, setHov] = useState(false);
   const date = new Date(cv.updated_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
 
@@ -246,10 +264,13 @@ function CVCard({ cv }: { cv: CVRow }) {
           <span>{cv.template}</span>
           <span>{date}</span>
         </div>
-        <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid #f1f5f9" }}>
+        <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontSize: 12, fontWeight: 600, color: hov ? "#ff4f00" : "#94a3b8" }}>
             Ouvrir l&apos;éditeur →
           </span>
+          <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(); }} style={{ fontSize: 12, fontWeight: 600, color: "#b91c1c", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", padding: 0 }}>
+            {u.deleteCV}
+          </button>
         </div>
       </div>
     </Link>
