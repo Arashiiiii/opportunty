@@ -1,0 +1,23 @@
+"use client";
+import Link from "next/link";
+import { UiLangSwitch } from "./UiLangSwitch";
+import { SiteFooter } from "./SiteFooter";
+import { useUiLang } from "../_lib/useUiLang";
+
+/** Page chrome shared by the footer pages: slim header, content column, footer. */
+export function PageShell({ children }: { children: React.ReactNode }) {
+  const [lang] = useUiLang();
+  return (
+    <div dir={lang === "ar" ? "rtl" : "ltr"} style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#fffefb", color: "#201515", fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <header style={{ height: 64, borderBottom: "1px solid rgba(32,21,21,0.12)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
+          <div style={{ width: 26, height: 26, borderRadius: 6, background: "linear-gradient(135deg, #ff4f00 0%, #ff4f00 50%, #201515 50%, #201515 100%)" }} />
+          <span style={{ fontSize: 15, fontWeight: 700, color: "#201515" }}>opportunity<span style={{ color: "#ff4f00" }}>.com</span></span>
+        </Link>
+        <UiLangSwitch compact />
+      </header>
+      <main style={{ flex: 1, width: "100%", maxWidth: 760, margin: "0 auto", padding: "48px 24px 64px" }}>{children}</main>
+      <SiteFooter />
+    </div>
+  );
+}

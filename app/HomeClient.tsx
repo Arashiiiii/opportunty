@@ -35,6 +35,7 @@ import { UiLangSwitch } from "./_components/UiLangSwitch";
 import { LoginGateModal } from "./_components/LoginGateModal";
 import { inferCountry } from "./_lib/country";
 import { isEmployer } from "./employers/_role";
+import { SiteFooter } from "./_components/SiteFooter";
 
 const PRIMARY = "#ff4f00";
 
@@ -680,6 +681,8 @@ export default function HomeClient() {
         </div>
       )}
       {showLoginGate && <LoginGateModal onClose={() => setShowLoginGate(false)} />}
+
+      <SiteFooter />
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
