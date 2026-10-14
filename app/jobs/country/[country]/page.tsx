@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { PageShell } from "../../../_components/LegalShell";
 import { JobList, CountryNav } from "../../_components/JobList";
 import { createPublicClient } from "@/lib/supabase/public";
+import Link from "next/link";
+import { GUIDES } from "@/lib/country-guides";
 import { COUNTRY_BY_SLUG, COUNTRY_INFO, JOB_COLUMNS, countryOf, type JobRow } from "@/lib/jobs-seo";
 
 export const revalidate = 1800;
@@ -25,6 +27,7 @@ export default async function CountryJobs({ params }: { params: Promise<{ countr
   const code = COUNTRY_BY_SLUG[slug];
   if (!code) notFound();
   const c = COUNTRY_INFO[code];
+  const guide = GUIDES[code];
   const { data } = await createPublicClient().from("jobs").select(JOB_COLUMNS).eq("is_active", true).order("created_at", { ascending: false }).limit(300);
   const jobs = ((data ?? []) as JobRow[]).filter((j) => countryOf(j) === code).slice(0, 100);
   return (
@@ -35,6 +38,36 @@ export default async function CountryJobs({ params }: { params: Promise<{ countr
       </p>
       <CountryNav active={c.slug} />
       <JobList jobs={jobs} />
+
+      <section aria-labelledby="guide-h" style={{ marginTop: 48, paddingTop: 32, borderTop: "1px solid rgba(32,21,21,0.12)" }}>
+        <h2 id="guide-h" style={{ fontSize: 24, fontWeight: 600, margin: "0 0 12px" }}>Finding a job in {c.name}</h2>
+        {guide.intro.map((p, i) => <p key={i} style={{ fontSize: 15.5, lineHeight: 1.7, color: "#36342e", margin: "0 0 12px" }}>{p}</p>)}
+
+        <h3 style={{ fontSize: 18, fontWeight: 700, margin: "28px 0 10px" }}>CV tips for {c.name}</h3>
+        <ul style={{ margin: 0, paddingInlineStart: 22, listStyle: "disc", display: "flex", flexDirection: "column", gap: 8 }}>
+          {guide.cvTips.map((t) => <li key={t} style={{ fontSize: 15, lineHeight: 1.6, color: "#36342e" }}>{t}</li>)}
+        </ul>
+        <p style={{ margin: "16px 0 0" }}>
+          <Link href="/cv/builder" style={{ color: "#ff4f00", fontWeight: 700, textDecoration: "none" }}>Build your CV for {c.name} with AI →</Link>
+        </p>
+
+        <h3 style={{ fontSize: 18, fontWeight: 700, margin: "28px 0 10px" }}>Official resources</h3>
+        <ul style={{ margin: 0, paddingInlineStart: 22, listStyle: "disc", display: "flex", flexDirection: "column", gap: 8 }}>
+          {guide.agencies.map((a) => <li key={a.name} style={{ fontSize: 15, lineHeight: 1.6, color: "#36342e" }}><b>{a.name}</b> — {a.note}</li>)}
+        </ul>
+
+        <h3 style={{ fontSize: 18, fontWeight: 700, margin: "28px 0 10px" }}>Frequently asked questions</h3>
+        {guide.faq.map((f) => (
+          <div key={f.q} style={{ marginBottom: 14 }}>
+            <h4 style={{ fontSize: 15.5, fontWeight: 700, margin: "0 0 4px" }}>{f.q}</h4>
+            <p style={{ fontSize: 15, lineHeight: 1.65, color: "#36342e", margin: 0 }}>{f.a}</p>
+          </div>
+        ))}
+      </section>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org", "@type": "FAQPage",
+        mainEntity: guide.faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+      }).replace(/</g, "\\u003c") }} />
     </PageShell>
   );
 }
