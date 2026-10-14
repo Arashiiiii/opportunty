@@ -2,35 +2,24 @@
 /**
  * TemplateStrip — horizontal strip of 5 template thumbnails + accent picker.
  *
- * Each thumbnail renders a real CVRender at ~8.6% scale so the user sees
- * what their CV will look like in each template. We use `useDeferredValue`
- * so keystrokes update the main preview immediately while thumbnails catch up.
+ * Each thumbnail is the template's real screenshot (public/templates/<id>.png).
  *
  * Every template is free to choose and edit with — the paid unlock only
  * gates the PDF download (see Topbar's downloadPDF).
  */
 
-import { useDeferredValue } from "react";
 import { useCVStore } from "../../_store/cv-store";
 import { TEMPLATE_REGISTRY } from "../../_lib/schema";
-import { CVRender, A4_W, A4_H } from "./templates";
+import { A4_W, A4_H } from "./templates";
 import { AccentPicker } from "./AccentPicker";
 
-const THUMB_W     = 68;
-const THUMB_H     = Math.round(THUMB_W * A4_H / A4_W); // ≈ 96
-const THUMB_SCALE = THUMB_W / A4_W;                     // ≈ 0.0856
+const THUMB_W     = 80;
+const THUMB_H     = Math.round(THUMB_W * A4_H / A4_W); // ≈ 113
 
 export function TemplateStrip() {
   const template    = useCVStore((s) => s.template);
   const setTemplate = useCVStore((s) => s.setTemplate);
   const setAccent   = useCVStore((s) => s.setAccent);
-  const lang        = useCVStore((s) => s.lang);
-  const order       = useCVStore((s) => s.order);
-  const enabled     = useCVStore((s) => s.enabled);
-
-  // Defer CV data so thumbnails don't block the main preview on every keystroke
-  const rawCV = useCVStore((s) => s.cv);
-  const cv    = useDeferredValue(rawCV);
 
   return (
     <div style={{
@@ -68,20 +57,16 @@ export function TemplateStrip() {
               position:     "relative",
             }}
           >
-            {/* Thumbnail canvas */}
+            {/* Thumbnail: the real template screenshot */}
             <div style={{ width: THUMB_W, height: THUMB_H, overflow: "hidden", borderRadius: 6, border: "1px solid #f0f0f0", background: "#fff" }}>
-              <div style={{ width: A4_W, transform: `scale(${THUMB_SCALE})`, transformOrigin: "top left", pointerEvents: "none", userSelect: "none" }}>
-                <CVRender
-                  template={tpl.id}
-                  cv={cv}
-                  accent={tpl.accent}   // show each template in its own default colour
-                  lang={lang}
-                  order={order}
-                  enabled={enabled}
-                  onUpdate={() => {}}
-                  readOnly
-                />
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/templates/${tpl.id}.png`}
+                alt={`${tpl.name} template`}
+                loading="lazy"
+                draggable={false}
+                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block", userSelect: "none" }}
+              />
             </div>
 
             {/* Name */}

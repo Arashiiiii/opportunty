@@ -13,9 +13,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { EMPTY_CV, DEFAULT_SECTION_ORDER, DEFAULT_SECTIONS_ENABLED, TEMPLATE_REGISTRY } from "./_lib/schema";
-import { SAMPLE_CV, SHOWCASE_ORDER, SHOWCASE_ENABLED } from "./_lib/sample-cv";
-import { CVRender } from "./[id]/_components/templates";
-import type { TemplateId } from "./_lib/schema";
 
 const supabase = createClient();
 
@@ -204,9 +201,8 @@ function TemplateModal({ onClose, onCreate }: { onClose: () => void; onCreate: (
               >
                 <div style={{ borderRadius: 6, overflow: "hidden", border: "1px solid #e5e7eb", background: "#fff", position: "relative" }}>
                   <div style={{ width: "100%", aspectRatio: "794/1123", overflow: "hidden", position: "relative" }}>
-                    <div style={{ width: 794, position: "absolute", top: 0, left: 0, transform: "scale(.238)", transformOrigin: "top left" }}>
-                      <CVRender template={t.id as TemplateId} cv={SAMPLE_CV} accent={t.accent} lang="fr" order={SHOWCASE_ORDER} enabled={SHOWCASE_ENABLED} readOnly />
-                    </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`/templates/${t.id}.png`} alt={`${t.name} template`} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
                   </div>
                   {busy === t.id && (
                     <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,.85)", display: "flex", alignItems: "center", justifyContent: "center" }}>

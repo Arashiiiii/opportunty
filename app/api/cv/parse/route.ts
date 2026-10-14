@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
   try {
     if (name.endsWith(".pdf") || file.type === "application/pdf") {
       const { PDFParse } = await import("pdf-parse");
-      const parser = new PDFParse({ data: buffer });
+      const parser = new PDFParse({ data: new Uint8Array(buffer) });
       const result = await parser.getText();
       text = result.text;
     } else if (
@@ -62,7 +62,8 @@ export async function POST(req: NextRequest) {
     } else {
       return NextResponse.json({ error: "Please upload a PDF or DOCX file." }, { status: 400 });
     }
-  } catch {
+  } catch (err) {
+    console.error("CV file text extraction failed:", err);
     return NextResponse.json({ error: "Couldn't read that file — it may be corrupted or scanned as an image." }, { status: 422 });
   }
 

@@ -25,6 +25,7 @@ import type { TemplateId, CVData } from "./cv/_lib/schema";
 import { useCVStore } from "./cv/_store/cv-store";
 import { tailorCVForJob } from "./cv/_lib/tailor";
 import { markHandoff } from "./cv/_lib/handoff";
+import { readLocalDraft } from "./cv/_lib/local-draft";
 import { TemplateThumb } from "./TemplateThumb";
 import { LoginGateModal } from "./_components/LoginGateModal";
 
@@ -39,6 +40,17 @@ interface Job {
   salary_range: string;
   tags: string[];
   description: string;
+  logo_url?: string | null;
+  external_url?: string | null;
+  original_url?: string | null;
+}
+
+const applyUrl = (j: Job) => j.external_url || j.original_url || null;
+
+/** A CV counts as "there" once it has a name, summary or any experience. */
+function cvHasContent(cv: CVData | null | undefined): cv is CVData {
+  if (!cv) return false;
+  return !!(cv.profile.firstName || cv.profile.lastName || cv.summary.trim() || cv.experience.length);
 }
 
 const PLACEHOLDER_JOBS: Job[] = [
@@ -66,6 +78,8 @@ export default function HomeClient() {
   const [showLoginGate, setShowLoginGate] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [homeCV, setHomeCV] = useState<CVData | null>(null);
+  const [pendingJobId, setPendingJobId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -73,7 +87,7 @@ export default function HomeClient() {
 
     supabase
       .from("jobs")
-      .select("id, title, company, location, job_type, salary_range, tags, description")
+      .select("id, title, company, location, job_type, salary_range, tags, description, logo_url, external_url, original_url")
       .eq("is_active", true)
       .order("created_at", { ascending: false })
       .limit(20)
@@ -83,6 +97,18 @@ export default function HomeClient() {
           setUsingPlaceholders(false);
         }
       });
+
+    // A CV the visitor already uploaded/created (in memory, or saved on this device).
+    const inMemory = useCVStore.getState().cv;
+    if (cvHasContent(inMemory)) {
+      setHomeCV(inMemory);
+    } else {
+      const draft = readLocalDraft();
+      if (draft && cvHasContent(draft.cv)) {
+        useCVStore.getState().loadCV(draft.cv);
+        setHomeCV(draft.cv);
+      }
+    }
   }, []);
 
   const enterBuilder = useCallback((cv: CVData, template?: TemplateId) => {
@@ -93,16 +119,11 @@ export default function HomeClient() {
     router.push("/cv/builder");
   }, [router]);
 
-  const handleDrop = useCallback(async (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-    const id = e.dataTransfer.getData("text/plain");
-    const job = jobs.find((j) => j.id === id);
-    if (!job) return;
-    setCvJobId(id);
+  const runTailor = useCallback(async (job: Job, base: CVData) => {
+    setCvJobId(job.id);
+    setPendingJobId(null);
+    setTailoredCV(null);
     setTailoring(true);
-
-    const base = useCVStore.getState().cv ?? EMPTY_CV;
     try {
       const res = await fetch("/api/cv/tailor", {
         method: "POST",
@@ -110,17 +131,27 @@ export default function HomeClient() {
         body: JSON.stringify({ cv: base, job }),
       });
       const json = await res.json();
-      if (res.ok && json.cv) {
-        setTailoredCV(json.cv as CVData);
-      } else {
-        setTailoredCV(tailorCVForJob(base, job));
-      }
+      setTailoredCV(res.ok && json.cv ? (json.cv as CVData) : tailorCVForJob(base, job));
     } catch {
       setTailoredCV(tailorCVForJob(base, job));
     } finally {
       setTailoring(false);
     }
-  }, [jobs]);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const id = e.dataTransfer.getData("text/plain");
+    const job = jobs.find((j) => j.id === id);
+    if (!job) return;
+    // Tailoring needs a CV to work from — ask for one instead of tailoring a blank page.
+    if (!homeCV) {
+      setPendingJobId(job.id);
+      return;
+    }
+    void runTailor(job, homeCV);
+  }, [jobs, homeCV, runTailor]);
 
   const handleUploadClick = useCallback(() => {
     fileInputRef.current?.click();
@@ -142,13 +173,17 @@ export default function HomeClient() {
         setUploadError(json.error ?? "Couldn't read that file.");
         return;
       }
-      enterBuilder(json.cv as CVData);
+      const parsed = json.cv as CVData;
+      useCVStore.getState().loadCV(parsed);
+      setHomeCV(parsed);
+      const pending = jobs.find((j) => j.id === pendingJobId);
+      if (pending) await runTailor(pending, parsed);
     } catch {
       setUploadError("Upload failed — check your connection and try again.");
     } finally {
       setUploading(false);
     }
-  }, [enterBuilder]);
+  }, [jobs, pendingJobId, runTailor]);
 
   const useSavedCV = useCallback(async () => {
     if (!authed) { setShowLoginGate(true); return; }
@@ -170,6 +205,7 @@ export default function HomeClient() {
   }, [authed, router, enterBuilder]);
 
   const cvJob = jobs.find((j) => j.id === cvJobId) ?? null;
+  const pendingJob = jobs.find((j) => j.id === pendingJobId) ?? null;
   const showResult = !!cvJob && !tailoring && !!tailoredCV;
   const showEmpty = !cvJob && !tailoring;
 
@@ -247,9 +283,12 @@ export default function HomeClient() {
                 style={{ background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 24, cursor: "grab" }}
               >
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-                  <div>
-                    <div style={{ fontSize: 24, lineHeight: "30px", fontWeight: 600, letterSpacing: "-0.6px", marginBottom: 4 }}>{job.title}</div>
-                    <div style={{ fontSize: 16, lineHeight: "24px", color: "#605d52" }}>{job.company} · {job.location} · {job.job_type}</div>
+                  <div style={{ display: "flex", gap: 14, minWidth: 0 }}>
+                    <CompanyLogo company={job.company} logoUrl={job.logo_url} />
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: 24, lineHeight: "30px", fontWeight: 600, letterSpacing: "-0.6px", marginBottom: 4 }}>{job.title}</div>
+                      <div style={{ fontSize: 16, lineHeight: "24px", color: "#605d52" }}>{job.company} · {job.location} · {job.job_type}</div>
+                    </div>
                   </div>
                   <div style={{ fontSize: 14, fontWeight: 600, background: "#fffefb", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 9999, padding: "4px 12px", whiteSpace: "nowrap" }}>{job.salary_range}</div>
                 </div>
@@ -268,9 +307,19 @@ export default function HomeClient() {
                   <button type="button" onClick={() => setExpandedId(isExpanded ? null : job.id)} style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", background: "none", border: "none", padding: 0, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 2, fontFamily: "inherit" }}>
                     {isExpanded ? "Hide details" : "View details"}
                   </button>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#939084" }}>
-                    <span style={{ fontSize: 14 }}>Drag to CV</span>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="6" r="1" /><circle cx="15" cy="6" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="18" r="1" /><circle cx="15" cy="18" r="1" /></svg>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                    {applyUrl(job) ? (
+                      <a href={applyUrl(job)!} target="_blank" rel="noopener noreferrer" className="opp-apply" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "9px 20px", borderRadius: 9999, border: "1.5px solid #201515", background: "#201515", color: "#fffefb", textDecoration: "none", whiteSpace: "nowrap" }}>
+                        Apply ↗
+                      </a>
+                    ) : (
+                      <span title="Sample listing — no application link" style={{ fontSize: 14.4, fontWeight: 700, padding: "9px 20px", borderRadius: 9999, border: "1.5px solid rgba(32,21,21,0.2)", color: "#a39c8f", whiteSpace: "nowrap", cursor: "not-allowed" }}>Apply</span>
+                    )}
+                    <span className="opp-drag-pill" title="Drag this job onto your CV" style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 14.4, fontWeight: 800, letterSpacing: "0.2px", padding: "9px 16px 9px 12px", borderRadius: 9999, background: "linear-gradient(135deg, #ff4f00, #ff8a3d)", color: "#fffefb", whiteSpace: "nowrap", userSelect: "none" }}>
+                      <svg width="14" height="16" viewBox="0 0 14 18" fill="#fffefb"><circle cx="4" cy="3" r="1.6" /><circle cx="10" cy="3" r="1.6" /><circle cx="4" cy="9" r="1.6" /><circle cx="10" cy="9" r="1.6" /><circle cx="4" cy="15" r="1.6" /><circle cx="10" cy="15" r="1.6" /></svg>
+                      Drag to CV
+                      <span className="opp-drag-arrow" aria-hidden>→</span>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -291,17 +340,26 @@ export default function HomeClient() {
               </div>
             )}
 
-            {showEmpty && (
+            {showEmpty && !homeCV && (
               <div
                 onDragOver={(e) => { e.preventDefault(); if (!dragOver) setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
-                style={{ border: `2px dashed ${dragOver ? PRIMARY : "rgba(32,21,21,0.24)"}`, borderRadius: 12, padding: "48px 24px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 14, transition: "border-color 120ms", background: "#fffefb" }}
+                style={{ border: `2px dashed ${pendingJob || dragOver ? PRIMARY : "rgba(32,21,21,0.24)"}`, borderRadius: 12, padding: "40px 24px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 14, transition: "border-color 120ms", background: "#fffefb" }}
               >
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
-                <div style={{ fontSize: 16, color: "#605d52", maxWidth: 220 }}>Drop a job here, or</div>
-                <button type="button" onClick={handleUploadClick} disabled={uploading} style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 24px", borderRadius: 12, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.6 : 1 }}>
+                {pendingJob ? (
+                  <div style={{ background: "#fff1e8", border: "1px solid #ffcbab", borderRadius: 10, padding: "10px 14px", fontSize: 14.5, color: "#8a3a10", lineHeight: 1.45 }}>
+                    To tailor your CV for <b>{pendingJob.title}</b> at {pendingJob.company}, first add your CV below.
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 16, color: "#605d52", maxWidth: 300 }}>Start with your CV — then drag any job here to tailor it.</div>
+                )}
+                <button type="button" onClick={handleUploadClick} disabled={uploading} style={{ width: "100%", maxWidth: 260, fontSize: 15, fontWeight: 700, padding: "13px 24px", borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.7 : 1 }}>
                   {uploading ? "Reading your CV…" : "Upload your CV"}
+                </button>
+                <div style={{ fontSize: 13, color: "#939084" }}>PDF or DOCX · or</div>
+                <button type="button" onClick={() => enterBuilder(EMPTY_CV)} style={{ width: "100%", maxWidth: 260, fontSize: 14.4, fontWeight: 700, padding: "12px 24px", borderRadius: 12, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: "pointer", fontFamily: "inherit" }}>
+                  Create one from scratch
                 </button>
                 <a
                   href="#"
@@ -310,6 +368,26 @@ export default function HomeClient() {
                 >
                   Use my saved CV instead
                 </a>
+              </div>
+            )}
+
+            {showEmpty && homeCV && (
+              <div
+                onDragOver={(e) => { e.preventDefault(); if (!dragOver) setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleDrop}
+                style={{ border: `2px dashed ${dragOver ? PRIMARY : "rgba(32,21,21,0.24)"}`, borderRadius: 12, padding: "32px 24px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 12, transition: "border-color 120ms", background: dragOver ? "#fff1e8" : "#fffefb" }}
+              >
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#e8f7ee", color: "#166534", fontSize: 13.5, fontWeight: 700, borderRadius: 9999, padding: "4px 12px" }}>✓ CV ready</div>
+                <div style={{ fontSize: 18, fontWeight: 700 }}>
+                  {`${homeCV.profile.firstName} ${homeCV.profile.lastName}`.trim() || "Your CV"}
+                </div>
+                {homeCV.profile.title && <div style={{ fontSize: 14.5, color: "#605d52", marginTop: -6 }}>{homeCV.profile.title}</div>}
+                <div style={{ fontSize: 16, color: PRIMARY, fontWeight: 700 }}>{dragOver ? "Drop it!" : "Now drag a job here to tailor it →"}</div>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
+                  <button type="button" onClick={() => enterBuilder(homeCV, templateId ?? undefined)} style={{ fontSize: 14.4, fontWeight: 700, padding: "10px 18px", borderRadius: 10, border: "none", background: "#201515", color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>Open in builder</button>
+                  <button type="button" onClick={handleUploadClick} disabled={uploading} style={{ fontSize: 14.4, fontWeight: 700, padding: "10px 18px", borderRadius: 10, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit" }}>{uploading ? "Reading…" : "Replace CV"}</button>
+                </div>
               </div>
             )}
 
@@ -415,6 +493,13 @@ export default function HomeClient() {
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes oppNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(5px); } }
+        @keyframes oppGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,79,0,0.45); } 60% { box-shadow: 0 0 0 9px rgba(255,79,0,0); } }
+        .opp-drag-pill { cursor: grab; animation: oppGlow 2.2s ease-out infinite; transition: transform 140ms; }
+        .opp-drag-pill:hover { transform: translateY(-2px) rotate(-2deg) scale(1.04); }
+        .opp-drag-arrow { display: inline-block; animation: oppNudge 1.1s ease-in-out infinite; }
+        .opp-apply { transition: transform 140ms, background 140ms; }
+        .opp-apply:hover { transform: translateY(-1px); background: #ff4f00 !important; border-color: #ff4f00 !important; }
 
         @media (max-width: 900px) {
           .opp-workspace { grid-template-columns: 1fr !important; }
@@ -442,4 +527,35 @@ function hexToRgbaLite(hex: string) {
   const g = parseInt(h.substring(2, 4), 16);
   const b = parseInt(h.substring(4, 6), 16);
   return `rgba(${r},${g},${b},0.1)`;
+}
+
+const LOGO_COLORS = ["#ff4f00", "#0f766e", "#7c3aed", "#be123c", "#1d4ed8", "#b45309", "#047857", "#9333ea"];
+
+/** Company logo from the listing, falling back to a branded initials tile. */
+function CompanyLogo({ company, logoUrl }: { company: string; logoUrl?: string | null }) {
+  const [failed, setFailed] = useState(false);
+  const size = 48;
+  if (logoUrl && !failed) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={logoUrl}
+        alt={`${company} logo`}
+        width={size}
+        height={size}
+        referrerPolicy="no-referrer"
+        onError={() => setFailed(true)}
+        style={{ width: size, height: size, borderRadius: 10, objectFit: "contain", background: "#fffefb", border: "1px solid rgba(32,21,21,0.12)", flexShrink: 0 }}
+      />
+    );
+  }
+  let h = 0;
+  for (const ch of company) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const color = LOGO_COLORS[h % LOGO_COLORS.length];
+  const initials = company.replace(/[^A-Za-zÀ-ÿ0-9 ]/g, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "?";
+  return (
+    <div aria-hidden style={{ width: size, height: size, borderRadius: 10, background: color, color: "#fffefb", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 800, letterSpacing: 0.5, flexShrink: 0 }}>
+      {initials}
+    </div>
+  );
 }

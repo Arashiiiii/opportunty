@@ -149,8 +149,8 @@ const TAILOR_TOOL = {
   input_schema: {
     type: "object" as const,
     properties: {
-      title:           { type: "string", description: "Job title to show on the CV, matching the target role" },
-      summary:         { type: "string", description: "2-4 sentence summary rewritten to lead with what this job asks for, built ONLY from the candidate's real background — never invent experience they don't have" },
+      title:           { type: "string", description: "The candidate's professional headline. Move it toward the target role ONLY where their real experience supports that; otherwise keep their current headline. Never claim a title they haven't held." },
+      summary:         { type: "string", description: "The CV summary text itself (2-4 sentences, CV voice, no first-person commentary). Lead with the parts of the candidate's REAL background most relevant to this job, framing transferable strengths positively. Never invent experience. NEVER write commentary about fit, mismatch or what the candidate lacks — only the CV text." },
       skill_group_name:{ type: "string", description: "Short label for the highlighted-skills group, e.g. 'Relevant to this role'" },
       skills:          { type: "array", items: { type: "string" }, description: "Skills from the job listing that genuinely match the candidate's background, plus any of the candidate's own skills worth surfacing for this role" },
     },
@@ -175,7 +175,7 @@ export async function tailorCVWithAI(cv: CVData, job: TailorJobInput): Promise<C
     tool_choice: { type: "tool", name: "submit_tailoring" },
     messages: [{
       role: "user",
-      content: `Candidate's current CV (JSON):\n${JSON.stringify(cv)}\n\nTarget job:\nTitle: ${job.title}\nCompany: ${job.company}\nLocation: ${job.location ?? ""}\nTags: ${job.tags.join(", ")}\nDescription: ${job.description}\n\nTailor the title, summary, and a short highlighted-skills group for this candidate applying to this job. Stay honest — don't claim experience or skills the candidate's CV doesn't support.`,
+      content: `Candidate's current CV (JSON):\n${JSON.stringify(cv)}\n\nTarget job:\nTitle: ${job.title}\nCompany: ${job.company}\nLocation: ${job.location ?? ""}\nTags: ${job.tags.join(", ")}\nDescription: ${job.description}\n\nTailor the headline, summary, and a short highlighted-skills group for this candidate applying to this job. Stay honest — don't claim experience or skills the candidate's CV doesn't support — but even when the match is weak, write the best truthful CV text that foregrounds their transferable strengths. The output goes straight onto their CV, so it must be CV text only: no notes, warnings or explanations. For the skills list, include only skills the candidate genuinely has (from their CV); do not add job-listing skills they lack.`,
     }],
   });
 
@@ -183,6 +183,10 @@ export async function tailorCVWithAI(cv: CVData, job: TailorJobInput): Promise<C
   if (!toolUse || toolUse.type !== "tool_use") throw new Error("Claude did not return structured output");
 
   const out = toolUse.input as { title: string; summary: string; skill_group_name: string; skills: string[] };
+  out.title = cleanText(out.title);
+  out.summary = cleanText(out.summary);
+  out.skill_group_name = cleanText(out.skill_group_name);
+  out.skills = (Array.isArray(out.skills) ? out.skills : []).map(cleanText).filter(Boolean);
 
   const next: CVData = JSON.parse(JSON.stringify(cv));
   next.profile.title = out.title || next.profile.title;
@@ -270,4 +274,11 @@ function str(obj: unknown, key: string): string {
 
 function arr(v: unknown): Record<string, unknown>[] {
   return Array.isArray(v) ? v : [];
+}
+
+/** Model output goes straight onto a CV: cut at any stray markup and trim. */
+function cleanText(v: unknown): string {
+  if (typeof v !== "string") return "";
+  const cut = v.search(/<\/?[a-z_]+[ >]/i);
+  return (cut >= 0 ? v.slice(0, cut) : v).trim();
 }
