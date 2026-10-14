@@ -17,6 +17,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { SectionId } from "../../_lib/schema";
 import { SECTION_META } from "../../_lib/schema";
+import { useUI } from "@/app/_lib/useUiLang";
 
 // ── Tiny SVG icons ────────────────────────────────────────────────────────────
 
@@ -87,6 +88,7 @@ export function SectionShell({
   };
 
   const meta = SECTION_META[id];
+  const { u } = useUI();
 
   return (
     <div ref={setNodeRef} style={dragStyle}>
@@ -111,7 +113,7 @@ export function SectionShell({
             type="button"
             {...attributes}
             {...listeners}
-            aria-label="Glisser pour réordonner"
+            aria-label={u.dragReorder}
             style={{
               appearance:  "none",
               border:      "none",
@@ -150,7 +152,7 @@ export function SectionShell({
               textDecoration: enabled ? "none" : "line-through",
             }}
           >
-            {meta.label}
+            {u.sections[id] ?? meta.label}
           </button>
 
           {/* Count badge */}
@@ -164,8 +166,8 @@ export function SectionShell({
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); onToggleEnabled(); }}
-            title={enabled ? "Masquer la section" : "Afficher la section"}
-            aria-label={enabled ? "Masquer" : "Afficher"}
+            title={enabled ? u.hideSection : u.showSection}
+            aria-label={enabled ? u.hide : u.show}
             style={{
               appearance: "none",
               width:      24,

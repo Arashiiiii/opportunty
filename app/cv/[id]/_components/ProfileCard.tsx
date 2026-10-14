@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { useCVStore }      from "../../_store/cv-store";
 import { Field, TWO_COL }  from "./_form-utils";
 import { PhotoCropModal }  from "./PhotoCropModal";
+import { useUI } from "@/app/_lib/useUiLang";
 
 export function ProfileCard() {
   const cv         = useCVStore((s) => s.cv);
@@ -31,6 +32,7 @@ export function ProfileCard() {
     setCropSrc(null);
   };
 
+  const { u } = useUI();
   return (
     <>
       {cropSrc && (
@@ -56,7 +58,7 @@ export function ProfileCard() {
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
             <div
               onClick={() => fileRef.current?.click()}
-              title="Cliquez pour changer la photo"
+              title={u.changePhoto}
               style={{
                 width:          80,
                 height:         80,
@@ -78,8 +80,8 @@ export function ProfileCard() {
                 <div style={{ textAlign: "center", padding: 6 }}>
                   <div style={{ fontSize: 22, fontWeight: 700, color: "#7c3aed", lineHeight: 1 }}>{initials}</div>
                   <div style={{ fontSize: 9.5, color: "#9ca3af", fontWeight: 600, marginTop: 4, lineHeight: 1.3 }}>
-                    + Photo<br />
-                    <span style={{ fontWeight: 400 }}>cliquer</span>
+                    {u.photo}<br />
+                    <span style={{ fontWeight: 400 }}>{u.click}</span>
                   </div>
                 </div>
               )}
@@ -134,21 +136,21 @@ export function ProfileCard() {
           {/* Name + title */}
           <div>
             <div style={TWO_COL}>
-              <Field label="Prénom" value={p.firstName} onChange={(v) => upd("profile.firstName", v)} placeholder="Yasmine" />
-              <Field label="Nom"    value={p.lastName}  onChange={(v) => upd("profile.lastName",  v)} placeholder="El Amrani" />
+              <Field label={u.firstName} value={p.firstName} onChange={(v) => upd("profile.firstName", v)} placeholder="Yasmine" />
+              <Field label={u.lastName} value={p.lastName}  onChange={(v) => upd("profile.lastName",  v)} placeholder="El Amrani" />
             </div>
-            <Field label="Titre du poste" value={p.title} onChange={(v) => upd("profile.title", v)} placeholder="Product Designer Senior" />
+            <Field label={u.jobTitle} value={p.title} onChange={(v) => upd("profile.title", v)} placeholder="Product Designer Senior" />
           </div>
         </div>
 
         {/* ── Contact grid ─────────────────────────────────────────────────── */}
         <div style={TWO_COL}>
-          <Field label="Email"     value={p.email}        onChange={(v) => upd("profile.email",    v)} placeholder="yasmine@email.ma" />
-          <Field label="Téléphone" value={p.phone}        onChange={(v) => upd("profile.phone",    v)} placeholder="+212 6 61 00 00 00" />
-          <Field label="Ville"     value={p.city}         onChange={(v) => upd("profile.city",     v)} placeholder="Casablanca, Maroc" />
+          <Field label={u.email} value={p.email}        onChange={(v) => upd("profile.email",    v)} placeholder="yasmine@email.ma" />
+          <Field label={u.phone} value={p.phone}        onChange={(v) => upd("profile.phone",    v)} placeholder="+212 6 61 00 00 00" />
+          <Field label={u.city} value={p.city}         onChange={(v) => upd("profile.city",     v)} placeholder="Casablanca, Maroc" />
           <Field label="LinkedIn"  value={p.linkedin ?? ""} onChange={(v) => upd("profile.linkedin", v)} placeholder="linkedin.com/in/…" />
         </div>
-        <Field label="Site web / Portfolio" value={p.website ?? ""} onChange={(v) => upd("profile.website", v)} placeholder="monsite.com" />
+        <Field label={u.website} value={p.website ?? ""} onChange={(v) => upd("profile.website", v)} placeholder="monsite.com" />
 
       </div>
     </>

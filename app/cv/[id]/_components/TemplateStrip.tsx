@@ -12,6 +12,7 @@ import { useCVStore } from "../../_store/cv-store";
 import { TEMPLATE_REGISTRY } from "../../_lib/schema";
 import { A4_W, A4_H } from "./templates";
 import { AccentPicker } from "./AccentPicker";
+import { useUI } from "@/app/_lib/useUiLang";
 
 const THUMB_W     = 80;
 const THUMB_H     = Math.round(THUMB_W * A4_H / A4_W); // ≈ 113
@@ -21,6 +22,7 @@ export function TemplateStrip() {
   const setTemplate = useCVStore((s) => s.setTemplate);
   const setAccent   = useCVStore((s) => s.setAccent);
 
+  const { u } = useUI();
   return (
     <div style={{
       display:       "flex",
@@ -34,7 +36,7 @@ export function TemplateStrip() {
     }}>
       {/* "Modèles" label */}
       <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".14em", color: "#94a3b8", textTransform: "uppercase", marginRight: 4, whiteSpace: "nowrap" }}>
-        Modèles
+        {u.templates}
       </span>
 
       {/* Thumbnails */}

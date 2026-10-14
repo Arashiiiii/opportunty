@@ -5,6 +5,7 @@
  */
 
 import type { CSSProperties } from "react";
+import { useUI } from "@/app/_lib/useUiLang";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Style tokens
@@ -167,12 +168,13 @@ export function AIBtn({
   label?:   string;
   loading?: boolean;
 }) {
+  const { u } = useUI();
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={loading}
-      title={label ?? "Reformuler avec l'IA"}
+      title={label ?? u.aiRewrite}
       style={{
         padding:     label ? "5px 10px" : "4px 8px",
         borderRadius: 6,
@@ -205,7 +207,9 @@ export function AIBtn({
 // RemoveBtn — ghost "×" next to item headers
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function RemoveBtn({ onClick, label = "Supprimer" }: { onClick: () => void; label?: string }) {
+export function RemoveBtn({ onClick, label }: { onClick: () => void; label?: string }) {
+  const { u } = useUI();
+  label = label ?? u.remove;
   return (
     <button
       type="button"

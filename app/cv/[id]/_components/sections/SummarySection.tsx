@@ -2,12 +2,14 @@
 import { useCVStore } from "../../../_store/cv-store";
 import { Area, AIBtn } from "../_form-utils";
 import { useAIRewrite } from "../../_hooks/useAIRewrite";
+import { useUI } from "@/app/_lib/useUiLang";
 
 export function SummarySection() {
   const summary    = useCVStore((s) => s.cv.summary);
   const updatePath = useCVStore((s) => s.updatePath);
   const { rewrite, rewriting } = useAIRewrite();
 
+  const { u } = useUI();
   return (
     <div>
       <Area
@@ -19,7 +21,7 @@ export function SummarySection() {
       <AIBtn
         onClick={() => rewrite("summary", summary, "summary")}
         loading={rewriting === "summary"}
-        label="Reformuler avec l'IA"
+        label={u.aiRewrite}
       />
     </div>
   );

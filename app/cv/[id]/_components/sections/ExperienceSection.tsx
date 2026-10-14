@@ -2,6 +2,7 @@
 import { useCVStore } from "../../../_store/cv-store";
 import { Field, Area, AddBtn, AIBtn, RemoveBtn, ItemCard, TWO_COL, LABEL_STYLE } from "../_form-utils";
 import { useAIRewrite } from "../../_hooks/useAIRewrite";
+import { useUI } from "@/app/_lib/useUiLang";
 
 export function ExperienceSection() {
   const experience       = useCVStore((s) => s.cv.experience);
@@ -12,6 +13,7 @@ export function ExperienceSection() {
   const removeBullet     = useCVStore((s) => s.removeBullet);
   const { rewrite, rewriting } = useAIRewrite();
 
+  const { u } = useUI();
   return (
     <div>
       {experience.map((e, idx) => {
@@ -21,23 +23,23 @@ export function ExperienceSection() {
             {/* Header */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a", flex: 1 }}>
-                {e.role || "Nouveau poste"}{e.company ? ` · ${e.company}` : ""}
+                {e.role || u.newJob}{e.company ? ` · ${e.company}` : ""}
               </span>
               <RemoveBtn onClick={() => removeExperience(e.id)} />
             </div>
 
             {/* Role + Company */}
             <div style={TWO_COL}>
-              <Field label="Poste"      value={e.role}    onChange={(v) => updatePath(`${base}.role`,    v)} placeholder="Lead Designer" />
-              <Field label="Entreprise" value={e.company} onChange={(v) => updatePath(`${base}.company`, v)} placeholder="BMCE Capital" />
+              <Field label={u.role} value={e.role}    onChange={(v) => updatePath(`${base}.role`,    v)} placeholder="Lead Designer" />
+              <Field label={u.company} value={e.company} onChange={(v) => updatePath(`${base}.company`, v)} placeholder="BMCE Capital" />
             </div>
 
             {/* City + Dates */}
             <div style={TWO_COL}>
-              <Field label="Ville" value={e.city ?? ""} onChange={(v) => updatePath(`${base}.city`, v)} placeholder="Casablanca" />
+              <Field label={u.city} value={e.city ?? ""} onChange={(v) => updatePath(`${base}.city`, v)} placeholder="Casablanca" />
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-                <Field label="Début" value={e.start}      onChange={(v) => updatePath(`${base}.start`, v)} placeholder="Mars 2023" />
-                <Field label="Fin"   value={e.current ? "Présent" : (e.end ?? "")} disabled={!!e.current}
+                <Field label={u.start} value={e.start}      onChange={(v) => updatePath(`${base}.start`, v)} placeholder="Mars 2023" />
+                <Field label={u.end} value={e.current ? u.present : (e.end ?? "")} disabled={!!e.current}
                   onChange={(v) => updatePath(`${base}.end`, v)} placeholder="Déc 2024" />
               </div>
             </div>
@@ -54,7 +56,7 @@ export function ExperienceSection() {
             </label>
 
             {/* Bullets */}
-            <label style={LABEL_STYLE}>Réalisations</label>
+            <label style={LABEL_STYLE}>{u.achievements}</label>
             {e.bullets.map((b, bi) => (
               <div key={bi} style={{ display: "flex", gap: 6, marginBottom: 6, alignItems: "flex-start" }}>
                 {/* Numbered dot */}
@@ -115,7 +117,7 @@ export function ExperienceSection() {
         );
       })}
 
-      <AddBtn label="+ Ajouter une expérience" onClick={addExperience} />
+      <AddBtn label={u.addExperience} onClick={addExperience} />
     </div>
   );
 }

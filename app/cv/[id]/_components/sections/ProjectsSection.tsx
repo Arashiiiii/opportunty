@@ -1,6 +1,7 @@
 "use client";
 import { useCVStore } from "../../../_store/cv-store";
 import { Field, Area, AddBtn, RemoveBtn, ItemCard, TWO_COL } from "../_form-utils";
+import { useUI } from "@/app/_lib/useUiLang";
 
 export function ProjectsSection() {
   const projects      = useCVStore((s) => s.cv.projects);
@@ -8,24 +9,25 @@ export function ProjectsSection() {
   const addProject    = useCVStore((s) => s.addProject);
   const removeProject = useCVStore((s) => s.removeProject);
 
+  const { u } = useUI();
   return (
     <div>
       {projects.map((p) => (
         <ItemCard key={p.id}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a", flex: 1 }}>{p.name || "Projet"}</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a", flex: 1 }}>{p.name || u.project}</span>
             <RemoveBtn onClick={() => removeProject(p.id)} />
           </div>
           <div style={TWO_COL}>
-            <Field label="Nom"  value={p.name}     onChange={(v) => updatePath(`projects.${p.id}.name`, v)} placeholder="Atlas Pay" />
-            <Field label="Rôle" value={p.role ?? ""} onChange={(v) => updatePath(`projects.${p.id}.role`, v)} placeholder="Lead Designer" />
+            <Field label={u.name} value={p.name}     onChange={(v) => updatePath(`projects.${p.id}.name`, v)} placeholder="Atlas Pay" />
+            <Field label={u.role} value={p.role ?? ""} onChange={(v) => updatePath(`projects.${p.id}.role`, v)} placeholder="Lead Designer" />
           </div>
-          <Area label="Description" value={p.detail} onChange={(v) => updatePath(`projects.${p.id}.detail`, v)} rows={2}
+          <Area label={u.description} value={p.detail} onChange={(v) => updatePath(`projects.${p.id}.detail`, v)} rows={2}
             placeholder="App de paiement P2P — 80K MAU." />
         </ItemCard>
       ))}
 
-      <AddBtn label="+ Ajouter un projet" onClick={addProject} />
+      <AddBtn label={u.addProject} onClick={addProject} />
     </div>
   );
 }

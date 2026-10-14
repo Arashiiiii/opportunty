@@ -2,8 +2,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useUI } from "@/app/_lib/useUiLang";
+import { UiLangSwitch } from "@/app/_components/UiLangSwitch";
 
 export default function SignupPage() {
+  const { u, rtl } = useUI();
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy]         = useState(false);
@@ -26,22 +29,23 @@ export default function SignupPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#fffefb", fontFamily: "'Inter', system-ui, sans-serif", padding: 20 }}>
+    <div dir={rtl ? "rtl" : "ltr"} style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#fffefb", fontFamily: "'Inter', system-ui, sans-serif", padding: 20 }}>
       <div style={{ width: "100%", maxWidth: 380 }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 32, textDecoration: "none" }}>
           <div style={{ width: 26, height: 26, borderRadius: 6, background: "linear-gradient(135deg, #ff4f00 0%, #ff4f00 50%, #201515 50%, #201515 100%)" }} />
           <span style={{ fontSize: 15, fontWeight: 700, color: "#201515" }}>opportunity<span style={{ color: "#ff4f00" }}>.com</span></span>
         </Link>
 
+        <div style={{ marginBottom: 20 }}><UiLangSwitch compact /></div>
         {done ? (
           <div style={{ padding: "16px 18px", borderRadius: 10, background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#166534", fontSize: 13.5 }}>
-            Check your inbox to confirm <b>{email}</b>, then sign in.
+            {u.checkInbox.split("{email}").flatMap((part, i, arr) => i < arr.length - 1 ? [part, <b key={i}>{email}</b>] : [part])}
           </div>
         ) : (
           <>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: "#201515", margin: "0 0 6px" }}>Create your account</h1>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: "#201515", margin: "0 0 6px" }}>{u.signupTitle}</h1>
             <p style={{ fontSize: 13, color: "#6b6259", margin: "0 0 24px" }}>
-              Job feed + AI-tailored CVs, saved to your own account.
+              {u.signupNote}
             </p>
 
             {error && (
@@ -51,20 +55,20 @@ export default function SignupPage() {
             )}
 
             <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <input type="email" required placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}
+              <input type="email" required placeholder={u.email} value={email} onChange={(e) => setEmail(e.target.value)}
                 style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #e5ded3", fontSize: 14, fontFamily: "inherit" }} />
-              <input type="password" required minLength={6} placeholder="Password (min 6 characters)" value={password} onChange={(e) => setPassword(e.target.value)}
+              <input type="password" required minLength={6} placeholder={u.passwordMin} value={password} onChange={(e) => setPassword(e.target.value)}
                 style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #e5ded3", fontSize: 14, fontFamily: "inherit" }} />
               <button type="submit" disabled={busy}
                 style={{ padding: "11px 14px", borderRadius: 10, border: "none", background: "#ff4f00", color: "#fff", fontSize: 14, fontWeight: 700, cursor: busy ? "wait" : "pointer", fontFamily: "inherit", opacity: busy ? 0.7 : 1 }}>
-                {busy ? "Creating account…" : "Create account"}
+                {busy ? u.creatingAccount : u.createAccount}
               </button>
             </form>
           </>
         )}
 
         <p style={{ fontSize: 13, color: "#6b6259", marginTop: 20, textAlign: "center" }}>
-          Already have an account? <Link href="/login" style={{ color: "#ff4f00", fontWeight: 600, textDecoration: "none" }}>Sign in</Link>
+          {u.haveAccount} <Link href="/login" style={{ color: "#ff4f00", fontWeight: 600, textDecoration: "none" }}>{u.signIn}</Link>
         </p>
       </div>
     </div>

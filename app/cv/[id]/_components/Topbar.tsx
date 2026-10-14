@@ -25,7 +25,9 @@ import { LoginGateModal } from "../../../_components/LoginGateModal";
 import type { Json } from "../../_lib/db-types";
 import { ScoreRing }    from "./ScoreRing";
 import { ScorePopover } from "./ScorePopover";
+import { UiLangSwitch } from "@/app/_components/UiLangSwitch";
 import { LangToggle }   from "./LangToggle";
+import { useUI } from "@/app/_lib/useUiLang";
 
 const supabase = createClient();
 
@@ -36,6 +38,7 @@ interface Props {
 }
 
 export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
+  const { u } = useUI();
   const router    = useRouter();
   const authed    = useAuthState();
   const cvName    = useCVStore((s) => s.cvName);
@@ -191,7 +194,7 @@ export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
       {!isMobile && (
         <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "#94a3b8", flexShrink: 0 }}>
           <span style={{ width: 6, height: 6, borderRadius: "50%", background: dotColor, animation: saving ? "pulse 1.2s infinite" : "none", flexShrink: 0 }} />
-          {saving ? "Enregistrement…" : lastSaved ? (isLocalDraft ? "Saved on this device" : "Enregistré") : ""}
+          {saving ? u.saving : lastSaved ? (isLocalDraft ? u.savedDevice : u.saved) : ""}
         </div>
       )}
 
@@ -217,12 +220,13 @@ export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
             flexShrink:   0,
           }}
         >
-          {mobileTab === "form" ? "👁 Aperçu" : "✎ Formulaire"}
+          {mobileTab === "form" ? u.previewTab : u.formTab}
         </button>
       )}
 
       {!isMobile && (
         <>
+          <UiLangSwitch compact />
           <LangToggle />
 
           <div style={{ position: "relative", flexShrink: 0 }}>
@@ -232,7 +236,7 @@ export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
               style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 10px 4px 8px", border: "1px solid #e5e7eb", borderRadius: 100, background: scoreOpen ? "#fff4ec" : "#fff", cursor: "pointer", fontFamily: "inherit", fontSize: 11.5, fontWeight: 500, color: "#475569" }}
             >
               <ScoreRing value={score} />
-              <span><b style={{ color: "#0f172a" }}>{score}%</b> complet</span>
+              <span><b style={{ color: "#0f172a" }}>{score}%</b> {u.complete}</span>
             </button>
             {scoreOpen && <ScorePopover onClose={() => setScoreOpen(false)} />}
           </div>
@@ -244,17 +248,17 @@ export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
         onClick={handleDownloadClick}
         style={{ ...primary, opacity: downloadDisabled ? 0.6 : 1, cursor: downloadDisabled ? "not-allowed" : "pointer", padding: isMobile ? "6px 10px" : "7px 12px" }}
         disabled={downloadDisabled}
-        title={score < 30 ? "Atteignez 30% pour télécharger" : authed === false ? "Sign in to download" : "Télécharger en PDF"}
+        title={score < 30 ? u.reach30 : authed === false ? u.signInToDownload : u.downloadTitle}
       >
-        {claiming ? "…" : "↓"}{!isMobile && <> {claiming ? "Saving…" : "Télécharger PDF"}</>}
+        {claiming ? "…" : "↓"}{!isMobile && <> {claiming ? u.savingShort : u.downloadPdf}</>}
       </button>
 
       {showGate && (
         <LoginGateModal
           onClose={() => setShowGate(false)}
           next={typeof window !== "undefined" ? window.location.pathname : undefined}
-          title="Sign in to download"
-          message="Your CV stays saved in this browser while you edit. Downloading it needs a real account — that's also where you'll complete payment."
+          title={u.gateDownloadTitle}
+          message={u.gateDownloadMsg}
         />
       )}
     </div>

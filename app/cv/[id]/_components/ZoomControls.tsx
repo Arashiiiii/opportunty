@@ -1,4 +1,5 @@
 "use client";
+import { useUI } from "@/app/_lib/useUiLang";
 
 interface Props {
   zoom:         number;
@@ -33,6 +34,7 @@ export function ZoomControls({ zoom, isAutoFit, onAdjust, onToggleFit }: Props) 
     </button>
   );
 
+  const { u } = useUI();
   return (
     <div style={{
       display:     "flex",
@@ -49,7 +51,7 @@ export function ZoomControls({ zoom, isAutoFit, onAdjust, onToggleFit }: Props) 
       </span>
       {btn("+", () => onAdjust(+0.1))}
       <div style={{ width: 1, height: 14, background: "#e5e7eb", margin: "0 2px" }} />
-      {btn("Ajuster", onToggleFit, isAutoFit, true)}
+      {btn(u.fit, onToggleFit, isAutoFit, true)}
     </div>
   );
 }

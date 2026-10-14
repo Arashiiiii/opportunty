@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { EMPTY_CV, DEFAULT_SECTION_ORDER, DEFAULT_SECTIONS_ENABLED, TEMPLATE_REGISTRY } from "./_lib/schema";
+import { useUI } from "@/app/_lib/useUiLang";
 
 const supabase = createClient();
 
@@ -24,6 +25,7 @@ interface CVRow {
 }
 
 export default function CVListPage() {
+  const { u, rtl } = useUI();
   const router = useRouter();
   const [cvs,     setCvs]     = useState<CVRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,13 +89,13 @@ export default function CVListPage() {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#fffefb", fontFamily: "'Inter', system-ui, sans-serif", padding: 24, textAlign: "center" }}>
         <div style={{ maxWidth: 420 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#201515", margin: "0 0 10px" }}>Sign in to build your CV</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#201515", margin: "0 0 10px" }}>{u.needSignInBuild}</h1>
           <p style={{ fontSize: 14, color: "#6b6259", margin: "0 0 24px" }}>
-            opportunity.com saves your CVs to a real account — no anonymous sessions.
+            {u.needSignInNote}
           </p>
           <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-            <Link href="/login" style={{ padding: "10px 20px", borderRadius: 10, border: "1px solid #e5ded3", color: "#201515", textDecoration: "none", fontSize: 13, fontWeight: 600 }}>Sign in</Link>
-            <Link href="/signup" style={{ padding: "10px 20px", borderRadius: 10, border: "none", background: "#ff4f00", color: "#fff", textDecoration: "none", fontSize: 13, fontWeight: 700 }}>Create account</Link>
+            <Link href="/login" style={{ padding: "10px 20px", borderRadius: 10, border: "1px solid #e5ded3", color: "#201515", textDecoration: "none", fontSize: 13, fontWeight: 600 }}>{u.signIn}</Link>
+            <Link href="/signup" style={{ padding: "10px 20px", borderRadius: 10, border: "none", background: "#ff4f00", color: "#fff", textDecoration: "none", fontSize: 13, fontWeight: 700 }}>{u.createAccount}</Link>
           </div>
         </div>
       </div>
@@ -110,9 +112,9 @@ export default function CVListPage() {
             opportunity<span style={{ color: "#ff4f00" }}>.com</span>
           </span>
           <span style={{ color: "#cbd5e1", margin: "0 6px", fontWeight: 300, fontSize: 18 }}>/</span>
-          <span style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>Mes CVs</span>
+          <span style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>{u.myCVs}</span>
         </div>
-        <Link href="/" style={{ fontSize: 12, color: "#64748b", textDecoration: "none" }}>← Accueil</Link>
+        <Link href="/" style={{ fontSize: 12, color: "#64748b", textDecoration: "none" }}>{u.home}</Link>
       </div>
 
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "40px 24px" }}>
@@ -126,23 +128,23 @@ export default function CVListPage() {
 
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 28 }}>
           <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", margin: 0 }}>Mes CVs</h1>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", margin: 0 }}>{u.myCVs}</h1>
             <p style={{ fontSize: 13, color: "#64748b", margin: "5px 0 0" }}>
-              {cvs.length === 0 ? "Créez votre premier CV professionnel" : `${cvs.length} CV${cvs.length > 1 ? "s" : ""} enregistré${cvs.length > 1 ? "s" : ""}`}
+              {cvs.length === 0 ? u.firstCV : u.nCVs(cvs.length)}
             </p>
           </div>
           <button type="button" onClick={() => setShowModal(true)} style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: "#ff4f00", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-            + Nouveau CV
+            {u.newCV}
           </button>
         </div>
 
         {cvs.length === 0 && (
           <div style={{ textAlign: "center", padding: "72px 24px", border: "2px dashed #e2e8f0", borderRadius: 16, background: "#fff" }}>
             <div style={{ fontSize: 48, marginBottom: 16, lineHeight: 1 }}>📄</div>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", margin: "0 0 8px" }}>Aucun CV pour l&apos;instant</h2>
-            <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 24px" }}>Créez un CV professionnel en quelques minutes.</p>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", margin: "0 0 8px" }}>{u.noCVs}</h2>
+            <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 24px" }}>{u.noCVsNote}</p>
             <button type="button" onClick={() => setShowModal(true)} style={{ padding: "10px 26px", borderRadius: 8, border: "none", background: "#ff4f00", color: "#fff", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-              Créer mon premier CV
+              {u.createFirst}
             </button>
           </div>
         )}
@@ -162,6 +164,7 @@ export default function CVListPage() {
 }
 
 function TemplateModal({ onClose, onCreate }: { onClose: () => void; onCreate: (template: string) => Promise<void> }) {
+  const { u } = useUI();
   const [busy, setBusy] = useState<string | null>(null);
 
   const pick = async (id: string) => {
@@ -177,7 +180,7 @@ function TemplateModal({ onClose, onCreate }: { onClose: () => void; onCreate: (
     >
       <div style={{ background: "#fff", borderRadius: 16, width: 960, maxWidth: "calc(100vw - 32px)", maxHeight: "90vh", overflow: "auto", boxShadow: "0 24px 64px rgba(0,0,0,.2)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px 0" }}>
-          <h2 style={{ fontSize: 17, fontWeight: 700, color: "#0f172a", margin: 0 }}>Choisissez un modèle</h2>
+          <h2 style={{ fontSize: 17, fontWeight: 700, color: "#0f172a", margin: 0 }}>{u.chooseTemplate}</h2>
           <button type="button" onClick={onClose} style={{ width: 30, height: 30, borderRadius: 8, border: "none", background: "#f1f5f9", color: "#64748b", fontSize: 18, cursor: "pointer" }}>×</button>
         </div>
         <div style={{ padding: "16px 24px 24px" }}>

@@ -1,0 +1,139 @@
+/** Copy for every page except the homepage (which has its own, richer dictionary in app/i18n.ts). */
+import type { Lang } from "../i18n";
+
+export interface UiDict {
+  signIn: string; createAccount: string; notNow: string;
+  gateTitle: string; gateMsg: string;
+  loginTitle: string; loginNote: string; email: string; password: string; signingIn: string; noAccount: string; createOne: string;
+  signupTitle: string; signupNote: string; passwordMin: string; creatingAccount: string; checkInbox: string; haveAccount: string;
+  payTitle: string; cvSavedNamed: string; cvSaved: string; payNote: string; payBtn: string; payBtnTitle: string; backToEditor: string;
+  needSignInBuild: string; needSignInNote: string; myCVs: string; home: string; firstCV: string; nCVs: (n: number) => string;
+  newCV: string; noCVs: string; noCVsNote: string; createFirst: string; chooseTemplate: string;
+  saving: string; saved: string; savedDevice: string; downloadPdf: string; reach30: string; signInToDownload: string; downloadTitle: string;
+  complete: string; savingShort: string; previewTab: string; formTab: string; gateDownloadTitle: string; gateDownloadMsg: string;
+  scoreTitle: string; scoreImprove: string; scoreDone: string; scoreGate: string; scoreItems: Record<string, string>;
+  dragReorder: string; hideSection: string; showSection: string; hide: string; show: string;
+  fit: string; templates: string; aiRewrite: string; remove: string;
+  firstName: string; lastName: string; jobTitle: string; phone: string; city: string; linkedin: string; website: string;
+  changePhoto: string; click: string;
+  certification: string; certName: string; issuer: string; year: string; addCert: string;
+  newEducation: string; degree: string; school: string; start: string; end: string; details: string; addEducation: string;
+  newJob: string; role: string; company: string; present: string; achievements: string; addExperience: string;
+  language: string; level: string; mastery: string; addLanguage: string;
+  project: string; name: string; description: string; addProject: string;
+  group: string; skillsList: string; addGroup: string;
+  sections: Record<string, string>; photo: string;
+}
+
+const en: UiDict = {
+  signIn: "Sign in", createAccount: "Create account", notNow: "Not now",
+  gateTitle: "Sign in to continue", gateMsg: "opportunity.com saves and downloads CVs to a real account — no anonymous sessions — so this step needs you signed in.",
+  loginTitle: "Sign in", loginNote: "A real account is required — opportunity.com doesn't use anonymous sessions.", email: "Email", password: "Password",
+  signingIn: "Signing in…", noAccount: "No account yet?", createOne: "Create one",
+  signupTitle: "Create your account", signupNote: "Job feed + AI-tailored CVs, saved to your own account.", passwordMin: "Password (min 6 characters)",
+  creatingAccount: "Creating account…", checkInbox: "Check your inbox to confirm {email}, then sign in.", haveAccount: "Already have an account?",
+  payTitle: "Payments are launching soon", cvSavedNamed: "Your CV “{name}” ({template}) is saved and ready.", cvSaved: "Your CV is saved and ready.",
+  payNote: "We're finishing checkout — pay once, no subscription, then download instantly. Come back to this page once it's live to complete your download.",
+  payBtn: "Pay & download — coming soon", payBtnTitle: "Checkout isn't live yet", backToEditor: "← Back to editor",
+  needSignInBuild: "Sign in to build your CV", needSignInNote: "opportunity.com saves your CVs to a real account — no anonymous sessions.",
+  myCVs: "My CVs", home: "← Home", firstCV: "Create your first professional CV", nCVs: (n) => `${n} CV${n > 1 ? "s" : ""} saved`,
+  newCV: "+ New CV", noCVs: "No CVs yet", noCVsNote: "Create a professional CV in a few minutes.", createFirst: "Create my first CV", chooseTemplate: "Choose a template",
+  saving: "Saving…", saved: "Saved", savedDevice: "Saved on this device", downloadPdf: "Download PDF", reach30: "Reach 30% to download",
+  signInToDownload: "Sign in to download", downloadTitle: "Download as PDF", complete: "complete", savingShort: "Saving…",
+  previewTab: "👁 Preview", formTab: "✎ Form", gateDownloadTitle: "Sign in to download",
+  gateDownloadMsg: "Your CV stays saved in this browser while you edit. Downloading it needs a real account — that's also where you'll complete payment.",
+  scoreTitle: "CV completeness", scoreImprove: "To improve", scoreDone: "Done", scoreGate: "PDF download unlocks at 30% completeness.",
+  scoreItems: {
+    "contact-full": "Complete first name, email and phone", title: "Add a professional title", photo: "Add a profile photo",
+    summary: "Write a professional summary (50+ words)", "exp-exists": "Add at least one work experience", "exp-bullets": "Give each job 2+ key points",
+    education: "Add a degree or education", skills: "List at least 5 skills", languages: "Add the languages you speak",
+    linkedin: "Add your LinkedIn URL", certifications: "Add a certification",
+  },
+  dragReorder: "Drag to reorder", hideSection: "Hide section", showSection: "Show section", hide: "Hide", show: "Show",
+  fit: "Fit", templates: "Templates", aiRewrite: "Rewrite with AI", remove: "Remove",
+  firstName: "First name", lastName: "Last name", jobTitle: "Job title", phone: "Phone", city: "City", linkedin: "LinkedIn", website: "Website / Portfolio",
+  changePhoto: "Click to change photo", click: "click",
+  certification: "Certification", certName: "Name", issuer: "Issuer", year: "Year", addCert: "+ Add a certification",
+  newEducation: "New education", degree: "Degree", school: "School", start: "Start", end: "End", details: "Details (optional)", addEducation: "+ Add education",
+  newJob: "New position", role: "Role", company: "Company", present: "Present", achievements: "Achievements", addExperience: "+ Add experience",
+  language: "Language", level: "Level", mastery: "Proficiency", addLanguage: "+ Add a language",
+  project: "Project", name: "Name", description: "Description", addProject: "+ Add a project",
+  group: "Group", skillsList: "Skills (comma-separated)", addGroup: "+ Add a group",
+  sections: { summary: "Profile", experience: "Experience", education: "Education", skills: "Skills", languages: "Languages", certifications: "Certifications", projects: "Projects", interests: "Interests" }, photo: "+ Photo",
+};
+
+const fr: UiDict = {
+  signIn: "Connexion", createAccount: "Créer un compte", notNow: "Pas maintenant",
+  gateTitle: "Connectez-vous pour continuer", gateMsg: "opportunity.com enregistre et télécharge les CV sur un vrai compte — sans session anonyme — cette étape nécessite donc une connexion.",
+  loginTitle: "Connexion", loginNote: "Un vrai compte est requis — opportunity.com n'utilise pas de sessions anonymes.", email: "E-mail", password: "Mot de passe",
+  signingIn: "Connexion…", noAccount: "Pas encore de compte ?", createOne: "En créer un",
+  signupTitle: "Créez votre compte", signupNote: "Offres d'emploi + CV adaptés par l'IA, enregistrés sur votre compte.", passwordMin: "Mot de passe (6 caractères min.)",
+  creatingAccount: "Création du compte…", checkInbox: "Consultez votre boîte mail pour confirmer {email}, puis connectez-vous.", haveAccount: "Vous avez déjà un compte ?",
+  payTitle: "Les paiements arrivent bientôt", cvSavedNamed: "Votre CV « {name} » ({template}) est enregistré et prêt.", cvSaved: "Votre CV est enregistré et prêt.",
+  payNote: "Nous finalisons le paiement — payez une fois, sans abonnement, puis téléchargez instantanément. Revenez sur cette page une fois en ligne pour finaliser votre téléchargement.",
+  payBtn: "Payer et télécharger — bientôt", payBtnTitle: "Le paiement n'est pas encore en ligne", backToEditor: "← Retour à l'éditeur",
+  needSignInBuild: "Connectez-vous pour créer votre CV", needSignInNote: "opportunity.com enregistre vos CV sur un vrai compte — sans session anonyme.",
+  myCVs: "Mes CV", home: "← Accueil", firstCV: "Créez votre premier CV professionnel", nCVs: (n) => `${n} CV enregistré${n > 1 ? "s" : ""}`,
+  newCV: "+ Nouveau CV", noCVs: "Aucun CV pour l'instant", noCVsNote: "Créez un CV professionnel en quelques minutes.", createFirst: "Créer mon premier CV", chooseTemplate: "Choisissez un modèle",
+  saving: "Enregistrement…", saved: "Enregistré", savedDevice: "Enregistré sur cet appareil", downloadPdf: "Télécharger PDF", reach30: "Atteignez 30 % pour télécharger",
+  signInToDownload: "Connectez-vous pour télécharger", downloadTitle: "Télécharger en PDF", complete: "complet", savingShort: "Enregistrement…",
+  previewTab: "👁 Aperçu", formTab: "✎ Formulaire", gateDownloadTitle: "Connectez-vous pour télécharger",
+  gateDownloadMsg: "Votre CV reste enregistré dans ce navigateur pendant que vous le modifiez. Le télécharger nécessite un vrai compte — c'est aussi là que vous réglerez le paiement.",
+  scoreTitle: "Complétude du CV", scoreImprove: "Pour progresser", scoreDone: "Complété", scoreGate: "Le téléchargement PDF est activé à partir de 30 % de complétion.",
+  scoreItems: {
+    "contact-full": "Compléter prénom, email et téléphone", title: "Ajouter un titre professionnel", photo: "Ajouter une photo de profil",
+    summary: "Rédiger un résumé professionnel (50+ mots)", "exp-exists": "Ajouter au moins une expérience professionnelle", "exp-bullets": "Détailler chaque poste avec 2+ points clés",
+    education: "Ajouter une formation ou diplôme", skills: "Lister au moins 5 compétences", languages: "Indiquer les langues parlées",
+    linkedin: "Ajouter votre URL LinkedIn", certifications: "Ajouter une certification",
+  },
+  dragReorder: "Glisser pour réordonner", hideSection: "Masquer la section", showSection: "Afficher la section", hide: "Masquer", show: "Afficher",
+  fit: "Ajuster", templates: "Modèles", aiRewrite: "Reformuler avec l'IA", remove: "Supprimer",
+  firstName: "Prénom", lastName: "Nom", jobTitle: "Titre du poste", phone: "Téléphone", city: "Ville", linkedin: "LinkedIn", website: "Site web / Portfolio",
+  changePhoto: "Cliquez pour changer la photo", click: "cliquer",
+  certification: "Certification", certName: "Nom", issuer: "Émetteur", year: "Année", addCert: "+ Ajouter une certification",
+  newEducation: "Nouvelle formation", degree: "Diplôme", school: "École", start: "Début", end: "Fin", details: "Détails (optionnel)", addEducation: "+ Ajouter une formation",
+  newJob: "Nouveau poste", role: "Poste", company: "Entreprise", present: "Présent", achievements: "Réalisations", addExperience: "+ Ajouter une expérience",
+  language: "Langue", level: "Niveau", mastery: "Maîtrise", addLanguage: "+ Ajouter une langue",
+  project: "Projet", name: "Nom", description: "Description", addProject: "+ Ajouter un projet",
+  group: "Groupe", skillsList: "Compétences (séparées par virgules)", addGroup: "+ Ajouter un groupe",
+  sections: { summary: "Profil", experience: "Expérience", education: "Formation", skills: "Compétences", languages: "Langues", certifications: "Certifications", projects: "Projets", interests: "Centres d'intérêt" }, photo: "+ Photo",
+};
+
+const ar: UiDict = {
+  signIn: "تسجيل الدخول", createAccount: "إنشاء حساب", notNow: "ليس الآن",
+  gateTitle: "سجّل الدخول للمتابعة", gateMsg: "يحفظ opportunity.com السير الذاتية ويحمّلها في حساب حقيقي — بدون جلسات مجهولة — لذلك تحتاج هذه الخطوة إلى تسجيل الدخول.",
+  loginTitle: "تسجيل الدخول", loginNote: "يلزم حساب حقيقي — لا يستخدم opportunity.com جلسات مجهولة.", email: "البريد الإلكتروني", password: "كلمة المرور",
+  signingIn: "جارٍ تسجيل الدخول…", noAccount: "ليس لديك حساب؟", createOne: "أنشئ حساباً",
+  signupTitle: "أنشئ حسابك", signupNote: "وظائف + سير ذاتية مكيّفة بالذكاء الاصطناعي، محفوظة في حسابك.", passwordMin: "كلمة المرور (6 أحرف على الأقل)",
+  creatingAccount: "جارٍ إنشاء الحساب…", checkInbox: "تحقق من بريدك الإلكتروني لتأكيد {email}، ثم سجّل الدخول.", haveAccount: "لديك حساب بالفعل؟",
+  payTitle: "الدفع قادم قريباً", cvSavedNamed: "سيرتك الذاتية «{name}» ({template}) محفوظة وجاهزة.", cvSaved: "سيرتك الذاتية محفوظة وجاهزة.",
+  payNote: "نُنهي إعداد الدفع — ادفع مرة واحدة بدون اشتراك ثم حمّل فوراً. عد إلى هذه الصفحة بعد تفعيله لإتمام التحميل.",
+  payBtn: "ادفع وحمّل — قريباً", payBtnTitle: "الدفع غير متاح بعد", backToEditor: "← العودة إلى المحرر",
+  needSignInBuild: "سجّل الدخول لإنشاء سيرتك الذاتية", needSignInNote: "يحفظ opportunity.com سيرك الذاتية في حساب حقيقي — بدون جلسات مجهولة.",
+  myCVs: "سيرتي الذاتية", home: "→ الرئيسية", firstCV: "أنشئ أول سيرة ذاتية احترافية", nCVs: (n) => `${n} سيرة محفوظة`,
+  newCV: "+ سيرة جديدة", noCVs: "لا توجد سير ذاتية بعد", noCVsNote: "أنشئ سيرة ذاتية احترافية في دقائق.", createFirst: "أنشئ أول سيرة ذاتية", chooseTemplate: "اختر قالباً",
+  saving: "جارٍ الحفظ…", saved: "تم الحفظ", savedDevice: "محفوظ على هذا الجهاز", downloadPdf: "تحميل PDF", reach30: "اصل إلى 30% للتحميل",
+  signInToDownload: "سجّل الدخول للتحميل", downloadTitle: "تحميل بصيغة PDF", complete: "مكتمل", savingShort: "جارٍ الحفظ…",
+  previewTab: "👁 معاينة", formTab: "✎ النموذج", gateDownloadTitle: "سجّل الدخول للتحميل",
+  gateDownloadMsg: "تبقى سيرتك الذاتية محفوظة في هذا المتصفح أثناء التعديل. يتطلب تحميلها حساباً حقيقياً — وهناك ستُتمّ الدفع أيضاً.",
+  scoreTitle: "اكتمال السيرة الذاتية", scoreImprove: "للتحسين", scoreDone: "مكتمل", scoreGate: "يُفعَّل تحميل PDF عند اكتمال 30%.",
+  scoreItems: {
+    "contact-full": "أكمل الاسم والبريد والهاتف", title: "أضف مسمىً وظيفياً", photo: "أضف صورة شخصية",
+    summary: "اكتب ملخصاً مهنياً (50 كلمة فأكثر)", "exp-exists": "أضف خبرة مهنية واحدة على الأقل", "exp-bullets": "اذكر نقطتين رئيسيتين أو أكثر لكل وظيفة",
+    education: "أضف شهادة أو تعليماً", skills: "اذكر 5 مهارات على الأقل", languages: "أضف اللغات التي تتحدثها",
+    linkedin: "أضف رابط LinkedIn", certifications: "أضف شهادة مهنية",
+  },
+  dragReorder: "اسحب لإعادة الترتيب", hideSection: "إخفاء القسم", showSection: "إظهار القسم", hide: "إخفاء", show: "إظهار",
+  fit: "ملاءمة", templates: "القوالب", aiRewrite: "إعادة الصياغة بالذكاء الاصطناعي", remove: "حذف",
+  firstName: "الاسم الأول", lastName: "اسم العائلة", jobTitle: "المسمى الوظيفي", phone: "الهاتف", city: "المدينة", linkedin: "LinkedIn", website: "الموقع / المعرض",
+  changePhoto: "انقر لتغيير الصورة", click: "انقر",
+  certification: "شهادة", certName: "الاسم", issuer: "الجهة المانحة", year: "السنة", addCert: "+ إضافة شهادة",
+  newEducation: "تعليم جديد", degree: "الشهادة", school: "المؤسسة", start: "البداية", end: "النهاية", details: "تفاصيل (اختياري)", addEducation: "+ إضافة تعليم",
+  newJob: "وظيفة جديدة", role: "المنصب", company: "الشركة", present: "حتى الآن", achievements: "الإنجازات", addExperience: "+ إضافة خبرة",
+  language: "اللغة", level: "المستوى", mastery: "الإتقان", addLanguage: "+ إضافة لغة",
+  project: "مشروع", name: "الاسم", description: "الوصف", addProject: "+ إضافة مشروع",
+  group: "المجموعة", skillsList: "المهارات (مفصولة بفواصل)", addGroup: "+ إضافة مجموعة",
+  sections: { summary: "الملف الشخصي", experience: "الخبرة", education: "التعليم", skills: "المهارات", languages: "اللغات", certifications: "الشهادات", projects: "المشاريع", interests: "الاهتمامات" }, photo: "+ صورة",
+};
+
+export const UI: Record<Lang, UiDict> = { en, fr, ar };

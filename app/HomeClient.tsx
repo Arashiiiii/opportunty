@@ -27,8 +27,10 @@ import { tailorCVForJob } from "./cv/_lib/tailor";
 import { markHandoff } from "./cv/_lib/handoff";
 import { readLocalDraft } from "./cv/_lib/local-draft";
 import { TemplateCarousel } from "./TemplateCarousel";
-import { DICT, LANGS } from "./i18n";
-import type { Lang, CountryCode } from "./i18n";
+import { DICT } from "./i18n";
+import type { CountryCode } from "./i18n";
+import { useUiLang } from "./_lib/useUiLang";
+import { UiLangSwitch } from "./_components/UiLangSwitch";
 import { LoginGateModal } from "./_components/LoginGateModal";
 
 const PRIMARY = "#ff4f00";
@@ -75,7 +77,6 @@ const COUNTRIES: { code: CountryCode; flag: string }[] = [
   { code: "SA", flag: "🇸🇦" },
 ];
 const COUNTRY_KEY = "opportunity_country_v1";
-const LANG_KEY = "opportunity_lang_v1";
 
 /** Fallback only for rows/DBs without a `country` value: guess from the location text. */
 const CITY_COUNTRY: [CountryCode, RegExp][] = [
@@ -95,7 +96,7 @@ export default function HomeClient() {
   const router = useRouter();
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [country, setCountry] = useState<CountryCode>("MA");
-  const [lang, setLang] = useState<Lang>("en");
+  const [lang] = useUiLang();
   const [jobs, setJobs] = useState<Job[]>(PLACEHOLDER_JOBS);
   const [feedLoading, setFeedLoading] = useState(false);
   const [query, setQuery] = useState("");
@@ -135,28 +136,6 @@ export default function HomeClient() {
       const saved = localStorage.getItem(COUNTRY_KEY) as CountryCode | null;
       if (saved && COUNTRIES.some((c) => c.code === saved)) setCountry(saved);
     } catch { /* storage unavailable */ }
-  }, []);
-
-  // Remembered language, else the browser's. Also drives <html lang/dir>.
-  useEffect(() => {
-    let l: Lang = "en";
-    try {
-      const saved = localStorage.getItem(LANG_KEY) as Lang | null;
-      if (saved && saved in DICT) l = saved;
-      else {
-        const nav = (navigator.language || "en").slice(0, 2).toLowerCase();
-        if (nav === "ar" || nav === "fr") l = nav;
-      }
-    } catch { /* storage unavailable */ }
-    setLang(l);
-  }, []);
-  useEffect(() => {
-    document.documentElement.lang = lang;
-    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-  }, [lang]);
-  const switchLang = useCallback((l: Lang) => {
-    setLang(l);
-    try { localStorage.setItem(LANG_KEY, l); } catch { /* ignore */ }
   }, []);
 
   // One country's feed at a time.
@@ -324,14 +303,7 @@ export default function HomeClient() {
       <header className="opp-topbar" style={{ position: "sticky", top: 0, zIndex: 20, background: "#fffefb", borderBottom: "1px solid rgba(32,21,21,0.12)", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
         <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px" }}>opportunity<span style={{ color: PRIMARY }}>.</span></div>
         <nav style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div role="group" aria-label="Language" style={{ flex: "0 0 auto", display: "flex", border: "1px solid rgba(32,21,21,0.15)", borderRadius: 9999, overflow: "hidden" }}>
-            {LANGS.map((l) => (
-              <button key={l.code} type="button" onClick={() => switchLang(l.code)} aria-pressed={lang === l.code}
-                style={{ padding: "6px 11px", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 700, background: lang === l.code ? "#201515" : "transparent", color: lang === l.code ? "#fffefb" : "#605d52" }}>
-                {l.label}
-              </button>
-            ))}
-          </div>
+          <UiLangSwitch />
           <a href="#" className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.employers}</a>
           {authed ? (
             <Link href="/cv" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.myCVs}</Link>

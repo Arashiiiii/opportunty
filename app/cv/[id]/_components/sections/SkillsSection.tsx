@@ -1,6 +1,7 @@
 "use client";
 import { useCVStore } from "../../../_store/cv-store";
 import { Field, Area, AddBtn, RemoveBtn, ItemCard } from "../_form-utils";
+import { useUI } from "@/app/_lib/useUiLang";
 
 export function SkillsSection() {
   const skills         = useCVStore((s) => s.cv.skills);
@@ -8,18 +9,19 @@ export function SkillsSection() {
   const addSkillGroup  = useCVStore((s) => s.addSkillGroup);
   const removeSkillGroup = useCVStore((s) => s.removeSkillGroup);
 
+  const { u } = useUI();
   return (
     <div>
       {skills.map((g) => (
         <ItemCard key={g.id}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a", flex: 1 }}>{g.group || "Groupe"}</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a", flex: 1 }}>{g.group || u.group}</span>
             <RemoveBtn onClick={() => removeSkillGroup(g.id)} />
           </div>
 
-          <Field label="Groupe" value={g.group} onChange={(v) => updatePath(`skills.${g.id}.group`, v)}
+          <Field label={u.group} value={g.group} onChange={(v) => updatePath(`skills.${g.id}.group`, v)}
             placeholder="Design, Outils & code…" />
-          <Area label="Compétences (séparées par virgules)"
+          <Area label={u.skillsList}
             value={g.items.join(", ")}
             onChange={(v) => updatePath(`skills.${g.id}.items`, v.split(",").map((x) => x.trim()).filter(Boolean))}
             rows={2}
@@ -27,7 +29,7 @@ export function SkillsSection() {
         </ItemCard>
       ))}
 
-      <AddBtn label="+ Ajouter un groupe" onClick={addSkillGroup} />
+      <AddBtn label={u.addGroup} onClick={addSkillGroup} />
     </div>
   );
 }

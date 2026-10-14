@@ -50,6 +50,7 @@ import { LanguagesSection } from "./sections/LanguagesSection";
 import { CertsSection }     from "./sections/CertsSection";
 import { ProjectsSection }  from "./sections/ProjectsSection";
 import { InterestsSection } from "./sections/InterestsSection";
+import { useUI } from "@/app/_lib/useUiLang";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Section count helpers — shown as badges on collapsed headers
@@ -118,6 +119,7 @@ function SectionBody({ id }: { id: SectionId }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function CVForm() {
+  const { u } = useUI();
   const order           = useCVStore((s) => s.order);
   const reorderSections = useCVStore((s) => s.reorderSections);
 
@@ -189,7 +191,7 @@ export function CVForm() {
                 cursor:       "grabbing",
                 userSelect:   "none",
               }}>
-                {SECTION_META[activeId].icon} {SECTION_META[activeId].label}
+                {SECTION_META[activeId].icon} {u.sections[activeId] ?? SECTION_META[activeId].label}
               </div>
             ) : null}
           </DragOverlay>

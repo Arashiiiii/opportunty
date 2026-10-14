@@ -1,6 +1,7 @@
 "use client";
 import { useCVStore } from "../../../_store/cv-store";
 import { Field, AddBtn, RemoveBtn, ItemCard, TWO_COL, LABEL_STYLE } from "../_form-utils";
+import { useUI } from "@/app/_lib/useUiLang";
 
 export function LanguagesSection() {
   const languages    = useCVStore((s) => s.cv.languages);
@@ -8,23 +9,24 @@ export function LanguagesSection() {
   const addLanguage  = useCVStore((s) => s.addLanguage);
   const removeLang   = useCVStore((s) => s.removeLanguage);
 
+  const { u } = useUI();
   return (
     <div>
       {languages.map((l) => (
         <ItemCard key={l.id}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a", flex: 1 }}>{l.name || "Langue"}</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#0f172a", flex: 1 }}>{l.name || u.language}</span>
             <RemoveBtn onClick={() => removeLang(l.id)} />
           </div>
 
           <div style={TWO_COL}>
-            <Field label="Langue" value={l.name}  onChange={(v) => updatePath(`languages.${l.id}.name`,  v)} placeholder="Français" />
-            <Field label="Niveau" value={l.level} onChange={(v) => updatePath(`languages.${l.id}.level`, v)} placeholder="Bilingue" />
+            <Field label={u.language} value={l.name}  onChange={(v) => updatePath(`languages.${l.id}.name`,  v)} placeholder="Français" />
+            <Field label={u.level} value={l.level} onChange={(v) => updatePath(`languages.${l.id}.level`, v)} placeholder="Bilingue" />
           </div>
 
           {/* Dot-rating 1–5 */}
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <label style={{ ...LABEL_STYLE, marginBottom: 0 }}>Maîtrise</label>
+            <label style={{ ...LABEL_STYLE, marginBottom: 0 }}>{u.mastery}</label>
             <div style={{ display: "flex", gap: 5 }}>
               {[1, 2, 3, 4, 5].map((d) => (
                 <button
@@ -49,7 +51,7 @@ export function LanguagesSection() {
         </ItemCard>
       ))}
 
-      <AddBtn label="+ Ajouter une langue" onClick={addLanguage} />
+      <AddBtn label={u.addLanguage} onClick={addLanguage} />
     </div>
   );
 }
