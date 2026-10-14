@@ -37,7 +37,8 @@ function LoginForm() {
   };
 
   return (
-    <div dir={rtl ? "rtl" : "ltr"} style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#fffefb", fontFamily: "'Inter', system-ui, sans-serif", padding: 20 }}>
+    <div dir={rtl ? "rtl" : "ltr"} className="seek-auth" style={{ minHeight: "100vh", display: "grid", gridTemplateColumns: "minmax(0, 1fr)", background: "#fffefb", fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
       <div style={{ width: "100%", maxWidth: 380 }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 32, textDecoration: "none" }}>
           <div style={{ width: 26, height: 26, borderRadius: 6, background: "linear-gradient(135deg, #ff4f00 0%, #ff4f00 50%, #201515 50%, #201515 100%)" }} />
@@ -71,6 +72,15 @@ function LoginForm() {
           {u.noAccount} <Link href="/signup" style={{ color: "#ff4f00", fontWeight: 600, textDecoration: "none" }}>{u.createOne}</Link>
         </p>
       </div>
+      </div>
+      <div className="seek-photo" aria-hidden="true" style={{ backgroundImage: "linear-gradient(to top, rgba(32,21,21,.35), rgba(32,21,21,0) 40%), url(/seekers-hero.jpg)", backgroundSize: "cover", backgroundPosition: "50% 30%" }} />
+      <style>{`
+        .seek-photo{display:none}
+        @media (min-width: 900px){
+          .seek-auth{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important}
+          .seek-photo{display:block;min-height:100vh}
+        }
+      `}</style>
     </div>
   );
 }
