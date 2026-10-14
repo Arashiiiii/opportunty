@@ -59,6 +59,36 @@ export default function CVListPage() {
     setCvs((prev) => prev.filter((c) => !ids.includes(c.id)));
   }, [userId, u]);
 
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const onFile = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !userId) return;
+    setCreateError(null);
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/cv/parse", { method: "POST", body: fd });
+      const json = await res.json();
+      if (!res.ok || !json.cv) { setCreateError(json.error ?? u.uploadFailed); return; }
+      const p = json.cv as { profile?: { firstName?: string; lastName?: string } };
+      const name = `${p.profile?.firstName ?? ""} ${p.profile?.lastName ?? ""}`.trim() || file.name.replace(/\.[^.]+$/, "");
+      const { data, error } = await supabase.from("cvs").insert({
+        user_id: userId, name, data: json.cv, template: "corso", accent: "#ff4f00", lang: "fr",
+        section_order: DEFAULT_SECTION_ORDER, sections_enabled: DEFAULT_SECTIONS_ENABLED,
+      }).select("id").single();
+      if (error || !data) { setCreateError(error?.message ?? u.uploadFailed); return; }
+      router.push(`/cv/${data.id}`);
+    } catch {
+      setCreateError(u.uploadFailed);
+    } finally {
+      setUploading(false);
+    }
+  }, [userId, router, u]);
+
   const createCV = useCallback(async (template: string) => {
     setCreateError(null);
     if (!userId) {
@@ -117,16 +147,19 @@ export default function CVListPage() {
 
       <div style={{ background: "#fff", borderBottom: "1px solid #e5e7eb", padding: "0 28px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 26, height: 26, borderRadius: 6, background: "linear-gradient(135deg, #ff4f00 0%, #ff4f00 50%, #201515 50%, #201515 100%)" }} />
-          <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
-            opportunity<span style={{ color: "#ff4f00" }}>.com</span>
-          </span>
+          <Link href="/" aria-label="opportunity.com" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
+            <div style={{ width: 26, height: 26, borderRadius: 6, background: "linear-gradient(135deg, #ff4f00 0%, #ff4f00 50%, #201515 50%, #201515 100%)" }} />
+            <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
+              opportunity<span style={{ color: "#ff4f00" }}>.com</span>
+            </span>
+          </Link>
           <span style={{ color: "#cbd5e1", margin: "0 6px", fontWeight: 300, fontSize: 18 }}>/</span>
           <span style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>{u.myCVs}</span>
         </div>
         <Link href="/" style={{ fontSize: 12, color: "#64748b", textDecoration: "none" }}>{u.home}</Link>
       </div>
 
+      <input ref={fileRef} type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={onFile} style={{ display: "none" }} />
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "40px 24px" }}>
 
         {createError && (
@@ -149,6 +182,9 @@ export default function CVListPage() {
                 {u.clearAll}
               </button>
             )}
+            <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading} style={{ padding: "9px 16px", borderRadius: 8, border: "1px solid #e5e7eb", background: "#fff", color: "#0f172a", fontSize: 13, fontWeight: 600, cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.7 : 1 }}>
+              {uploading ? u.uploadingCV : u.uploadCV}
+            </button>
             <button type="button" onClick={() => setShowModal(true)} style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: "#ff4f00", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
               {u.newCV}
             </button>
@@ -163,6 +199,11 @@ export default function CVListPage() {
             <button type="button" onClick={() => setShowModal(true)} style={{ padding: "10px 26px", borderRadius: 8, border: "none", background: "#ff4f00", color: "#fff", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
               {u.createFirst}
             </button>
+            <div style={{ marginTop: 12 }}>
+              <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading} style={{ padding: "10px 26px", borderRadius: 8, border: "1px solid #e5e7eb", background: "#fff", color: "#0f172a", fontSize: 14, fontWeight: 600, cursor: uploading ? "wait" : "pointer", fontFamily: "inherit" }}>
+                {uploading ? u.uploadingCV : u.uploadCV}
+              </button>
+            </div>
           </div>
         )}
 
