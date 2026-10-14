@@ -25,7 +25,6 @@ import type { TemplateId, CVData } from "./cv/_lib/schema";
 import { useCVStore } from "./cv/_store/cv-store";
 import { tailorCVForJob } from "./cv/_lib/tailor";
 import { markHandoff } from "./cv/_lib/handoff";
-import { readLocalDraft } from "./cv/_lib/local-draft";
 import { TemplateCarousel } from "./TemplateCarousel";
 import { DICT } from "./i18n";
 import type { CountryCode } from "./i18n";
@@ -104,17 +103,10 @@ export default function HomeClient() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => setAuthed(!!user));
 
-    // A CV the visitor already uploaded/created (in memory, or saved on this device).
+    // Only a CV uploaded/created during this visit counts. A leftover browser draft must not
+    // silently skip the upload step when a job is dropped.
     const inMemory = useCVStore.getState().cv;
-    if (cvHasContent(inMemory)) {
-      setHomeCV(inMemory);
-    } else {
-      const draft = readLocalDraft();
-      if (draft && cvHasContent(draft.cv)) {
-        useCVStore.getState().loadCV(draft.cv);
-        setHomeCV(draft.cv);
-      }
-    }
+    if (cvHasContent(inMemory)) setHomeCV(inMemory);
   }, []);
 
   // Remembered country (client-only; first paint is Morocco to avoid hydration mismatch).
