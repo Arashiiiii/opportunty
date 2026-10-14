@@ -93,6 +93,7 @@ export default function HomeClient() {
   const [country, setCountry] = useState<CountryCode>("MA");
   const [jobs, setJobs] = useState<Job[]>(PLACEHOLDER_JOBS);
   const [feedLoading, setFeedLoading] = useState(false);
+  const [query, setQuery] = useState("");
   const [usingPlaceholders, setUsingPlaceholders] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -158,6 +159,11 @@ export default function HomeClient() {
     })();
     return () => { cancelled = true; };
   }, [country]);
+
+  const q = query.trim().toLowerCase();
+  const visibleJobs = q
+    ? jobs.filter((j) => [j.title, j.company, j.location, ...(j.tags ?? [])].some((t) => t?.toLowerCase().includes(q)))
+    : jobs;
 
   const switchCountry = useCallback((c: CountryCode) => {
     setCountry(c);
@@ -300,13 +306,22 @@ export default function HomeClient() {
         <div className="opp-search" style={{ width: "100%", maxWidth: 720, display: "flex", alignItems: "center", background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 6, gap: 4 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexGrow: 1, padding: "8px 12px" }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-            <input type="text" placeholder="Job title, skill or company" style={{ border: "none", outline: "none", fontSize: 16, fontFamily: "inherit", width: "100%", color: "#201515", background: "transparent" }} />
+            <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Job title, skill or company" style={{ border: "none", outline: "none", fontSize: 16, fontFamily: "inherit", width: "100%", color: "#201515", background: "transparent" }} />
           </div>
           <div className="opp-search-divider" style={{ width: 1, height: 24, background: "rgba(32,21,21,0.12)" }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", minWidth: 160 }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", minWidth: 190, cursor: "pointer" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-            <span style={{ fontSize: 16, color: "#605d52" }}>All of {COUNTRIES.find((c) => c.code === country)!.hero}</span>
-          </div>
+            <select
+              aria-label="Country"
+              value={country}
+              onChange={(e) => switchCountry(e.target.value as CountryCode)}
+              style={{ flexGrow: 1, border: "none", outline: "none", background: "transparent", fontSize: 16, fontFamily: "inherit", color: "#201515", cursor: "pointer", appearance: "auto" }}
+            >
+              {COUNTRIES.map((c) => (
+                <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
+              ))}
+            </select>
+          </label>
           <button type="button" className="opp-search-btn" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 24px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" }}>
             Search
           </button>
@@ -342,17 +357,17 @@ export default function HomeClient() {
           </div>
 
           <div style={{ fontSize: 14, color: "#605d52" }}>
-            {feedLoading ? "Loading…" : `${jobs.length} open roles in ${COUNTRIES.find((c) => c.code === country)!.hero}`} · drag any card into your CV
+            {feedLoading ? "Loading…" : `${visibleJobs.length} open roles in ${COUNTRIES.find((c) => c.code === country)!.hero}`} · drag any card into your CV
             {usingPlaceholders && <span style={{ color: "#c5a15a" }}> (sample listings — connect real postings)</span>}
           </div>
 
-          {!feedLoading && jobs.length === 0 && (
+          {!feedLoading && visibleJobs.length === 0 && (
             <div style={{ background: "#f8f4f0", border: "1px dashed rgba(32,21,21,0.2)", borderRadius: 12, padding: 32, textAlign: "center", color: "#605d52", fontSize: 16 }}>
-              No open roles in {COUNTRIES.find((c) => c.code === country)!.name} yet — check back soon, or try another country.
+              {q ? `No roles matching “${query.trim()}” in ${COUNTRIES.find((c) => c.code === country)!.name}.` : `No open roles in ${COUNTRIES.find((c) => c.code === country)!.name} yet — check back soon, or try another country.`}
             </div>
           )}
 
-          {jobs.map((job) => {
+          {visibleJobs.map((job) => {
             const isExpanded = expandedId === job.id;
             return (
               <div
