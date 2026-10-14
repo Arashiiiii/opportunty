@@ -304,6 +304,41 @@ export async function translateCVWithAI(cv: CVData, target: "fr" | "en" | "ar"):
 }
 
 // ─────────────────────────────────────────────────────────────────────────
+// CV → same CV, proofread (grammar / spelling / punctuation) in its own language
+// ─────────────────────────────────────────────────────────────────────────
+
+export async function proofreadCVWithAI(cv: CVData): Promise<{ cv: CVData; changed: number }> {
+  const next: CVData = JSON.parse(JSON.stringify(cv));
+  const slots = translatableSlots(next);
+  if (slots.length === 0) return { cv: next, changed: 0 };
+  const original = slots.map((x) => x.get());
+
+  const anthropic = getClient();
+  const msg = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 6000,
+    tools: [TRANSLATE_TOOL],
+    tool_choice: { type: "tool", name: "submit_translation" },
+    messages: [{
+      role: "user",
+      content: `Proofread each CV text below. Return exactly ${slots.length} strings in the same order, each in the SAME language as its input (do not translate).\n\nCorrect grammar, spelling, punctuation, verb tense, agreement, capitalisation and awkward phrasing so every string reads like polished professional CV prose from a native speaker. Make the smallest edits that achieve this: keep the meaning, facts, names, numbers, dates, technology names and approximate length. Do not add or remove information. If a string is already correct, return it unchanged. Output only the corrected text, no notes.\n\n${WRITING_RULES}\n\n${JSON.stringify(original)}`,
+    }],
+  });
+
+  const toolUse = msg.content.find((b) => b.type === "tool_use");
+  if (!toolUse || toolUse.type !== "tool_use") throw new Error("Claude did not return structured output");
+  const strings = (toolUse.input as { strings?: unknown }).strings;
+  if (!Array.isArray(strings) || strings.length !== slots.length) throw new Error("Proofread length mismatch");
+
+  let changed = 0;
+  slots.forEach((slot, i) => {
+    const t = polishLine(cleanText(strings[i]));
+    if (t && t !== original[i]) { slot.set(t); changed++; }
+  });
+  return { cv: next, changed };
+}
+
+// ─────────────────────────────────────────────────────────────────────────
 // Shared: turn the tool's loosely-typed input into a validated CVData,
 // injecting the ids the schema requires (the model isn't asked for them).
 // ─────────────────────────────────────────────────────────────────────────

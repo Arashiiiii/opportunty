@@ -27,6 +27,7 @@ import { ScoreRing }    from "./ScoreRing";
 import { ScorePopover } from "./ScorePopover";
 import { UiLangSwitch } from "@/app/_components/UiLangSwitch";
 import { LangToggle }   from "./LangToggle";
+import { ProofreadButton } from "./ProofreadButton";
 import { useUI } from "@/app/_lib/useUiLang";
 import { LogoMark } from "../../../_components/LogoMark";
 
@@ -229,6 +230,7 @@ export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
         <>
           <UiLangSwitch compact />
           <LangToggle />
+          <ProofreadButton />
 
           <div style={{ position: "relative", flexShrink: 0 }}>
             <button
