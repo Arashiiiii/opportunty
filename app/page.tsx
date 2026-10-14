@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import HomeClient from "./HomeClient";
+import { SITE_TITLE, SITE_DESCRIPTION } from "@/lib/site";
 
-export const metadata = {
-  title: "opportunity.com — Job search & AI CV builder",
-  description: "Search open roles across Morocco, then drag one into your CV and let AI tailor it to the job.",
+export const metadata: Metadata = {
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: "/" },
 };
 
 export default function Home() {
