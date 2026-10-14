@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useUiLang } from "../_lib/useUiLang";
 import { FOOTER } from "../_lib/legal-dict";
 import { COMPANY } from "../_lib/company";
+import { LogoMark } from "./LogoMark";
 
 const INK = "#201515";
 const col: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 10, minWidth: 140 };
@@ -17,7 +18,7 @@ export function SiteFooter() {
       <div style={{ maxWidth: 1060, margin: "0 auto", padding: "40px 24px 24px", display: "flex", flexWrap: "wrap", gap: "32px 56px", justifyContent: "space-between" }}>
         <div style={{ maxWidth: 300, flex: "1 1 220px" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
-            <div style={{ width: 24, height: 24, borderRadius: 6, background: "linear-gradient(135deg, #ff4f00 0%, #ff4f00 50%, #fffefb 50%, #fffefb 100%)" }} />
+            <LogoMark size={24} />
             <span style={{ fontSize: 15, fontWeight: 700, color: "#fffefb" }}>opportunity<span style={{ color: "#ff4f00" }}>.com</span></span>
           </Link>
           <p style={{ fontSize: 14, color: "#b9b0a5", lineHeight: 1.5, margin: "12px 0 0" }}>{f.tagline}</p>

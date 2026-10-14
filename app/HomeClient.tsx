@@ -35,6 +35,7 @@ import { UiLangSwitch } from "./_components/UiLangSwitch";
 import { LoginGateModal } from "./_components/LoginGateModal";
 import { inferCountry } from "./_lib/country";
 import { isEmployer } from "./employers/_role";
+import { LogoMark } from "./_components/LogoMark";
 import { SiteFooter } from "./_components/SiteFooter";
 
 const PRIMARY = "#ff4f00";
@@ -368,7 +369,7 @@ export default function HomeClient() {
 
       {/* Header */}
       <header className="opp-topbar" style={{ position: "sticky", top: 0, zIndex: 20, background: "#fffefb", borderBottom: "1px solid rgba(32,21,21,0.12)", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
-        <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px" }}>opportunity<span style={{ color: PRIMARY }}>.</span></div>
+        <div style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px" }}><LogoMark size={28} /><span>opportunity<span style={{ color: PRIMARY }}>.</span></span></div>
         <nav style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <UiLangSwitch />
           <Link href={employer ? "/dashboard/employer" : "/employers/login"} className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.employers}</Link>

@@ -8,6 +8,7 @@
  */
 import Link from "next/link";
 import { useUI } from "@/app/_lib/useUiLang";
+import { LogoMark } from "./LogoMark";
 
 interface Props {
   onClose: () => void;
@@ -27,7 +28,7 @@ export function LoginGateModal({ onClose, next, title, message }: Props) {
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div style={{ background: "#fffefb", borderRadius: 16, padding: 32, width: "100%", maxWidth: 380, textAlign: "center", boxShadow: "0 24px 64px rgba(0,0,0,.2)" }}>
-        <div style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg, #ff4f00 0%, #ff4f00 50%, #201515 50%, #201515 100%)", margin: "0 auto 16px" }} />
+        <LogoMark size={40} style={{ margin: "0 auto 16px" }} />
         <h2 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 8px" }}>{title ?? u.gateTitle}</h2>
         <p style={{ fontSize: 14, color: "#605d52", margin: "0 0 24px", lineHeight: 1.5 }}>
           {message ?? u.gateMsg}

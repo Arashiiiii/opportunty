@@ -4,6 +4,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useUI } from "@/app/_lib/useUiLang";
 import { UiLangSwitch } from "@/app/_components/UiLangSwitch";
+import { LogoMark } from "../_components/LogoMark";
 
 export default function SignupPage() {
   const { u, rtl } = useUI();
@@ -33,7 +34,7 @@ export default function SignupPage() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
       <div style={{ width: "100%", maxWidth: 380 }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 32, textDecoration: "none" }}>
-          <div style={{ width: 26, height: 26, borderRadius: 6, background: "linear-gradient(135deg, #ff4f00 0%, #ff4f00 50%, #201515 50%, #201515 100%)" }} />
+          <LogoMark size={26} />
           <span style={{ fontSize: 15, fontWeight: 700, color: "#201515" }}>opportunity<span style={{ color: "#ff4f00" }}>.com</span></span>
         </Link>
 

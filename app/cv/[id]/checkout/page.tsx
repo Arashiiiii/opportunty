@@ -15,6 +15,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useUI } from "@/app/_lib/useUiLang";
 import { UiLangSwitch } from "@/app/_components/UiLangSwitch";
+import { LogoMark } from "../../../_components/LogoMark";
 
 const supabase = createClient();
 
@@ -37,7 +38,7 @@ export default function CheckoutPage() {
     <div dir={rtl ? "rtl" : "ltr"} style={{ minHeight: "100vh", background: "#fffefb", fontFamily: "'Inter', system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div style={{ maxWidth: 440, width: "100%", textAlign: "center" }}>
         <div style={{ marginBottom: 16 }}><UiLangSwitch compact /></div>
-        <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg, #ff4f00 0%, #ff4f00 50%, #201515 50%, #201515 100%)", margin: "0 auto 20px" }} />
+        <LogoMark size={44} style={{ margin: "0 auto 20px" }} />
 
         <h1 style={{ fontSize: 22, fontWeight: 700, color: "#201515", margin: "0 0 8px" }}>
           {u.payTitle}

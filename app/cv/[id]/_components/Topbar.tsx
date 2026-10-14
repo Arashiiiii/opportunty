@@ -28,6 +28,7 @@ import { ScorePopover } from "./ScorePopover";
 import { UiLangSwitch } from "@/app/_components/UiLangSwitch";
 import { LangToggle }   from "./LangToggle";
 import { useUI } from "@/app/_lib/useUiLang";
+import { LogoMark } from "../../../_components/LogoMark";
 
 const supabase = createClient();
 
@@ -145,7 +146,7 @@ export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
         href="/"
         style={{ display: "flex", alignItems: "center", gap: 8, paddingRight: isMobile ? 8 : 14, borderRight: "1px solid #e5e7eb", height: "100%", flexShrink: 0, textDecoration: "none" }}
       >
-        <div style={{ width: 26, height: 26, borderRadius: 6, background: "linear-gradient(135deg, #ff4f00 0%, #ff4f00 50%, #201515 50%, #201515 100%)", flexShrink: 0 }} />
+        <LogoMark size={26} style={{ flexShrink: 0 }} />
         {!isMobile && (
           <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
             opportunity<span style={{ color: "#ff4f00" }}>.com</span>

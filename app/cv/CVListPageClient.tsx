@@ -14,6 +14,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { EMPTY_CV, DEFAULT_SECTION_ORDER, DEFAULT_SECTIONS_ENABLED, TEMPLATE_REGISTRY } from "./_lib/schema";
 import { useUI } from "@/app/_lib/useUiLang";
+import { LogoMark } from "../_components/LogoMark";
 
 const supabase = createClient();
 
@@ -148,7 +149,7 @@ export default function CVListPage() {
       <div style={{ background: "#fff", borderBottom: "1px solid #e5e7eb", padding: "0 28px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <Link href="/" aria-label="opportunity.com" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-            <div style={{ width: 26, height: 26, borderRadius: 6, background: "linear-gradient(135deg, #ff4f00 0%, #ff4f00 50%, #201515 50%, #201515 100%)" }} />
+            <LogoMark size={26} />
             <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
               opportunity<span style={{ color: "#ff4f00" }}>.com</span>
             </span>
