@@ -10,7 +10,7 @@
  *    then continue to checkout.
  *  - signed in, saved CV    → straight to checkout.
  *
- * Checkout is a placeholder today (Dodo Payments wiring comes later); the
+ * Checkout is live via Dodo Payments (see /api/payments/*); the
  * print/export route itself is only reachable from there.
  */
 import { useState, useMemo, useCallback } from "react";
