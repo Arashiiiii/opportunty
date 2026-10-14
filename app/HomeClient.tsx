@@ -26,7 +26,7 @@ import { useCVStore } from "./cv/_store/cv-store";
 import { tailorCVForJob } from "./cv/_lib/tailor";
 import { markHandoff } from "./cv/_lib/handoff";
 import { readLocalDraft } from "./cv/_lib/local-draft";
-import { TemplateThumb } from "./TemplateThumb";
+import { TemplateCarousel } from "./TemplateCarousel";
 import { LoginGateModal } from "./_components/LoginGateModal";
 
 const PRIMARY = "#ff4f00";
@@ -94,7 +94,6 @@ export default function HomeClient() {
   const [jobs, setJobs] = useState<Job[]>(PLACEHOLDER_JOBS);
   const [feedLoading, setFeedLoading] = useState(false);
   const [query, setQuery] = useState("");
-  const [previewId, setPreviewId] = useState<TemplateId | null>(null);
   const [usingPlaceholders, setUsingPlaceholders] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -337,57 +336,14 @@ export default function HomeClient() {
           <div style={{ fontSize: 16, color: "#605d52" }}>10 ATS-compatible templates · free to edit, pay only to download</div>
         </div>
 
-        {(() => {
-          const shown = TEMPLATE_REGISTRY.find((t) => t.id === (previewId ?? templateId)) ?? TEMPLATE_REGISTRY[0];
-          return (
-            <div className="opp-tpl-showcase" style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 24, alignItems: "start" }}>
-              {/* Big preview of the hovered / selected template */}
-              <div style={{ background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 16, padding: 16 }}>
-                <div style={{ aspectRatio: "1653 / 2339", background: "#fffefb", borderRadius: 8, overflow: "hidden", boxShadow: "0 8px 24px rgba(32,21,21,0.12)" }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img key={shown.id} src={`/templates/${shown.id}.png`} alt={`${shown.name} CV template`} className="opp-tpl-fade" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "14px 0 2px" }}>
-                  <div style={{ fontSize: 18, fontWeight: 600 }}>{shown.name}</div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: shown.accent, background: hexToRgbaLite(shown.accent), borderRadius: 9999, padding: "1px 8px" }}>Pro</span>
-                </div>
-                <div style={{ fontSize: 14, color: "#939084", marginBottom: 14 }}>{shown.sub}</div>
-                <button
-                  type="button"
-                  onClick={() => { setTemplateId(shown.id); enterBuilder(useCVStore.getState().cv ?? EMPTY_CV, shown.id); }}
-                  style={{ width: "100%", fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: 12, borderRadius: 10, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}
-                >
-                  Use this template →
-                </button>
-              </div>
-
-              {/* All templates at once — no scrolling */}
-              <div className="opp-tpl-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 14 }}>
-                {TEMPLATE_REGISTRY.map((tpl) => {
-                  const active = shown.id === tpl.id;
-                  return (
-                    <button
-                      key={tpl.id}
-                      type="button"
-                      className="opp-tpl-card"
-                      onMouseEnter={() => setPreviewId(tpl.id)}
-                      onFocus={() => setPreviewId(tpl.id)}
-                      onClick={() => { setPreviewId(tpl.id); setTemplateId(tpl.id); }}
-                      aria-pressed={active}
-                      style={{ padding: 0, background: "none", border: "none", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
-                    >
-                      <div style={{ aspectRatio: "1653 / 2339", borderRadius: 8, overflow: "hidden", background: "#fffefb", border: `2px solid ${active ? PRIMARY : "rgba(32,21,21,0.12)"}`, boxShadow: active ? "0 6px 18px rgba(255,79,0,0.25)" : "none" }}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={`/templates/${tpl.id}.png`} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
-                      </div>
-                      <div style={{ fontSize: 13.5, fontWeight: 600, marginTop: 6, color: active ? PRIMARY : "#201515" }}>{tpl.name}</div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })()}
+        <TemplateCarousel
+          templates={TEMPLATE_REGISTRY.map((t) => ({ id: t.id, name: t.name, sub: t.sub, accent: t.accent }))}
+          onUse={(id) => {
+            const tid = id as TemplateId;
+            setTemplateId(tid);
+            enterBuilder(useCVStore.getState().cv ?? EMPTY_CV, tid);
+          }}
+        />
       </div>
 
       {/* Two-column workspace */}
