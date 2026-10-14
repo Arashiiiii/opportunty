@@ -104,9 +104,6 @@ function Form({ mode }: { mode: "login" | "signup" }) {
               ? <>{e.noAccount} <Link href="/employers/signup" style={{ color: "#ff4f00", fontWeight: 600, textDecoration: "none" }}>{e.createOne}</Link></>
               : <>{e.haveAccount} <Link href="/employers/login" style={{ color: "#ff4f00", fontWeight: 600, textDecoration: "none" }}>{e.signIn}</Link></>}
           </p>
-          <p style={{ fontSize: 13, textAlign: "center", margin: "8px 0 0" }}>
-            <Link href="/login" style={{ color: "#6b6259", textDecoration: "underline", textUnderlineOffset: 2 }}>{e.jobSeeker}</Link>
-          </p>
         </div>
       </div>
     </div>

@@ -6,7 +6,7 @@ export interface EmpDict {
   signIn: string; signingIn: string; createAccount: string; creating: string;
   noAccount: string; createOne: string; haveAccount: string;
   checkInbox: string; notEmployer: string; wrongAccount: string;
-  jobSeeker: string; hiringLink: string; perks: string[];
+  employerAccount: string; jobSeeker: string; hiringLink: string; perks: string[];
 }
 
 const en: EmpDict = {
@@ -18,6 +18,7 @@ const en: EmpDict = {
   checkInbox: "Check your inbox: we sent a confirmation link to {email}.",
   notEmployer: "This is a job seeker account. Sign in with an employer account, or create one.",
   wrongAccount: "Please sign in with your employer account.",
+  employerAccount: "This is an employer account. Employers sign in from “For employers” on the home page.",
   jobSeeker: "Looking for a job? Job seeker sign in", hiringLink: "Hiring? Employer sign in",
   perks: ["Live view of the hiring market by country", "Post jobs and track applicants (coming soon)", "Job seekers across 6 countries"],
 };
@@ -30,6 +31,7 @@ const fr: EmpDict = {
   checkInbox: "Vérifiez votre boîte mail : nous avons envoyé un lien de confirmation à {email}.",
   notEmployer: "Ceci est un compte candidat. Connectez-vous avec un compte recruteur ou créez-en un.",
   wrongAccount: "Veuillez vous connecter avec votre compte recruteur.",
+  employerAccount: "Ceci est un compte recruteur. Les recruteurs se connectent depuis « Recruteurs » sur la page d'accueil.",
   jobSeeker: "Vous cherchez un emploi ? Connexion candidat", hiringLink: "Vous recrutez ? Connexion recruteur",
   perks: ["Vue en direct du marché de l'emploi par pays", "Publiez des offres et suivez les candidats (bientôt)", "Des candidats dans 6 pays"],
 };
@@ -42,6 +44,7 @@ const ar: EmpDict = {
   checkInbox: "تحقق من بريدك: أرسلنا رابط التأكيد إلى {email}.",
   notEmployer: "هذا حساب باحث عن عمل. سجّل الدخول بحساب صاحب عمل أو أنشئ واحداً.",
   wrongAccount: "يرجى تسجيل الدخول بحساب صاحب العمل.",
+  employerAccount: "هذا حساب صاحب عمل. يسجّل أصحاب العمل الدخول من «للشركات» في الصفحة الرئيسية.",
   jobSeeker: "تبحث عن عمل؟ دخول الباحثين عن عمل", hiringLink: "توظّف؟ دخول أصحاب العمل",
   perks: ["نظرة مباشرة على سوق التوظيف حسب الدولة", "انشر الوظائف وتابع المتقدمين (قريباً)", "باحثون عن عمل في 6 دول"],
 };

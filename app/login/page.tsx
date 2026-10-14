@@ -6,6 +6,7 @@ import { UiLangSwitch } from "@/app/_components/UiLangSwitch";
 import { createClient } from "@/lib/supabase/client";
 import { useUI } from "@/app/_lib/useUiLang";
 import { EMP } from "@/app/employers/_dict";
+import { isEmployer } from "@/app/employers/_role";
 
 function LoginForm() {
   const { u, rtl, lang } = useUI();
@@ -23,9 +24,14 @@ function LoginForm() {
     setBusy(true);
     setError(null);
     const supabase = createClient();
-    const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error: err } = await supabase.auth.signInWithPassword({ email, password });
+    if (err) { setBusy(false); setError(err.message); return; }
+    if (isEmployer(data.user)) {
+      // Job seeker and employer accounts are separate: employers use their own sign-in.
+      await supabase.auth.signOut();
+      setBusy(false); setError(EMP[lang].employerAccount); return;
+    }
     setBusy(false);
-    if (err) { setError(err.message); return; }
     router.push(next);
     router.refresh();
   };
@@ -63,9 +69,6 @@ function LoginForm() {
 
         <p style={{ fontSize: 13, color: "#6b6259", marginTop: 20, textAlign: "center" }}>
           {u.noAccount} <Link href="/signup" style={{ color: "#ff4f00", fontWeight: 600, textDecoration: "none" }}>{u.createOne}</Link>
-        </p>
-        <p style={{ fontSize: 13, color: "#6b6259", marginTop: 8, textAlign: "center" }}>
-          <Link href="/employers/login" style={{ color: "#6b6259", textDecoration: "underline", textUnderlineOffset: 2 }}>{EMP[lang].hiringLink}</Link>
         </p>
       </div>
     </div>

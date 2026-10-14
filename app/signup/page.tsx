@@ -3,11 +3,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useUI } from "@/app/_lib/useUiLang";
-import { EMP } from "@/app/employers/_dict";
 import { UiLangSwitch } from "@/app/_components/UiLangSwitch";
 
 export default function SignupPage() {
-  const { u, rtl, lang } = useUI();
+  const { u, rtl } = useUI();
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy]         = useState(false);
@@ -70,9 +69,6 @@ export default function SignupPage() {
 
         <p style={{ fontSize: 13, color: "#6b6259", marginTop: 20, textAlign: "center" }}>
           {u.haveAccount} <Link href="/login" style={{ color: "#ff4f00", fontWeight: 600, textDecoration: "none" }}>{u.signIn}</Link>
-        </p>
-        <p style={{ fontSize: 13, color: "#6b6259", marginTop: 8, textAlign: "center" }}>
-          <Link href="/employers/login" style={{ color: "#6b6259", textDecoration: "underline", textUnderlineOffset: 2 }}>{EMP[lang].hiringLink}</Link>
         </p>
       </div>
     </div>
