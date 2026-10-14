@@ -9,6 +9,7 @@
  */
 import type { CVData } from "./schema";
 import { uid } from "./schema";
+import { joinList, polishParagraph } from "./polish";
 
 export interface TailorJob {
   title:       string;
@@ -28,13 +29,12 @@ export function tailorCVForJob(base: CVData, job: TailorJob): CVData {
   const matched = job.tags.filter((t) => existingSkills.has(t.toLowerCase().trim()));
   const newTags = job.tags.filter((t) => !existingSkills.has(t.toLowerCase().trim()));
 
+  // Fallback only (no AI): one clean, CV-voice sentence naming the target role.
   const lead = matched.length > 0
-    ? `Tailored for the ${job.title} role at ${job.company}, bringing hands-on experience in ${matched.join(", ")}.`
-    : `Tailored for the ${job.title} role at ${job.company}.`;
+    ? `Targeting the ${job.title} position at ${job.company}, with hands-on experience in ${joinList(matched)}.`
+    : `Targeting the ${job.title} position at ${job.company}.`;
 
-  next.summary = next.summary?.trim()
-    ? `${lead} ${next.summary.trim()}`
-    : lead;
+  next.summary = polishParagraph(next.summary?.trim() ? `${lead} ${next.summary.trim()}` : lead);
 
   if (newTags.length > 0) {
     next.skills = [

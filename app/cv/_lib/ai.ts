@@ -14,6 +14,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import type { TailorReport } from "./tailor-report";
 import { CVDataSchema, EMPTY_CV, uid } from "./schema";
 import type { CVData } from "./schema";
+import { polishLine, polishParagraph } from "./polish";
 
 const MODEL = "claude-sonnet-5";
 
@@ -29,6 +30,9 @@ function getClient(): Anthropic {
 // ─────────────────────────────────────────────────────────────────────────
 // Résumé → structured CV
 // ─────────────────────────────────────────────────────────────────────────
+
+/** Writing-quality rules shared by every prompt whose output lands on a CV. */
+const WRITING_RULES = `Writing quality (mandatory): every string you output must be grammatically correct, correctly spelled and properly punctuated in its own language, and read like polished professional CV prose written by a native speaker. Use consistent tense: past tense for previous roles, present tense only for a current role (end date "Present"). Start each bullet with a strong action verb, with no first-person pronouns and no filler. Keep a consistent register and capitalisation (sentence case for bullets and summary, standard capitalisation for job titles and proper nouns). Fix typos, broken words, stray hyphenation, stray line breaks and spacing errors found in the source, but never change facts, names, numbers or dates. Do not mix languages inside one CV unless the source does (technology names excepted).`;
 
 const RESUME_TOOL = {
   name: "submit_cv",
@@ -130,7 +134,7 @@ export async function structureResumeWithAI(rawText: string): Promise<CVData> {
     tool_choice: { type: "tool", name: "submit_cv" },
     messages: [{
       role: "user",
-      content: `Structure this résumé text into the CV schema. Only use information present in the text — never invent employers, dates, or numbers. Leave a field empty ("" or []) rather than guessing.\n\n---\n${rawText.slice(0, 12000)}\n---`,
+      content: `Structure this résumé text into the CV schema. Only use information present in the text — never invent employers, dates, or numbers. Leave a field empty ("" or []) rather than guessing.\n\n${WRITING_RULES}\n\n---\n${rawText.slice(0, 12000)}\n---`,
     }],
   });
 
@@ -192,7 +196,7 @@ export async function tailorCVWithAI(cv: CVData, job: TailorJobInput): Promise<{
     tool_choice: { type: "tool", name: "submit_tailoring" },
     messages: [{
       role: "user",
-      content: `Candidate's current CV (JSON; experience entries are identified by their 0-based position in "experience"):\n${JSON.stringify(cv)}\n\nTarget job:\nTitle: ${job.title}\nCompany: ${job.company}\nLocation: ${job.location ?? ""}\nTags: ${job.tags.join(", ")}\nDescription: ${job.description}\n\nTailor this CV for this job.\n\nRules:\n- Stay honest. Never claim experience, titles, tools, numbers or results the CV does not support. Rephrase and reorder only; the facts must stay the same.\n- Headline and summary: CV text only, no notes or commentary about fit.\n- Experience: for each entry that benefits, return its bullets reordered (most relevant first) and reworded with the job's own vocabulary where it is truthful. Keep the original language of the CV. Do not add bullets. Leave entries untouched if nothing helps.\n- Skills list: only skills the candidate really has.\n- match_score, matched_skills and missing_skills describe the real fit, strictly. missing_skills are suggestions for the candidate and are NOT added to the CV.\n- changes: 3-6 short factual lines about what you changed.\nThe output goes straight onto the candidate's CV, so no markup, notes or warnings inside the CV fields.`,
+      content: `Candidate's current CV (JSON; experience entries are identified by their 0-based position in "experience"):\n${JSON.stringify(cv)}\n\nTarget job:\nTitle: ${job.title}\nCompany: ${job.company}\nLocation: ${job.location ?? ""}\nTags: ${job.tags.join(", ")}\nDescription: ${job.description}\n\nTailor this CV for this job.\n\nRules:\n- Stay honest. Never claim experience, titles, tools, numbers or results the CV does not support. Rephrase and reorder only; the facts must stay the same.\n- Headline and summary: CV text only, no notes or commentary about fit.\n- Experience: for each entry that benefits, return its bullets reordered (most relevant first) and reworded with the job's own vocabulary where it is truthful. Keep the original language of the CV. Do not add bullets. Leave entries untouched if nothing helps.\n- Skills list: only skills the candidate really has.\n- match_score, matched_skills and missing_skills describe the real fit, strictly. missing_skills are suggestions for the candidate and are NOT added to the CV.\n- changes: 3-6 short factual lines about what you changed.\n${WRITING_RULES}\nThe output goes straight onto the candidate's CV, so no markup, notes or warnings inside the CV fields.`,
     }],
   });
 
@@ -204,9 +208,9 @@ export async function tailorCVWithAI(cv: CVData, job: TailorJobInput): Promise<{
     experience?: { index: number; bullets: string[] }[];
     match_score?: number; matched_skills?: string[]; missing_skills?: string[]; changes?: string[];
   };
-  const list = (v: unknown, n: number) => (Array.isArray(v) ? v : []).map(cleanText).filter(Boolean).slice(0, n);
-  out.title = cleanText(out.title);
-  out.summary = cleanText(out.summary);
+  const list = (v: unknown, n: number) => (Array.isArray(v) ? v : []).map((x) => polishLine(cleanText(x))).filter(Boolean).slice(0, n);
+  out.title = polishLine(cleanText(out.title));
+  out.summary = polishParagraph(cleanText(out.summary));
   out.skill_group_name = cleanText(out.skill_group_name);
   out.skills = list(out.skills, 20);
 
@@ -286,7 +290,7 @@ export async function translateCVWithAI(cv: CVData, target: "fr" | "en" | "ar"):
     tool_choice: { type: "tool", name: "submit_translation" },
     messages: [{
       role: "user",
-      content: `Translate each CV text below into ${LANG_NAME[target]}. Return exactly ${slots.length} strings in the same order.\n\nRules: natural professional CV register; keep company names, school names, people names, product/tool/technology names, numbers and dates unchanged; do not add, remove or merge anything; if a string is already in ${LANG_NAME[target]}, return it unchanged. Output only the translated text, no notes.\n\n${JSON.stringify(slots.map((x) => x.get()))}`,
+      content: `Translate each CV text below into ${LANG_NAME[target]}. Return exactly ${slots.length} strings in the same order.\n\nRules: natural professional CV register; keep company names, school names, people names, product/tool/technology names, numbers and dates unchanged; do not add, remove or merge anything; if a string is already in ${LANG_NAME[target]}, return it unchanged. ${WRITING_RULES} Output only the translated text, no notes.\n\n${JSON.stringify(slots.map((x) => x.get()))}`,
     }],
   });
 
@@ -295,7 +299,7 @@ export async function translateCVWithAI(cv: CVData, target: "fr" | "en" | "ar"):
   const strings = (toolUse.input as { strings?: unknown }).strings;
   if (!Array.isArray(strings) || strings.length !== slots.length) throw new Error("Translation length mismatch");
 
-  slots.forEach((slot, i) => { const t = cleanText(strings[i]); if (t) slot.set(t); });
+  slots.forEach((slot, i) => { const t = polishLine(cleanText(strings[i])); if (t) slot.set(t); });
   return next;
 }
 
@@ -309,26 +313,26 @@ function normalizeAIResult(raw: Record<string, unknown>): CVData {
     profile: {
       firstName: str(raw.profile, "firstName"),
       lastName:  str(raw.profile, "lastName"),
-      title:     str(raw.profile, "title"),
+      title:     polishLine(str(raw.profile, "title")),
       email:     str(raw.profile, "email"),
       phone:     str(raw.profile, "phone"),
       city:      str(raw.profile, "city"),
       website:   str(raw.profile, "website") || undefined,
       linkedin:  str(raw.profile, "linkedin") || undefined,
     },
-    summary: typeof raw.summary === "string" ? raw.summary : "",
+    summary: polishParagraph(raw.summary),
     experience: arr(raw.experience).map((e) => ({
       id: uid(),
-      role:    str(e, "role"),
+      role:    polishLine(str(e, "role")),
       company: str(e, "company"),
       city:    str(e, "city") || undefined,
       start:   str(e, "start"),
       end:     str(e, "end") || undefined,
-      bullets: arr((e as Record<string, unknown>).bullets).map((b) => String(b)),
+      bullets: arr((e as Record<string, unknown>).bullets).map((b) => polishLine(b)).filter(Boolean),
     })),
     education: arr(raw.education).map((e) => ({
       id: uid(),
-      degree: str(e, "degree"),
+      degree: polishLine(str(e, "degree")),
       school: str(e, "school"),
       city:   str(e, "city") || undefined,
       start:  str(e, "start"),
