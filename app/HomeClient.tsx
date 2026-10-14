@@ -328,8 +328,53 @@ export default function HomeClient() {
         </div>
       </div>
 
+      {/* CV templates */}
+      <div style={{ width: "100%", maxWidth: 1280, margin: "0 auto", padding: "0 24px 32px" }}>
+        <div style={{ fontSize: 14, fontWeight: 500, letterSpacing: 1, textTransform: "uppercase", color: PRIMARY, marginBottom: 8 }}>Pay once, no subscription</div>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 16, marginBottom: 20, flexWrap: "wrap" }}>
+          <div style={{ fontSize: 32, lineHeight: "36px", fontWeight: 500, letterSpacing: 1 }}>Choose a CV template</div>
+          <div style={{ fontSize: 16, color: "#605d52" }}>10 ATS-compatible templates · free to edit, pay only to download</div>
+        </div>
+
+        <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8 }}>
+          {TEMPLATE_REGISTRY.map((tpl) => {
+            const selected = templateId === tpl.id;
+            return (
+              <div key={tpl.id} style={{ flex: "0 0 200px", background: "#f8f4f0", border: `2px solid ${selected ? PRIMARY : "rgba(32,21,21,0.12)"}`, borderRadius: 12, padding: 12, position: "relative" }}>
+                {selected && (
+                  <div style={{ position: "absolute", top: 10, right: 10, width: 20, height: 20, borderRadius: 9999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fffefb" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                  </div>
+                )}
+
+                <div style={{ background: "#fffefb", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 8, height: 190, marginBottom: 10, overflow: "hidden" }}>
+                  <TemplateThumb id={tpl.id} accent={tpl.accent} />
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                  <div style={{ fontSize: 16, lineHeight: "24px", fontWeight: 600 }}>{tpl.name}</div>
+                  <span style={{ fontSize: 11, lineHeight: "15px", fontWeight: 700, letterSpacing: "0.144px", color: tpl.accent, background: hexToRgbaLite(tpl.accent), borderRadius: 9999, padding: "1px 8px", whiteSpace: "nowrap" }}>Pro</span>
+                </div>
+                <div style={{ fontSize: 14, lineHeight: "21px", color: "#939084", marginBottom: 10 }}>{tpl.sub}</div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTemplateId(tpl.id);
+                    enterBuilder(useCVStore.getState().cv ?? EMPTY_CV, tpl.id);
+                  }}
+                  style={{ width: "100%", fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: 8, borderRadius: 8, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: "pointer", fontFamily: "inherit" }}
+                >
+                  Use this template
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Two-column workspace */}
-      <div className="opp-workspace" style={{ width: "100%", maxWidth: 1280, margin: "0 auto", padding: "8px 24px 32px", display: "grid", gridTemplateColumns: "minmax(320px, 1fr) minmax(380px, 1.15fr)", gap: 24, alignItems: "start" }}>
+      <div className="opp-workspace" style={{ width: "100%", maxWidth: 1280, margin: "0 auto", padding: "8px 24px 96px", display: "grid", gridTemplateColumns: "minmax(320px, 1fr) minmax(380px, 1.15fr)", gap: 24, alignItems: "start" }}>
 
         {/* Left: job feed */}
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -538,51 +583,6 @@ export default function HomeClient() {
               </div>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* CV templates */}
-      <div style={{ width: "100%", maxWidth: 1280, margin: "0 auto", padding: "32px 24px 96px", borderTop: "1px solid rgba(32,21,21,0.12)" }}>
-        <div style={{ fontSize: 14, fontWeight: 500, letterSpacing: 1, textTransform: "uppercase", color: PRIMARY, marginBottom: 8 }}>Pay once, no subscription</div>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 16, marginBottom: 20, flexWrap: "wrap" }}>
-          <div style={{ fontSize: 32, lineHeight: "36px", fontWeight: 500, letterSpacing: 1 }}>Choose a CV template</div>
-          <div style={{ fontSize: 16, color: "#605d52" }}>10 ATS-compatible templates · free to edit, pay only to download</div>
-        </div>
-
-        <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8 }}>
-          {TEMPLATE_REGISTRY.map((tpl) => {
-            const selected = templateId === tpl.id;
-            return (
-              <div key={tpl.id} style={{ flex: "0 0 200px", background: "#f8f4f0", border: `2px solid ${selected ? PRIMARY : "rgba(32,21,21,0.12)"}`, borderRadius: 12, padding: 12, position: "relative" }}>
-                {selected && (
-                  <div style={{ position: "absolute", top: 10, right: 10, width: 20, height: 20, borderRadius: 9999, background: PRIMARY, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fffefb" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                  </div>
-                )}
-
-                <div style={{ background: "#fffefb", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 8, height: 190, marginBottom: 10, overflow: "hidden" }}>
-                  <TemplateThumb id={tpl.id} accent={tpl.accent} />
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
-                  <div style={{ fontSize: 16, lineHeight: "24px", fontWeight: 600 }}>{tpl.name}</div>
-                  <span style={{ fontSize: 11, lineHeight: "15px", fontWeight: 700, letterSpacing: "0.144px", color: tpl.accent, background: hexToRgbaLite(tpl.accent), borderRadius: 9999, padding: "1px 8px", whiteSpace: "nowrap" }}>Pro</span>
-                </div>
-                <div style={{ fontSize: 14, lineHeight: "21px", color: "#939084", marginBottom: 10 }}>{tpl.sub}</div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTemplateId(tpl.id);
-                    enterBuilder(useCVStore.getState().cv ?? EMPTY_CV, tpl.id);
-                  }}
-                  style={{ width: "100%", fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: 8, borderRadius: 8, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: "pointer", fontFamily: "inherit" }}
-                >
-                  Use this template
-                </button>
-              </div>
-            );
-          })}
         </div>
       </div>
 
