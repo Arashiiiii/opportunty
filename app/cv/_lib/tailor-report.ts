@@ -13,5 +13,9 @@ export const REPORT_KEY = "opportunity_tailor_report_v1";
 
 /** Stored in sessionStorage so the builder can show it once, with the original CV for "undo". */
 export function saveReport(report: TailorReport, before: unknown): void {
-  try { window.sessionStorage.setItem(REPORT_KEY, JSON.stringify({ report, before })); } catch { /* ignore */ }
+  try { window.sessionStorage.setItem(REPORT_KEY, JSON.stringify({ report, before, at: Date.now() })); } catch { /* ignore */ }
+}
+
+export function clearReport(): void {
+  try { window.sessionStorage.removeItem(REPORT_KEY); } catch { /* ignore */ }
 }

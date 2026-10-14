@@ -16,6 +16,7 @@ import { useCVStore } from "../_store/cv-store";
 import { CVDataSchema, DEFAULT_SECTION_ORDER, DEFAULT_SECTIONS_ENABLED } from "../_lib/schema";
 import type { TemplateId, Lang, SectionId } from "../_lib/schema";
 import { BuilderShell } from "../_components/BuilderShell";
+import { TailorReportPanel } from "../_components/TailorReportPanel";
 
 const supabase = createClient();
 
@@ -67,5 +68,10 @@ export default function CVBuilderPage() {
     </div>
   );
 
-  return <BuilderShell cvId={id} />;
+  return (
+    <>
+      <BuilderShell cvId={id} />
+      <TailorReportPanel />
+    </>
+  );
 }

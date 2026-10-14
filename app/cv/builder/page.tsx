@@ -18,13 +18,19 @@
  * that gate and, at that point, claims this draft into a real `cvs` row.
  */
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { useCVStore } from "../_store/cv-store";
-import { readLocalDraft } from "../_lib/local-draft";
+import { readLocalDraft, saveLocalDraft } from "../_lib/local-draft";
+import { REPORT_KEY } from "../_lib/tailor-report";
+import { DEFAULT_SECTION_ORDER, DEFAULT_SECTIONS_ENABLED } from "../_lib/schema";
+import type { Json } from "../_lib/db-types";
 import { HANDOFF_KEY } from "../_lib/handoff";
 import { BuilderShell } from "../_components/BuilderShell";
 import { TailorReportPanel } from "../_components/TailorReportPanel";
 
 export default function AnonymousBuilderPage() {
+  const router = useRouter();
   const init  = useCVStore((s) => s.init);
   const [ready, setReady] = useState(false);
 
@@ -41,6 +47,30 @@ export default function AnonymousBuilderPage() {
     }
     if (handedOff) {
       useCVStore.setState({ cvId: "__local__" });
+      const s = useCVStore.getState();
+      // Autosave only reacts to edits — save the handed-over CV right now so leaving the page can't lose it.
+      saveLocalDraft({ cv: s.cv, template: s.template, accent: s.accent, lang: s.lang, order: s.order, enabled: s.enabled, cvName: s.cvName });
+
+      // A tailored CV (from dropping a job) is also saved to the account when signed in.
+      let tailored = false;
+      try { tailored = window.sessionStorage.getItem(REPORT_KEY) !== null; } catch { /* ignore */ }
+      if (tailored) {
+        const sb = createClient();
+        sb.auth.getUser().then(async ({ data: { user } }) => {
+          if (!user) return;
+          const cur = useCVStore.getState();
+          const jobTitle = cur.cv.profile.title || "CV";
+          const { data } = await sb.from("cvs").insert({
+            user_id: user.id,
+            name: `${[cur.cv.profile.firstName, cur.cv.profile.lastName].filter(Boolean).join(" ") || "CV"} · ${jobTitle}`.slice(0, 80),
+            data: cur.cv as unknown as Json,
+            template: cur.template, accent: cur.accent, lang: cur.lang,
+            section_order: (cur.order ?? DEFAULT_SECTION_ORDER) as unknown as Json,
+            sections_enabled: (cur.enabled ?? DEFAULT_SECTIONS_ENABLED) as unknown as Json,
+          }).select("id").single();
+          if (data?.id) router.replace(`/cv/${data.id}`);
+        });
+      }
       setReady(true);
       return;
     }

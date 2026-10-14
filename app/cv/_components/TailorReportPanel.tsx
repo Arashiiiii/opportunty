@@ -7,7 +7,7 @@
 import { useEffect, useState } from "react";
 import { useUI } from "@/app/_lib/useUiLang";
 import { useCVStore } from "../_store/cv-store";
-import { REPORT_KEY, type TailorReport } from "../_lib/tailor-report";
+import { REPORT_KEY, clearReport, type TailorReport } from "../_lib/tailor-report";
 import type { CVData } from "../_lib/schema";
 
 const PRIMARY = "#ff4f00";
@@ -22,7 +22,9 @@ export function TailorReportPanel() {
   useEffect(() => {
     try {
       const raw = window.sessionStorage.getItem(REPORT_KEY);
-      if (raw) { setData(JSON.parse(raw)); window.sessionStorage.removeItem(REPORT_KEY); }
+      // Kept until dismissed: the builder may hand over to /cv/[id] right after saving the CV.
+      const parsed = raw ? JSON.parse(raw) : null;
+      if (parsed && Date.now() - (parsed.at ?? 0) < 2 * 3600_000) setData(parsed); else if (raw) clearReport();
     } catch { /* ignore */ }
   }, []);
 
@@ -73,8 +75,8 @@ export function TailorReportPanel() {
           )}
 
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button type="button" onClick={() => { useCVStore.getState().loadCV(before); setData(null); }} style={{ fontSize: 13, fontWeight: 700, padding: "8px 12px", borderRadius: 9, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: "pointer", fontFamily: "inherit" }}>{u.reportRestore}</button>
-            <button type="button" onClick={() => setData(null)} style={{ fontSize: 13, fontWeight: 700, padding: "8px 12px", borderRadius: 9, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>{u.reportClose}</button>
+            <button type="button" onClick={() => { useCVStore.getState().loadCV(before); clearReport(); setData(null); }} style={{ fontSize: 13, fontWeight: 700, padding: "8px 12px", borderRadius: 9, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: "pointer", fontFamily: "inherit" }}>{u.reportRestore}</button>
+            <button type="button" onClick={() => { clearReport(); setData(null); }} style={{ fontSize: 13, fontWeight: 700, padding: "8px 12px", borderRadius: 9, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>{u.reportClose}</button>
           </div>
         </div>
       )}

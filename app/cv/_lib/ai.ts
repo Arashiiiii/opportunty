@@ -239,6 +239,67 @@ export async function tailorCVWithAI(cv: CVData, job: TailorJobInput): Promise<{
 }
 
 // ─────────────────────────────────────────────────────────────────────────
+// CV → same CV in another language
+// ─────────────────────────────────────────────────────────────────────────
+
+const LANG_NAME: Record<string, string> = { fr: "French", en: "English", ar: "Arabic" };
+
+type Slot = { get: () => string; set: (v: string) => void };
+
+/** Every human-language string on the CV (names, companies, dates, contacts are NOT included). */
+function translatableSlots(cv: CVData): Slot[] {
+  const out: Slot[] = [];
+  const add = (obj: Record<string, unknown>, key: string) => {
+    if (typeof obj[key] === "string" && (obj[key] as string).trim()) out.push({ get: () => obj[key] as string, set: (v) => { obj[key] = v; } });
+  };
+  add(cv.profile as unknown as Record<string, unknown>, "title");
+  add(cv as unknown as Record<string, unknown>, "summary");
+  for (const e of cv.experience) { add(e as unknown as Record<string, unknown>, "role"); e.bullets.forEach((_, i) => add(e.bullets as unknown as Record<string, unknown>, String(i))); }
+  for (const e of cv.education) { add(e as unknown as Record<string, unknown>, "degree"); add(e as unknown as Record<string, unknown>, "detail"); }
+  for (const g of cv.skills) add(g as unknown as Record<string, unknown>, "group");
+  for (const l of cv.languages) { add(l as unknown as Record<string, unknown>, "name"); add(l as unknown as Record<string, unknown>, "level"); }
+  for (const p of cv.projects) { add(p as unknown as Record<string, unknown>, "role"); add(p as unknown as Record<string, unknown>, "detail"); }
+  cv.interests.forEach((_, i) => add(cv.interests as unknown as Record<string, unknown>, String(i)));
+  return out;
+}
+
+const TRANSLATE_TOOL = {
+  name: "submit_translation",
+  description: "Submit the translated strings, in the same order and count as the input.",
+  input_schema: {
+    type: "object" as const,
+    properties: { strings: { type: "array", items: { type: "string" } } },
+    required: ["strings"],
+  },
+};
+
+export async function translateCVWithAI(cv: CVData, target: "fr" | "en" | "ar"): Promise<CVData> {
+  const next: CVData = JSON.parse(JSON.stringify(cv));
+  const slots = translatableSlots(next);
+  if (slots.length === 0) return next;
+
+  const anthropic = getClient();
+  const msg = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 6000,
+    tools: [TRANSLATE_TOOL],
+    tool_choice: { type: "tool", name: "submit_translation" },
+    messages: [{
+      role: "user",
+      content: `Translate each CV text below into ${LANG_NAME[target]}. Return exactly ${slots.length} strings in the same order.\n\nRules: natural professional CV register; keep company names, school names, people names, product/tool/technology names, numbers and dates unchanged; do not add, remove or merge anything; if a string is already in ${LANG_NAME[target]}, return it unchanged. Output only the translated text, no notes.\n\n${JSON.stringify(slots.map((x) => x.get()))}`,
+    }],
+  });
+
+  const toolUse = msg.content.find((b) => b.type === "tool_use");
+  if (!toolUse || toolUse.type !== "tool_use") throw new Error("Claude did not return structured output");
+  const strings = (toolUse.input as { strings?: unknown }).strings;
+  if (!Array.isArray(strings) || strings.length !== slots.length) throw new Error("Translation length mismatch");
+
+  slots.forEach((slot, i) => { const t = cleanText(strings[i]); if (t) slot.set(t); });
+  return next;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
 // Shared: turn the tool's loosely-typed input into a validated CVData,
 // injecting the ids the schema requires (the model isn't asked for them).
 // ─────────────────────────────────────────────────────────────────────────
