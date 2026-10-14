@@ -4,7 +4,7 @@
  * Env:
  *   DODO_PAYMENTS_API_KEY          required
  *   DODO_PAYMENTS_ENVIRONMENT      "test_mode" | "live_mode" (default live_mode)
- *   DODO_PAYMENTS_WEBHOOK_KEY      webhook signing secret (whsec_…), needed by /api/payments/webhook
+ *   DODO_PAYMENTS_WEBHOOK_KEY      webhook signing secret (whsec_…); DODO_WEBHOOK_SECRET also accepted
  *   DODO_PRODUCT_ID                optional override of the default product below
  *   SUPABASE_SERVICE_ROLE_KEY      required to record purchases
  */
@@ -56,7 +56,7 @@ export function getPayment(paymentId: string) {
 
 /** Standard Webhooks verification (HMAC-SHA256 over `${id}.${ts}.${rawBody}`). */
 export function verifyWebhook(rawBody: string, h: { id: string | null; ts: string | null; sig: string | null }): boolean {
-  const secret = process.env.DODO_PAYMENTS_WEBHOOK_KEY;
+  const secret = process.env.DODO_PAYMENTS_WEBHOOK_KEY || process.env.DODO_WEBHOOK_SECRET;
   if (!secret || !h.id || !h.ts || !h.sig) return false;
   if (Math.abs(Date.now() / 1000 - Number(h.ts)) > 300) return false;
   const key = Buffer.from(secret.startsWith("whsec_") ? secret.slice(6) : secret, "base64");
