@@ -25,7 +25,10 @@ export function SiteFooter() {
         </div>
         <nav aria-label={f.product} style={col}>
           <div style={head}>{f.product}</div>
-          <Link href="/" style={link}>{f.jobs}</Link>
+          <Link href="/jobs" style={link}>{f.jobs}</Link>
+          <Link href="/jobs/country/morocco" style={link}>Morocco</Link>
+          <Link href="/jobs/country/france" style={link}>France</Link>
+          <Link href="/jobs/country/saudi-arabia" style={link}>Saudi Arabia</Link>
           <Link href="/cv" style={link}>{f.cvBuilder}</Link>
           <Link href="/employers/login" style={link}>{f.employers}</Link>
         </nav>
