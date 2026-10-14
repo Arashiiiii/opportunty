@@ -31,8 +31,8 @@ export function tailorCVForJob(base: CVData, job: TailorJob): CVData {
 
   // Fallback only (no AI): one clean, CV-voice sentence naming the target role.
   const lead = matched.length > 0
-    ? `Targeting the ${job.title} position at ${job.company}, with hands-on experience in ${joinList(matched)}.`
-    : `Targeting the ${job.title} position at ${job.company}.`;
+    ? `Candidate for the ${job.title} position at ${job.company}, with hands-on experience in ${joinList(matched)}.`
+    : `Candidate for the ${job.title} position at ${job.company}.`;
 
   next.summary = polishParagraph(next.summary?.trim() ? `${lead} ${next.summary.trim()}` : lead);
 
