@@ -6,21 +6,21 @@ import { COMPANY } from "../_lib/company";
 
 const INK = "#201515";
 const col: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 10, minWidth: 140 };
-const head: React.CSSProperties = { fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: "#939084", marginBottom: 2 };
-const link: React.CSSProperties = { fontSize: 14, color: "#36342e", textDecoration: "none" };
+const head: React.CSSProperties = { fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: "#8f867c", marginBottom: 2 };
+const link: React.CSSProperties = { fontSize: 14, color: "#e9e3da", textDecoration: "none" };
 
 export function SiteFooter() {
   const [lang] = useUiLang();
   const f = FOOTER[lang];
   return (
-    <footer dir={lang === "ar" ? "rtl" : "ltr"} style={{ borderTop: "1px solid rgba(32,21,21,0.12)", background: "#f8f4f0", fontFamily: "'Inter', system-ui, sans-serif", color: INK }}>
+    <footer dir={lang === "ar" ? "rtl" : "ltr"} style={{ borderTop: "3px solid #ff4f00", background: INK, fontFamily: "'Inter', system-ui, sans-serif", color: "#fffefb" }}>
       <div style={{ maxWidth: 1060, margin: "0 auto", padding: "40px 24px 24px", display: "flex", flexWrap: "wrap", gap: "32px 56px", justifyContent: "space-between" }}>
         <div style={{ maxWidth: 300, flex: "1 1 220px" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
-            <div style={{ width: 24, height: 24, borderRadius: 6, background: "linear-gradient(135deg, #ff4f00 0%, #ff4f00 50%, #201515 50%, #201515 100%)" }} />
-            <span style={{ fontSize: 15, fontWeight: 700, color: INK }}>opportunity<span style={{ color: "#ff4f00" }}>.com</span></span>
+            <div style={{ width: 24, height: 24, borderRadius: 6, background: "linear-gradient(135deg, #ff4f00 0%, #ff4f00 50%, #fffefb 50%, #fffefb 100%)" }} />
+            <span style={{ fontSize: 15, fontWeight: 700, color: "#fffefb" }}>opportunity<span style={{ color: "#ff4f00" }}>.com</span></span>
           </Link>
-          <p style={{ fontSize: 14, color: "#605d52", lineHeight: 1.5, margin: "12px 0 0" }}>{f.tagline}</p>
+          <p style={{ fontSize: 14, color: "#b9b0a5", lineHeight: 1.5, margin: "12px 0 0" }}>{f.tagline}</p>
         </div>
         <nav aria-label={f.product} style={col}>
           <div style={head}>{f.product}</div>
@@ -42,8 +42,8 @@ export function SiteFooter() {
           <Link href="/legal" style={link}>{f.notice}</Link>
         </nav>
       </div>
-      <div style={{ borderTop: "1px solid rgba(32,21,21,0.08)" }}>
-        <div style={{ maxWidth: 1060, margin: "0 auto", padding: "14px 24px", display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 8, fontSize: 13, color: "#605d52" }}>
+      <div style={{ borderTop: "1px solid rgba(255,254,251,0.12)" }}>
+        <div style={{ maxWidth: 1060, margin: "0 auto", padding: "14px 24px", display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 8, fontSize: 13, color: "#b9b0a5" }}>
           <span>© {new Date().getFullYear()} {COMPANY.brand}. {f.rights}</span>
           <span>{f.made}</span>
         </div>
