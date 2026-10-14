@@ -47,7 +47,7 @@ export async function updateSession(request: NextRequest) {
   const isBuilderListRoot  = path === "/cv"; // /cv itself renders its own landing state
   const isAnonymousBuilder = path === "/cv/builder" || path.startsWith("/cv/builder/");
   const requiresAuth = path.startsWith("/cv/") || path === "/cv";
-  const isProtectedBuilderPage = requiresAuth && !isBuilderListRoot && !isAnonymousBuilder;
+  const isProtectedBuilderPage = (requiresAuth && !isBuilderListRoot && !isAnonymousBuilder) || path === "/dashboard" || path.startsWith("/dashboard/");
 
   if (!user && isProtectedBuilderPage) {
     const redirectUrl = new URL("/login", request.url);

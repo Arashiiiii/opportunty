@@ -9,7 +9,7 @@ export type CountryCode = "MA" | "FR" | "DE" | "BE" | "NL" | "SA";
 
 export interface Dict {
   arrow: string;
-  nav: { employers: string; myCVs: string; signIn: string; postJob: string };
+  nav: { employers: string; myCVs: string; signIn: string; postJob: string; dashboard: string };
   eyebrow: string; h1: string; sub: string;
   searchPlaceholder: string; search: string; countryLabel: string;
   pickTemplate: string; templatesMeta: string; useTemplate: string; prevTemplate: string; nextTemplate: string;
@@ -29,7 +29,7 @@ export interface Dict {
 export const DICT: Record<Lang, Dict> = {
   en: {
     arrow: "→",
-    nav: { employers: "For employers", myCVs: "My CVs", signIn: "Sign in", postJob: "Post a job" },
+    nav: { employers: "For employers", myCVs: "My CVs", signIn: "Sign in", postJob: "Post a job", dashboard: "Dashboard" },
     eyebrow: "Job board · Morocco, Europe & Saudi Arabia",
     h1: "Find work you actually want",
     sub: "Pick a country, browse its roles, then drag one into your CV and let AI tailor it — no account needed.",
@@ -60,7 +60,7 @@ export const DICT: Record<Lang, Dict> = {
   },
   fr: {
     arrow: "→",
-    nav: { employers: "Recruteurs", myCVs: "Mes CV", signIn: "Connexion", postJob: "Publier une offre" },
+    nav: { employers: "Recruteurs", myCVs: "Mes CV", signIn: "Connexion", postJob: "Publier une offre", dashboard: "Tableau de bord" },
     eyebrow: "Offres d'emploi · Maroc, Europe & Arabie saoudite",
     h1: "Trouvez le travail qui vous plaît vraiment",
     sub: "Choisissez un pays, parcourez les offres, puis glissez-en une dans votre CV et laissez l'IA l'adapter — sans compte.",
@@ -91,7 +91,7 @@ export const DICT: Record<Lang, Dict> = {
   },
   ar: {
     arrow: "←",
-    nav: { employers: "للشركات", myCVs: "سيرتي الذاتية", signIn: "تسجيل الدخول", postJob: "انشر وظيفة" },
+    nav: { employers: "للشركات", myCVs: "سيرتي الذاتية", signIn: "تسجيل الدخول", postJob: "انشر وظيفة", dashboard: "لوحة التحكم" },
     eyebrow: "وظائف · المغرب وأوروبا والسعودية",
     h1: "ابحث عن عمل تحبه فعلاً",
     sub: "اختر دولة، تصفّح الوظائف، ثم اسحب وظيفة إلى سيرتك الذاتية ودع الذكاء الاصطناعي يكيّفها — بدون حساب.",

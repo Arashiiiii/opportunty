@@ -20,7 +20,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { TEMPLATE_REGISTRY, EMPTY_CV } from "./cv/_lib/schema";
+import { TEMPLATE_REGISTRY, EMPTY_CV, CVDataSchema } from "./cv/_lib/schema";
 import type { TemplateId, CVData } from "./cv/_lib/schema";
 import { useCVStore } from "./cv/_store/cv-store";
 import { tailorCVForJob } from "./cv/_lib/tailor";
@@ -32,6 +32,7 @@ import type { CountryCode } from "./i18n";
 import { useUiLang } from "./_lib/useUiLang";
 import { UiLangSwitch } from "./_components/UiLangSwitch";
 import { LoginGateModal } from "./_components/LoginGateModal";
+import { inferCountry } from "./_lib/country";
 
 const PRIMARY = "#ff4f00";
 
@@ -77,20 +78,6 @@ const COUNTRIES: { code: CountryCode; flag: string }[] = [
   { code: "SA", flag: "🇸🇦" },
 ];
 const COUNTRY_KEY = "opportunity_country_v1";
-
-/** Fallback only for rows/DBs without a `country` value: guess from the location text. */
-const CITY_COUNTRY: [CountryCode, RegExp][] = [
-  ["SA", /saudi|ksa|riyadh|jeddah|jidda|makkah|mecca|medina|madinah|dammam|khobar|dhahran|jubail|tabuk|abha|taif|yanbu|neom|qassim|hail\b|jazan|najran|الرياض|جدة|مكة|المدينة|الدمام|الخبر|السعودية/i],
-  ["MA", /morocco|maroc|casablanca|rabat|marrakesh|marrakech|tangier|tanger|agadir|f[eè]s\b|mekn[eè]s|oujda|t[eé]touan|kenitra|k[eé]nitra|settat|mellal|safi|el jadida|nador|laayoune|essaouira|mohammedia|sal[eé]\b/i],
-  ["NL", /tilburg|den haag|the hague|enschede|utrecht|barendrecht|oldenzaal|gulpen|holland|amsterdam|rotterdam|eindhoven|groningen|breda|nijmegen|arnhem|almere|maastricht|delft|leiden|haarlem|zwolle|apeldoorn|nederland|netherlands/i],
-  ["BE", /anderlecht|la hulpe|bruxelles|brussel|charleroi|braine|seneffe|gand\b|gent\b|mons\b|dinant|brabant|li[eè]ge|luik|antwerp|anvers|namur|leuven|louvain|mechelen|bruges|brugge|wavre|nivelles|belg/i],
-  ["DE", /w[uü]rzburg|kehl|essen\b|wegscheid|monheim|g[oö]rlitz|marktsteft|bottrop|saarbr[uü]cken|papenburg|berlin|m[uü]nchen|munich|hamburg|k[oö]ln|cologne|frankfurt|stuttgart|d[uü]sseldorf|dortmund|bremen|hannover|leipzig|dresden|n[uü]rnberg|nuremberg|bonn|mannheim|karlsruhe|augsburg|wiesbaden|bochum|duisburg|deutschland|german/i],
-  ["FR", /paris|toulouse|lyon|marseille|nice\b|nantes|bordeaux|lille|strasbourg|montpellier|rennes|grenoble|dijon|besan[cç]on|argenteuil|puteaux|dagneux|pornichet|beauvais|dunkerque|vitrolles|issy|v[eé]lizy|garenne|saint-vulbas|ch[aâ]lons|bron\b|ergu[eé]|france/i],
-];
-function inferCountry(location: string): CountryCode {
-  for (const [c, re] of CITY_COUNTRY) if (re.test(location)) return c;
-  return "FR";
-}
 
 export default function HomeClient() {
   const router = useRouter();
@@ -198,7 +185,20 @@ export default function HomeClient() {
     router.push("/cv/builder");
   }, [router]);
 
-  const runTailor = useCallback(async (job: Job, base: CVData) => {
+  /** Log the tailoring in the user's dashboard (signed-in + saved CV + real job only). */
+  const recordTailoring = useCallback(async (cvId: string | undefined, jobId: string, out: CVData) => {
+    if (!cvId || !/^[0-9a-f-]{36}$/i.test(jobId)) return;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      await supabase.from("cv_job_tailorings").insert({
+        user_id: user.id, cv_id: cvId, job_id: jobId, status: "completed",
+        tailored_data: out, completed_at: new Date().toISOString(),
+      });
+    } catch { /* dashboard logging is best-effort */ }
+  }, []);
+
+  const runTailor = useCallback(async (job: Job, base: CVData, save?: { cvId: string }) => {
     setCvJobId(job.id);
     setPendingJobId(null);
     setTailoredCV(null);
@@ -210,27 +210,47 @@ export default function HomeClient() {
         body: JSON.stringify({ cv: base, job }),
       });
       const json = await res.json();
-      setTailoredCV(res.ok && json.cv ? (json.cv as CVData) : tailorCVForJob(base, job));
+      const out = res.ok && json.cv ? (json.cv as CVData) : tailorCVForJob(base, job);
+      setTailoredCV(out);
+      void recordTailoring(save?.cvId, job.id, out);
     } catch {
       setTailoredCV(tailorCVForJob(base, job));
     } finally {
       setTailoring(false);
     }
+  }, [recordTailoring]);
+
+  /** Newest CV saved to the signed-in user's dashboard (null if signed out or none). */
+  const loadSavedCV = useCallback(async (): Promise<{ cv: CVData; id: string } | null> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    const { data } = await supabase.from("cvs").select("id, data")
+      .eq("user_id", user.id).order("updated_at", { ascending: false }).limit(1).maybeSingle();
+    if (!data) return null;
+    const parsed = CVDataSchema.safeParse(data.data);
+    if (!parsed.success || !cvHasContent(parsed.data)) return null;
+    return { cv: parsed.data, id: data.id as string };
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
     const id = e.dataTransfer.getData("text/plain");
     const job = jobs.find((j) => j.id === id);
     if (!job) return;
-    // Tailoring needs a CV to work from — ask for one instead of tailoring a blank page.
-    if (!homeCV) {
-      setPendingJobId(job.id);
+    if (homeCV) { void runTailor(job, homeCV); return; }
+    // No CV on this device: use the one saved in the user's dashboard…
+    const saved = await loadSavedCV();
+    if (saved) {
+      setHomeCV(saved.cv);
+      useCVStore.getState().loadCV(saved.cv);
+      await runTailor(job, saved.cv, { cvId: saved.id });
       return;
     }
-    void runTailor(job, homeCV);
-  }, [jobs, homeCV, runTailor]);
+    // …otherwise ask for an upload first instead of tailoring a blank page.
+    setPendingJobId(job.id);
+    setUploadError(null);
+  }, [jobs, homeCV, runTailor, loadSavedCV]);
 
   const handleUploadClick = useCallback(() => {
     fileInputRef.current?.click();
@@ -304,9 +324,12 @@ export default function HomeClient() {
         <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px" }}>opportunity<span style={{ color: PRIMARY }}>.</span></div>
         <nav style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <UiLangSwitch />
-          <a href="#" className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.employers}</a>
+          <Link href="/dashboard/employer" className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.employers}</Link>
           {authed ? (
-            <Link href="/cv" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.myCVs}</Link>
+            <>
+              <Link href="/dashboard" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.dashboard}</Link>
+              <Link href="/cv" className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.myCVs}</Link>
+            </>
           ) : (
             <Link href="/login" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.signIn}</Link>
           )}
