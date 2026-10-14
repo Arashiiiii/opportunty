@@ -16,11 +16,12 @@ const EASE = "transform 450ms cubic-bezier(0.165, 0.84, 0.44, 1)"; // Glide's de
 const PRIMARY = "#ff4f00";
 
 export function TemplateCarousel({
-  templates, onUse, autoplayMs = 4500,
+  templates, onUse, autoplayMs = 4500, compact = false,
 }: {
   templates: CarouselTemplate[];
   onUse: (id: string) => void;
   autoplayMs?: number;
+  compact?: boolean;
 }) {
   const [index, setIndex] = useState(0);
   const [width, setWidth] = useState(1000);
@@ -41,7 +42,7 @@ export function TemplateCarousel({
     return () => ro.disconnect();
   }, []);
 
-  const slideW = Math.min(280, Math.max(190, width * 0.58));
+  const slideW = compact ? Math.min(140, Math.max(105, width * 0.28)) : Math.min(280, Math.max(190, width * 0.58));
   const slideH = slideW * (2339 / 1653);
 
   const go = useCallback((i: number) => setIndex(Math.max(0, Math.min(last, i))), [last]);
@@ -103,7 +104,7 @@ export function TemplateCarousel({
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
-        style={{ overflow: "hidden", padding: "28px 0 24px", cursor: dragging ? "grabbing" : "grab", touchAction: "pan-y", userSelect: "none" }}
+        style={{ overflow: "hidden", padding: compact ? "14px 0 10px" : "28px 0 24px", cursor: dragging ? "grabbing" : "grab", touchAction: "pan-y", userSelect: "none" }}
       >
         <div style={{ display: "flex", gap: GAP, transform: `translate3d(${offset}px,0,0)`, transition: dragging ? "none" : EASE, willChange: "transform" }}>
           {templates.map((t, i) => {
@@ -143,7 +144,7 @@ export function TemplateCarousel({
             onClick={() => go(index + (dir === "prev" ? -1 : 1))}
             className="opp-car-arrow"
             style={{
-              position: "absolute", top: "42%", [dir === "prev" ? "left" : "right"]: 4, width: 44, height: 44, borderRadius: 9999,
+              position: "absolute", top: compact ? "38%" : "42%", [dir === "prev" ? "left" : "right"]: 4, width: compact ? 34 : 44, height: compact ? 34 : 44, borderRadius: 9999,
               border: "1px solid rgba(32,21,21,0.15)", background: "#fffefb", boxShadow: "0 4px 14px rgba(32,21,21,0.15)",
               cursor: disabled ? "default" : "pointer", opacity: disabled ? 0.35 : 1, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2,
             }}
@@ -156,23 +157,25 @@ export function TemplateCarousel({
       })}
 
       {/* Caption + CTA for the focused slide */}
-      <div style={{ textAlign: "center", marginTop: 4 }} aria-live="polite">
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 20, fontWeight: 600 }}>{active.name}</span>
-          <span style={{ fontSize: 11, fontWeight: 700, color: active.accent, background: `${active.accent}1f`, borderRadius: 9999, padding: "1px 8px" }}>Pro</span>
+      <div style={compact ? { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" } : { textAlign: "center", marginTop: 4 }} aria-live="polite">
+        <div>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: compact ? 16 : 20, fontWeight: 600 }}>{active.name}</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: active.accent, background: `${active.accent}1f`, borderRadius: 9999, padding: "1px 8px" }}>Pro</span>
+          </div>
+          <div style={{ fontSize: 13, color: "#939084", margin: compact ? 0 : "2px 0 14px" }}>{active.sub}</div>
         </div>
-        <div style={{ fontSize: 14, color: "#939084", margin: "2px 0 14px" }}>{active.sub}</div>
         <button
           type="button"
           onClick={() => onUse(active.id)}
-          style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 28px", borderRadius: 10, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}
+          style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: compact ? "9px 18px" : "12px 28px", borderRadius: 10, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}
         >
           Use this template →
         </button>
       </div>
 
       {/* Bullets (Glide: bullets) */}
-      <div role="tablist" aria-label="Choose template" style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 18 }}>
+      <div role="tablist" aria-label="Choose template" style={{ display: compact ? "none" : "flex", justifyContent: "center", gap: 8, marginTop: 18 }}>
         {templates.map((t, i) => (
           <button
             key={t.id}
