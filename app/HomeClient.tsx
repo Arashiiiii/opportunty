@@ -64,10 +64,34 @@ const PLACEHOLDER_JOBS: Job[] = [
 
 const supabase = createClient();
 
+type CountryCode = "MA" | "FR" | "DE" | "BE" | "NL";
+const COUNTRIES: { code: CountryCode; flag: string; name: string; hero: string }[] = [
+  { code: "MA", flag: "🇲🇦", name: "Morocco", hero: "Morocco" },
+  { code: "FR", flag: "🇫🇷", name: "France", hero: "France" },
+  { code: "DE", flag: "🇩🇪", name: "Germany", hero: "Germany" },
+  { code: "BE", flag: "🇧🇪", name: "Belgium", hero: "Belgium" },
+  { code: "NL", flag: "🇳🇱", name: "Netherlands", hero: "the Netherlands" },
+];
+const COUNTRY_KEY = "opportunity_country_v1";
+
+/** Fallback only for rows/DBs without a `country` value: guess from the location text. */
+const CITY_COUNTRY: [CountryCode, RegExp][] = [
+  ["NL", /tilburg|den haag|enschede|utrecht|barendrecht|oldenzaal|gulpen|holland|amsterdam|rotterdam|eindhoven|nederland|netherlands/i],
+  ["BE", /anderlecht|la hulpe|bruxelles|brussel|charleroi|braine|seneffe|gand|gent|mons|dinant|brabant|li[eè]ge|antwerp|anvers|belg/i],
+  ["DE", /berlin|münchen|munich|hamburg|köln|cologne|frankfurt|stuttgart|düsseldorf|deutschland|german/i],
+  ["MA", /morocco|maroc|casablanca|rabat|marrakesh|marrakech|tangier|tanger|agadir|fes|fès/i],
+];
+function inferCountry(location: string): CountryCode {
+  for (const [c, re] of CITY_COUNTRY) if (re.test(location)) return c;
+  return "FR";
+}
+
 export default function HomeClient() {
   const router = useRouter();
   const [authed, setAuthed] = useState<boolean | null>(null);
+  const [country, setCountry] = useState<CountryCode>("MA");
   const [jobs, setJobs] = useState<Job[]>(PLACEHOLDER_JOBS);
+  const [feedLoading, setFeedLoading] = useState(false);
   const [usingPlaceholders, setUsingPlaceholders] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -85,19 +109,6 @@ export default function HomeClient() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => setAuthed(!!user));
 
-    supabase
-      .from("jobs")
-      .select("id, title, company, location, job_type, salary_range, tags, description, logo_url, external_url, original_url")
-      .eq("is_active", true)
-      .order("created_at", { ascending: false })
-      .limit(20)
-      .then(({ data, error }) => {
-        if (!error && data && data.length > 0) {
-          setJobs(data as Job[]);
-          setUsingPlaceholders(false);
-        }
-      });
-
     // A CV the visitor already uploaded/created (in memory, or saved on this device).
     const inMemory = useCVStore.getState().cv;
     if (cvHasContent(inMemory)) {
@@ -109,6 +120,47 @@ export default function HomeClient() {
         setHomeCV(draft.cv);
       }
     }
+  }, []);
+
+  // Remembered country (client-only; first paint is Morocco to avoid hydration mismatch).
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(COUNTRY_KEY) as CountryCode | null;
+      if (saved && COUNTRIES.some((c) => c.code === saved)) setCountry(saved);
+    } catch { /* storage unavailable */ }
+  }, []);
+
+  // One country's feed at a time.
+  useEffect(() => {
+    let cancelled = false;
+    setFeedLoading(true);
+    const cols = "id, title, company, location, job_type, salary_range, tags, description, logo_url, external_url, original_url";
+    (async () => {
+      let rows: Job[] | null = null;
+      const byCol = await supabase.from("jobs").select(cols).eq("is_active", true).eq("country", country)
+        .order("created_at", { ascending: false }).limit(60);
+      if (!byCol.error) {
+        rows = (byCol.data ?? []) as Job[];
+      } else {
+        // `country` column not there yet → filter by guessed country instead.
+        const all = await supabase.from("jobs").select(cols).eq("is_active", true)
+          .order("created_at", { ascending: false }).limit(200);
+        if (!all.error && all.data) rows = (all.data as Job[]).filter((j) => inferCountry(j.location) === country).slice(0, 60);
+      }
+      if (cancelled) return;
+      if (rows && rows.length > 0) { setJobs(rows); setUsingPlaceholders(false); }
+      else if (rows) { setJobs([]); setUsingPlaceholders(false); }
+      else if (country === "MA") { setJobs(PLACEHOLDER_JOBS); setUsingPlaceholders(true); }
+      else { setJobs([]); setUsingPlaceholders(false); }
+      setExpandedId(null);
+      setFeedLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [country]);
+
+  const switchCountry = useCallback((c: CountryCode) => {
+    setCountry(c);
+    try { localStorage.setItem(COUNTRY_KEY, c); } catch { /* ignore */ }
   }, []);
 
   const enterBuilder = useCallback((cv: CVData, template?: TemplateId) => {
@@ -238,10 +290,10 @@ export default function HomeClient() {
 
       {/* Hero + search */}
       <div className="opp-hero" style={{ padding: "64px 24px 40px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-        <div style={{ fontSize: 14, fontWeight: 500, letterSpacing: 1, textTransform: "uppercase", color: PRIMARY, marginBottom: 12 }}>Morocco&apos;s job board</div>
+        <div style={{ fontSize: 14, fontWeight: 500, letterSpacing: 1, textTransform: "uppercase", color: PRIMARY, marginBottom: 12 }}>Job board · Morocco &amp; Europe</div>
         <h1 style={{ margin: "0 0 12px", fontSize: "clamp(32px, 6vw, 56px)", lineHeight: 1.05, fontWeight: 500, maxWidth: 680 }}>Find work you actually want</h1>
         <p style={{ margin: "0 0 32px", fontSize: "clamp(16px, 3vw, 20px)", lineHeight: 1.5, letterSpacing: "-0.2px", color: "#605d52", maxWidth: 480 }}>
-          Search open roles across Morocco, then drag one into your CV and let AI tailor it to the job — no account needed to try it.
+          Pick a country, browse its open roles, then drag one into your CV and let AI tailor it to the job — no account needed to try it.
         </p>
 
         <div className="opp-search" style={{ width: "100%", maxWidth: 720, display: "flex", alignItems: "center", background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 6, gap: 4 }}>
@@ -252,7 +304,7 @@ export default function HomeClient() {
           <div className="opp-search-divider" style={{ width: 1, height: 24, background: "rgba(32,21,21,0.12)" }} />
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", minWidth: 160 }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-            <span style={{ fontSize: 16, color: "#605d52" }}>All of Morocco</span>
+            <span style={{ fontSize: 16, color: "#605d52" }}>All of {COUNTRIES.find((c) => c.code === country)!.hero}</span>
           </div>
           <button type="button" className="opp-search-btn" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 24px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" }}>
             Search
@@ -265,10 +317,39 @@ export default function HomeClient() {
 
         {/* Left: job feed */}
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div role="tablist" aria-label="Country" className="opp-country-tabs" style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 2 }}>
+            {COUNTRIES.map((c) => {
+              const active = c.code === country;
+              return (
+                <button
+                  key={c.code}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => switchCountry(c.code)}
+                  style={{
+                    flex: "0 0 auto", display: "flex", alignItems: "center", gap: 8, padding: "10px 16px", borderRadius: 999,
+                    border: active ? `1px solid ${PRIMARY}` : "1px solid rgba(32,21,21,0.12)",
+                    background: active ? PRIMARY : "#f8f4f0", color: active ? "#fffefb" : "#201515",
+                    fontSize: 14.4, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap",
+                  }}
+                >
+                  <span style={{ fontSize: 18, lineHeight: 1 }}>{c.flag}</span>{c.name}
+                </button>
+              );
+            })}
+          </div>
+
           <div style={{ fontSize: 14, color: "#605d52" }}>
-            {jobs.length} open roles · drag any card into your CV
+            {feedLoading ? "Loading…" : `${jobs.length} open roles in ${COUNTRIES.find((c) => c.code === country)!.hero}`} · drag any card into your CV
             {usingPlaceholders && <span style={{ color: "#c5a15a" }}> (sample listings — connect real postings)</span>}
           </div>
+
+          {!feedLoading && jobs.length === 0 && (
+            <div style={{ background: "#f8f4f0", border: "1px dashed rgba(32,21,21,0.2)", borderRadius: 12, padding: 32, textAlign: "center", color: "#605d52", fontSize: 16 }}>
+              No open roles in {COUNTRIES.find((c) => c.code === country)!.name} yet — check back soon, or try another country.
+            </div>
+          )}
 
           {jobs.map((job) => {
             const isExpanded = expandedId === job.id;
