@@ -121,28 +121,102 @@ function structureResume(rawText: string): CVData {
     }
   }
 
-  // Skills: look for a "Skills" / "Compétences" heading and pull the
-  // following lines (comma or bullet separated) until the next blank
-  // paragraph or heading-looking line.
-  const skillsIdx = lines.findIndex((l) => SKILLS_HEADING_RE.test(l));
-  if (skillsIdx >= 0) {
-    const items: string[] = [];
-    for (let i = skillsIdx + 1; i < lines.length && i < skillsIdx + 6; i++) {
-      const l = lines[i];
-      if (!l || l.length > 200 || /:\s*$/.test(l)) break;
-      items.push(
-        ...l.split(/[,•·|]/).map((s) => s.trim()).filter(Boolean),
-      );
-    }
-    if (items.length > 0) {
-      cv.skills = [{ id: uid(), group: "Skills", items: items.slice(0, 20) }];
-    }
+  // Sections: headings are matched with spaces removed so letter-spaced
+  // PDF headings ("P RO F I L E") still count.
+  const SECTION_KEYS: [string, RegExp][] = [
+    ["summary", /^(profile|profil|summary|about|aboutme|resume|résumé|objective|apropos)$/],
+    ["experience", /^(professionalexperiences?|workexperience|experiences?|expériences?|experienceprofessionnelle|expérienceprofessionnelle|employment|workhistory)$/],
+    ["education", /^(training|education|formation|formations|studies|academicbackground|diplomas?)$/],
+    ["skills", /^(skills|technicalskills|compétences|competences|keyskills)$/],
+    ["languages", /^(languages|langues)$/],
+  ];
+  const keyOf = (l: string) => {
+    const k = l.toLowerCase().replace(/[\s:|–-]+/g, "");
+    return k.length < 28 ? SECTION_KEYS.find(([, re]) => re.test(k))?.[0] : undefined;
+  };
+  const sections: Record<string, string[]> = {};
+  let cur: string | null = null;
+  for (const l of lines) {
+    const k = keyOf(l);
+    if (k) { cur = k; sections[k] = sections[k] ?? []; continue; }
+    if (cur) sections[cur].push(l);
   }
 
-  // Summary: the rest of the extracted text, capped so it's editable
-  // rather than overwhelming — the visitor reorganizes freely from here.
-  const summary = fullText.replace(/\s+/g, " ").trim();
-  cv.summary = summary.slice(0, 1200);
+  const YEAR = /(?:19|20)\d{2}/;
+  const RANGE = new RegExp(String.raw`((?:(?:jan|feb|fév|mar|apr|avr|may|mai|jun|juin|jul|juil|aug|aoû|sep|oct|nov|dec|déc)[a-zéû.]*\s+)?(?:19|20)\d{2})\s*[–—-]\s*((?:(?:jan|feb|fév|mar|apr|avr|may|mai|jun|juin|jul|juil|aug|aoû|sep|oct|nov|dec|déc)[a-zéû.]*\s+)?(?:(?:19|20)\d{2}|present|présent|aujourd'hui|now|current|today))\s*$`, "i");
+
+  if (sections.summary?.length) cv.summary = sections.summary.join(" ").replace(/\s+/g, " ").trim();
+
+  // Experience: a line ending in a date range closes a "company  dates" line;
+  // the line(s) just before it are the role, the lines after are bullets.
+  const exp = sections.experience ?? [];
+  const items: CVData["experience"] = [];
+  let role: string[] = [];
+  let curItem: CVData["experience"][number] | null = null;
+  let bullet = "";
+  const flush = () => { if (curItem && bullet.trim()) curItem.bullets.push(bullet.trim()); bullet = ""; };
+  for (const l of exp) {
+    const m = l.match(RANGE);
+    if (m) {
+      flush();
+      const present = /present|présent|aujourd|now|current|today/i.test(m[2]);
+      curItem = { id: uid(), role: role.join(" ").trim(), company: l.slice(0, m.index).trim(), start: m[1].trim(), end: present ? "" : m[2].trim(), current: present, bullets: [] };
+      items.push(curItem);
+      role = [];
+      continue;
+    }
+    if (!curItem) { role.push(l); continue; }
+    // A wrapped line continues the previous bullet; a line starting a new
+    // sentence after a finished one starts a new bullet. Short title-cased
+    // lines directly before a dated line are the next entry's role.
+    const clean = l.replace(/^[•·▪◦*-]\s*/, "");
+    if (bullet && !/[.!?]$/.test(bullet) && (/^[a-zà-ÿ0-9(%]/.test(clean) || clean.length < 25)) bullet += " " + clean;
+    else { flush(); bullet = clean; }
+  }
+  flush();
+  // Role lines that were swallowed as bullets of the previous entry: a trailing
+  // 1-2 lines of the previous entry that precede the next dated line belong to
+  // the next entry. Handle by re-scanning: move them when the next entry has no role.
+  for (let k = 1; k < items.length; k++) {
+    if (!items[k].role) {
+      const prev = items[k - 1];
+      const take = prev.bullets.length && prev.bullets[prev.bullets.length - 1].length < 80 && !/[.!?]$/.test(prev.bullets[prev.bullets.length - 1]) ? prev.bullets.pop()! : "";
+      items[k].role = take;
+    }
+  }
+  cv.experience = items;
+
+  // Education: groups of "degree / school / year".
+  const ed = sections.education ?? [];
+  for (let k = 0; k < ed.length;) {
+    const degree = ed[k], school = ed[k + 1] ?? "", yr = ed[k + 2] ?? "";
+    if (YEAR.test(yr) && yr.length <= 12) {
+      cv.education.push({ id: uid(), degree, school, start: "", end: yr.match(YEAR)![0] });
+      k += 3;
+    } else if (YEAR.test(school) && school.length <= 12) {
+      cv.education.push({ id: uid(), degree, school: "", start: "", end: school.match(YEAR)![0] });
+      k += 2;
+    } else { cv.education.push({ id: uid(), degree, school: "", start: "", end: "" }); k += 1; }
+  }
+
+  // Languages: "Arabic — Native".
+  for (const l of sections.languages ?? []) {
+    const [n, ...rest] = l.split(/\s*[—–:-]\s*/);
+    if (!n || n.length > 30) continue;
+    const level = rest.join(" - ").trim();
+    const lv = level.toLowerCase();
+    const dots = /native|natif|maternelle|c2/.test(lv) ? 5 : /c1|advanced|courant|fluent|avanc/.test(lv) ? 4 : /b2|upper|b1|interm/.test(lv) ? 3 : 2;
+    cv.languages.push({ id: uid(), name: n.trim(), level, dots });
+  }
+
+  // Skills: the extracted grid is flattened, so keep it as lines.
+  const sk = (sections.skills ?? []).flatMap((l) => l.split(/[,•·|]/)).map((x) => x.trim()).filter(Boolean);
+  if (sk.length) cv.skills = [{ id: uid(), group: "Skills", items: sk.slice(0, 30) }];
+
+  // Nothing recognisable? Keep the text so the visitor can reorganise by hand.
+  if (!cv.summary && !cv.experience.length) {
+    cv.summary = rawText.replace(/\s+/g, " ").trim().slice(0, 1200);
+  }
 
   return cv;
 }

@@ -16,7 +16,7 @@ import { CVDataSchema, EMPTY_CV, uid } from "./schema";
 import type { CVData } from "./schema";
 import { polishLine, polishParagraph } from "./polish";
 
-const MODEL = "claude-sonnet-5";
+const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5";
 
 let client: Anthropic | null = null;
 function getClient(): Anthropic {
@@ -133,10 +133,10 @@ export async function structureResumeWithAI(rawText: string): Promise<CVData> {
     model: MODEL,
     max_tokens: 4000,
     tools: [RESUME_TOOL],
-    tool_choice: { type: "tool", name: "submit_cv" },
+    tool_choice: { type: "auto" },
     messages: [{
       role: "user",
-      content: `Structure this résumé text into the CV schema. Only use information present in the text — never invent employers, dates, or numbers. Leave a field empty ("" or []) rather than guessing.\n\n${WRITING_RULES}\n\n---\n${rawText.slice(0, 12000)}\n---`,
+      content: `Call the submit_cv tool exactly once with the result. Structure this résumé text into the CV schema. Only use information present in the text — never invent employers, dates, or numbers. Leave a field empty ("" or []) rather than guessing.\n\n${WRITING_RULES}\n\n---\n${rawText.slice(0, 12000)}\n---`,
     }],
   });
 
@@ -195,10 +195,10 @@ export async function tailorCVWithAI(cv: CVData, job: TailorJobInput): Promise<{
     model: MODEL,
     max_tokens: 3000,
     tools: [TAILOR_TOOL],
-    tool_choice: { type: "tool", name: "submit_tailoring" },
+    tool_choice: { type: "auto" },
     messages: [{
       role: "user",
-      content: `Candidate's current CV (JSON; experience entries are identified by their 0-based position in "experience"):\n${JSON.stringify(cv)}\n\nTarget job:\nTitle: ${job.title}\nCompany: ${job.company}\nLocation: ${job.location ?? ""}\nTags: ${job.tags.join(", ")}\nDescription: ${job.description}\n\nTailor this CV for this job.\n\nRules:\n- Stay honest. Never claim experience, titles, tools, numbers or results the CV does not support. Rephrase and reorder only; the facts must stay the same.\n- Headline and summary: CV text only, no notes or commentary about fit.\n- Experience: for each entry that benefits, return its bullets reordered (most relevant first) and reworded with the job's own vocabulary where it is truthful. Keep the original language of the CV. Do not add bullets. Leave entries untouched if nothing helps.\n- Skills list: only skills the candidate really has.\n- match_score, matched_skills and missing_skills describe the real fit, strictly. missing_skills are suggestions for the candidate and are NOT added to the CV.\n- changes: 3-6 short factual lines about what you changed.\n${WRITING_RULES}\nThe output goes straight onto the candidate's CV, so no markup, notes or warnings inside the CV fields.`,
+      content: `Call the submit_tailoring tool exactly once with the result.\n\nCandidate's current CV (JSON; experience entries are identified by their 0-based position in "experience"):\n${JSON.stringify(cv)}\n\nTarget job:\nTitle: ${job.title}\nCompany: ${job.company}\nLocation: ${job.location ?? ""}\nTags: ${job.tags.join(", ")}\nDescription: ${job.description}\n\nTailor this CV for this job.\n\nRules:\n- Stay honest. Never claim experience, titles, tools, numbers or results the CV does not support. Rephrase and reorder only; the facts must stay the same.\n- Headline and summary: CV text only, no notes or commentary about fit.\n- Experience: for each entry that benefits, return its bullets reordered (most relevant first) and reworded with the job's own vocabulary where it is truthful. Keep the original language of the CV. Do not add bullets. Leave entries untouched if nothing helps.\n- Skills list: only skills the candidate really has.\n- match_score, matched_skills and missing_skills describe the real fit, strictly. missing_skills are suggestions for the candidate and are NOT added to the CV.\n- changes: 3-6 short factual lines about what you changed.\n${WRITING_RULES}\nThe output goes straight onto the candidate's CV, so no markup, notes or warnings inside the CV fields.`,
     }],
   });
 
@@ -289,10 +289,10 @@ export async function translateCVWithAI(cv: CVData, target: "fr" | "en" | "ar"):
     model: MODEL,
     max_tokens: 6000,
     tools: [TRANSLATE_TOOL],
-    tool_choice: { type: "tool", name: "submit_translation" },
+    tool_choice: { type: "auto" },
     messages: [{
       role: "user",
-      content: `Translate each CV text below into ${LANG_NAME[target]}. Return exactly ${slots.length} strings in the same order.\n\nRules: natural professional CV register; keep company names, school names, people names, product/tool/technology names, numbers and dates unchanged; do not add, remove or merge anything; if a string is already in ${LANG_NAME[target]}, return it unchanged. ${WRITING_RULES} Output only the translated text, no notes.\n\n${JSON.stringify(slots.map((x) => x.get()))}`,
+      content: `Call the submit_translation tool exactly once with the result. Translate each CV text below into ${LANG_NAME[target]}. Return exactly ${slots.length} strings in the same order.\n\nRules: natural professional CV register; keep company names, school names, people names, product/tool/technology names, numbers and dates unchanged; do not add, remove or merge anything; if a string is already in ${LANG_NAME[target]}, return it unchanged. ${WRITING_RULES} Output only the translated text, no notes.\n\n${JSON.stringify(slots.map((x) => x.get()))}`,
     }],
   });
 
@@ -320,10 +320,10 @@ export async function proofreadCVWithAI(cv: CVData): Promise<{ cv: CVData; chang
     model: MODEL,
     max_tokens: 6000,
     tools: [TRANSLATE_TOOL],
-    tool_choice: { type: "tool", name: "submit_translation" },
+    tool_choice: { type: "auto" },
     messages: [{
       role: "user",
-      content: `Proofread and professionally rephrase each CV text below. Return exactly ${slots.length} strings in the same order, each in the SAME language as its input (do not translate).\n\nCorrect grammar, spelling, punctuation, agreement and capitalisation, and rephrase wording so every string reads like polished, concise, professional CV prose from a native speaker, using the infinitive verb form as specified in the rules below (convert any conjugated verb to its infinitive). Keep the meaning, facts, names, numbers, dates and technology names exactly; do not add, invent or remove information, and keep roughly the same length. If a string is already correct and professional, return it unchanged. Output only the corrected text, no notes.\n\n${WRITING_RULES}\n\n${JSON.stringify(original)}`,
+      content: `Call the submit_translation tool exactly once with the result. Proofread and professionally rephrase each CV text below. Return exactly ${slots.length} strings in the same order, each in the SAME language as its input (do not translate).\n\nCorrect grammar, spelling, punctuation, agreement and capitalisation, and rephrase wording so every string reads like polished, concise, professional CV prose from a native speaker, using the infinitive verb form as specified in the rules below (convert any conjugated verb to its infinitive). Keep the meaning, facts, names, numbers, dates and technology names exactly; do not add, invent or remove information, and keep roughly the same length. If a string is already correct and professional, return it unchanged. Output only the corrected text, no notes.\n\n${WRITING_RULES}\n\n${JSON.stringify(original)}`,
     }],
   });
 
