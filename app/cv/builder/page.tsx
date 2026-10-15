@@ -25,7 +25,7 @@ import { readLocalDraft, saveLocalDraft } from "../_lib/local-draft";
 import { REPORT_KEY } from "../_lib/tailor-report";
 import { DEFAULT_SECTION_ORDER, DEFAULT_SECTIONS_ENABLED } from "../_lib/schema";
 import type { Json } from "../_lib/db-types";
-import { HANDOFF_KEY } from "../_lib/handoff";
+import { HANDOFF_KEY, cvHasContent } from "../_lib/handoff";
 import { BuilderShell } from "../_components/BuilderShell";
 import { TailorReportPanel } from "../_components/TailorReportPanel";
 
@@ -46,6 +46,12 @@ export default function AnonymousBuilderPage() {
       // ignore
     }
     if (handedOff) {
+      // The homepage said it filled the store, but a full page load (common on phones) empties it:
+      // recover the CV it saved to the local draft right before navigating.
+      if (!cvHasContent(useCVStore.getState().cv)) {
+        const d = readLocalDraft();
+        if (d && cvHasContent(d.cv)) init("__local__", { cv: d.cv, template: d.template, accent: d.accent, lang: d.lang, order: d.order, enabled: d.enabled, cvName: d.cvName });
+      }
       useCVStore.setState({ cvId: "__local__" });
       const s = useCVStore.getState();
       // Autosave only reacts to edits — save the handed-over CV right now so leaving the page can't lose it.

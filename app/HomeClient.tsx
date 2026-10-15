@@ -25,6 +25,7 @@ import type { TemplateId, CVData } from "./cv/_lib/schema";
 import { useCVStore } from "./cv/_store/cv-store";
 import { tailorCVForJob } from "./cv/_lib/tailor";
 import { markHandoff } from "./cv/_lib/handoff";
+import { saveLocalDraft } from "./cv/_lib/local-draft";
 import { saveReport, clearReport } from "./cv/_lib/tailor-report";
 import type { TailorReport } from "./cv/_lib/tailor-report";
 import { TemplateCarousel } from "./TemplateCarousel";
@@ -214,6 +215,10 @@ export default function HomeClient() {
     const store = useCVStore.getState();
     store.loadCV(cv);
     if (template) { store.setTemplate(template); }
+    // Also persist to the local draft BEFORE navigating: on phones the route change can turn into a full page
+    // load (slow/flaky network), which wipes the in-memory store — the builder then recovers from this draft.
+    const s = useCVStore.getState();
+    saveLocalDraft({ cv, template: s.template, accent: s.accent, lang: s.lang, order: s.order, enabled: s.enabled, cvName: s.cvName });
     clearReport(); // a report only belongs to the tailoring that sets it right after this call
     markHandoff();
     router.push("/cv/builder");
