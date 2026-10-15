@@ -13,7 +13,9 @@ function LoginForm() {
   const { u, rtl, lang } = useUI();
   const router = useRouter();
   const params = useSearchParams();
-  const next = params.get("next") ?? "/cv";
+  const rawNext = params.get("next");
+  // Only same-site paths (no "//host" or "https://…" open redirects).
+  const next = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/dashboard";
 
   const [email, setEmail]     = useState("");
   const [password, setPassword] = useState("");

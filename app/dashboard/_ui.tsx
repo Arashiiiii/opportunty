@@ -23,16 +23,17 @@ export function Shell({ active, title, sub, children }: { active: "seeker" | "em
   const router = useRouter();
   return (
     <div dir={rtl ? "rtl" : "ltr"} style={{ minHeight: "100vh", background: "#fffefb", color: INK, fontFamily: "'Inter', system-ui, sans-serif" }}>
-      <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#fffefb", borderBottom: `1px solid ${LINE}`, height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", gap: 12 }}>
+      <header className="dash-head" style={{ position: "sticky", top: 0, zIndex: 10, background: "#fffefb", borderBottom: `1px solid ${LINE}`, height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", gap: 12 }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px", color: INK, textDecoration: "none" }}><LogoMark size={28} /><span>opportunity<span style={{ color: PRIMARY }}>.</span></span></Link>
         <nav style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <UiLangSwitch compact />
-          <Link href="/" style={{ fontSize: 14, color: MUTED, textDecoration: "none", whiteSpace: "nowrap" }}>{d.home}</Link>
+          <Link href="/" className="dash-home" style={{ fontSize: 14, color: MUTED, textDecoration: "none", whiteSpace: "nowrap" }}>{d.home}</Link>
           <button type="button" onClick={async () => { await createClient().auth.signOut(); router.push("/"); router.refresh(); }}
-            style={{ fontSize: 14, color: MUTED, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }}>{d.signOut}</button>
+            style={{ fontSize: 14, color: MUTED, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap", padding: 0 }}>{d.signOut}</button>
         </nav>
       </header>
-      <main style={{ maxWidth: 1080, margin: "0 auto", padding: "28px 24px 96px" }}>
+      <style>{`@media (max-width: 560px){ .dash-head{padding:0 14px !important} .dash-head nav{gap:10px !important} .dash-home{display:none !important} .dash-main{padding:20px 14px 72px !important} }`}</style>
+      <main className="dash-main" style={{ maxWidth: 1080, margin: "0 auto", padding: "28px 24px 96px" }}>
         <h1 style={{ margin: "0 0 6px", fontSize: "clamp(26px, 4vw, 36px)", fontWeight: 500, lineHeight: 1.1 }}>{title}</h1>
         <p style={{ margin: "0 0 24px", color: MUTED, fontSize: 16, maxWidth: 640, lineHeight: 1.5 }}>{sub}</p>
         {children}
@@ -43,7 +44,7 @@ export function Shell({ active, title, sub, children }: { active: "seeker" | "em
 
 export function Kpis({ items }: { items: { label: string; value: string; note: string; color?: string }[] }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 12, marginBottom: 16 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 150px), 1fr))", gap: 12, marginBottom: 16 }}>
       {items.map((k) => (
         <div key={k.label} style={{ border: `1px solid ${LINE}`, borderRadius: 12, padding: "16px 18px", background: "#fff" }}>
           <div style={{ fontSize: 13, color: MUTED, fontWeight: 600 }}>{k.label}</div>

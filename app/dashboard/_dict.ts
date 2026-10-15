@@ -12,6 +12,11 @@ export interface DashDict {
   matches: string; matchesSub: string; noMatches: string; matchCol: string; skillsCol: string;
   tailored: string; tailoredSub: string; noTailored: string; jobCol: string; companyCol: string; whenCol: string; openCol: string;
   myCVs: string; updated: string; tailorCta: string; browseJobs: string;
+  // profile
+  profile: string; profileSub: string; editProfile: string; saveProfile: string; cancel: string; savingP: string; savedP: string; saveFailedP: string;
+  changePhoto: string; addPhoto: string; photoBad: string; photoFail: string;
+  fullName: string; headline: string; phoneL: string; cityL: string; linkedinL: string; websiteL: string; emailL: string; contact: string;
+  completeProfile: string; hello: string; fromCV: string; newCV: string; manageAll: string; cvsSub: string; yourName: string;
   scoreItems: Record<string, string>;
   // employer
   employerTitle: string; employerSub: string;
@@ -33,6 +38,10 @@ const en: DashDict = {
   matches: "Best matches", matchesSub: "Active jobs ranked by overlap with your CV skills", noMatches: "Add skills to your CV to see matches.", matchCol: "Match", skillsCol: "Shared skills",
   tailored: "Tailored for", tailoredSub: "Your latest tailored CVs", noTailored: "No tailored CV yet.", jobCol: "Job", companyCol: "Company", whenCol: "When", openCol: "CV",
   myCVs: "Your CVs", updated: "Updated", tailorCta: "Tailor a CV", browseJobs: "Browse jobs",
+  profile: "Your profile", profileSub: "Your picture, details and contacts.", editProfile: "Edit profile", saveProfile: "Save", cancel: "Cancel", savingP: "Saving…", savedP: "Saved", saveFailedP: "Couldn't save. Try again.",
+  changePhoto: "Change photo", addPhoto: "Add photo", photoBad: "Choose a JPG, PNG or WebP image.", photoFail: "Couldn't upload the photo. Try again.",
+  fullName: "Full name", headline: "Professional title", phoneL: "Phone", cityL: "City", linkedinL: "LinkedIn", websiteL: "Website", emailL: "Email", contact: "Contact",
+  completeProfile: "Complete your profile so it's ready to fill your CVs.", hello: "Hello", fromCV: "Pre-filled from your latest CV. Check it and save.", newCV: "New CV", manageAll: "Manage all", cvsSub: "Your saved CVs. Open one to keep editing.", yourName: "Your name",
   scoreItems: {
     "contact-full": "Complete first name, email and phone", title: "Add a professional title", photo: "Add a profile photo",
     summary: "Write a professional summary (50+ words)", "exp-exists": "Add at least one work experience", "exp-bullets": "Give each job 2+ key points",
@@ -60,6 +69,10 @@ const fr: DashDict = {
   matches: "Meilleures correspondances", matchesSub: "Offres actives classées selon vos compétences", noMatches: "Ajoutez des compétences à votre CV pour voir les correspondances.", matchCol: "Match", skillsCol: "Compétences communes",
   tailored: "CV adaptés", tailoredSub: "Vos derniers CV adaptés", noTailored: "Aucun CV adapté pour l'instant.", jobCol: "Offre", companyCol: "Entreprise", whenCol: "Quand", openCol: "CV",
   myCVs: "Vos CV", updated: "Modifié", tailorCta: "Adapter un CV", browseJobs: "Voir les offres",
+  profile: "Votre profil", profileSub: "Votre photo, vos informations et vos contacts.", editProfile: "Modifier le profil", saveProfile: "Enregistrer", cancel: "Annuler", savingP: "Enregistrement…", savedP: "Enregistré", saveFailedP: "Échec de l'enregistrement. Réessayez.",
+  changePhoto: "Changer la photo", addPhoto: "Ajouter une photo", photoBad: "Choisissez une image JPG, PNG ou WebP.", photoFail: "Impossible d'envoyer la photo. Réessayez.",
+  fullName: "Nom complet", headline: "Titre professionnel", phoneL: "Téléphone", cityL: "Ville", linkedinL: "LinkedIn", websiteL: "Site web", emailL: "E-mail", contact: "Contact",
+  completeProfile: "Complétez votre profil pour qu'il serve à remplir vos CV.", hello: "Bonjour", fromCV: "Pré-rempli depuis votre dernier CV. Vérifiez puis enregistrez.", newCV: "Nouveau CV", manageAll: "Tout gérer", cvsSub: "Vos CV enregistrés. Ouvrez-en un pour continuer.", yourName: "Votre nom",
   scoreItems: {
     "contact-full": "Compléter prénom, email et téléphone", title: "Ajouter un titre professionnel", photo: "Ajouter une photo de profil",
     summary: "Rédiger un résumé professionnel (50+ mots)", "exp-exists": "Ajouter au moins une expérience", "exp-bullets": "Donner 2+ points clés par poste",
@@ -87,6 +100,10 @@ const ar: DashDict = {
   matches: "أفضل التطابقات", matchesSub: "الوظائف النشطة مرتبة حسب تطابق مهاراتك", noMatches: "أضف مهارات إلى سيرتك لتظهر التطابقات.", matchCol: "التطابق", skillsCol: "مهارات مشتركة",
   tailored: "سير مخصّصة", tailoredSub: "آخر سيرك المخصّصة", noTailored: "لا توجد سيرة مخصّصة بعد.", jobCol: "الوظيفة", companyCol: "الشركة", whenCol: "متى", openCol: "السيرة",
   myCVs: "سيرك الذاتية", updated: "آخر تعديل", tailorCta: "خصّص سيرة", browseJobs: "تصفح الوظائف",
+  profile: "ملفك الشخصي", profileSub: "صورتك ومعلوماتك وبيانات التواصل.", editProfile: "تعديل الملف", saveProfile: "حفظ", cancel: "إلغاء", savingP: "جارٍ الحفظ…", savedP: "تم الحفظ", saveFailedP: "تعذّر الحفظ. حاول مجددًا.",
+  changePhoto: "تغيير الصورة", addPhoto: "إضافة صورة", photoBad: "اختر صورة JPG أو PNG أو WebP.", photoFail: "تعذّر رفع الصورة. حاول مجددًا.",
+  fullName: "الاسم الكامل", headline: "المسمى المهني", phoneL: "الهاتف", cityL: "المدينة", linkedinL: "لينكدإن", websiteL: "الموقع الإلكتروني", emailL: "البريد الإلكتروني", contact: "التواصل",
+  completeProfile: "أكمل ملفك الشخصي ليُستخدم في تعبئة سيرك الذاتية.", hello: "مرحبًا", fromCV: "مُعبّأ من آخر سيرة ذاتية. راجعه ثم احفظ.", newCV: "سيرة جديدة", manageAll: "إدارة الكل", cvsSub: "سيرك الذاتية المحفوظة. افتح واحدة لمتابعة التعديل.", yourName: "اسمك",
   scoreItems: {
     "contact-full": "أكمل الاسم والبريد والهاتف", title: "أضف مسمى وظيفياً", photo: "أضف صورة شخصية",
     summary: "اكتب ملخصاً مهنياً (50+ كلمة)", "exp-exists": "أضف خبرة عمل واحدة على الأقل", "exp-bullets": "أضف نقطتين أو أكثر لكل وظيفة",

@@ -6,6 +6,7 @@ import { isEmployer } from "@/app/employers/_role";
 import { CVDataSchema, DEFAULT_SECTION_ORDER, DEFAULT_SECTIONS_ENABLED } from "@/app/cv/_lib/schema";
 import type { CVData, SectionId } from "@/app/cv/_lib/schema";
 import { computeScore, scoreColor, type ScoreResult } from "@/app/cv/_lib/score";
+import { ProfileCard, type Profile } from "./ProfileCard";
 import { BarList, Card, Columns, Grid, Kpis, LinkBtn, Pill, Shell, Table, MUTED, PRIMARY, useDash } from "./_ui";
 
 const supabase = createClient();
@@ -13,7 +14,7 @@ const supabase = createClient();
 interface CvRow { id: string; name: string; updated_at: string; data: unknown; section_order: SectionId[] | null; sections_enabled: Record<SectionId, boolean> | null }
 interface JobRow { id: string; title: string; company: string; location: string; tags: string[] | null; description: string | null }
 interface TailorRow { id: string; cv_id: string; job_id: string; created_at: string }
-interface Data { cvs: CvRow[]; tailorings: TailorRow[]; jobs: JobRow[]; tailoredJobs: Record<string, JobRow>; }
+interface Data { userId: string; email: string; profile: Profile | null; cvs: CvRow[]; tailorings: TailorRow[]; jobs: JobRow[]; tailoredJobs: Record<string, JobRow>; }
 
 const dayMs = 86_400_000;
 
@@ -33,10 +34,11 @@ export default function SeekerDashboard() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) { window.location.href = "/login?next=/dashboard"; return; }
         if (isEmployer(user)) { window.location.href = "/dashboard/employer"; return; }
-        const [cvs, tl, jobs] = await Promise.all([
+        const [cvs, tl, jobs, prof] = await Promise.all([
           supabase.from("cvs").select("id, name, updated_at, data, section_order, sections_enabled").eq("user_id", user.id).order("updated_at", { ascending: false }),
           supabase.from("cv_job_tailorings").select("id, cv_id, job_id, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(100),
           supabase.from("jobs").select("id, title, company, location, tags, description").eq("is_active", true).order("created_at", { ascending: false }).limit(300),
+          supabase.from("profiles").select("full_name, headline, phone, city, linkedin, website, avatar_url").eq("user_id", user.id).maybeSingle(),
         ]);
         if (cvs.error || tl.error || jobs.error) throw new Error("load");
         const tailorings = (tl.data ?? []) as TailorRow[];
@@ -46,7 +48,7 @@ export default function SeekerDashboard() {
           const extra = await supabase.from("jobs").select("id, title, company, location, tags, description").in("id", missing);
           (extra.data as JobRow[] | null)?.forEach((j) => known.set(j.id, j));
         }
-        setData({ cvs: (cvs.data ?? []) as CvRow[], tailorings, jobs: jobs.data as JobRow[], tailoredJobs: Object.fromEntries(known) });
+        setData({ userId: user.id, email: user.email ?? "", profile: (prof.data as Profile | null) ?? null, cvs: (cvs.data ?? []) as CvRow[], tailorings, jobs: jobs.data as JobRow[], tailoredJobs: Object.fromEntries(known) });
       } catch { setFailed(true); }
     })();
   }, []);
@@ -86,12 +88,29 @@ export default function SeekerDashboard() {
 
   return (
     <Shell active="seeker" title={d.seekerTitle} sub={d.seekerSub}>
+      <ProfileCard userId={data.userId} email={data.email} profile={data.profile} latestCV={cv} onSaved={(p) => setData((s) => (s ? { ...s, profile: p } : s))} />
       <Kpis items={[
         { label: d.kCVs, value: String(data.cvs.length), note: d.kCVsNote },
         { label: d.kScore, value: score ? String(score.value) : "—", note: d.kScoreNote, color: score ? scoreColor(score.value) : undefined },
         { label: d.kTailored, value: String(data.tailorings.length), note: d.kTailoredNote },
         { label: d.kMatch, value: matches[0] ? `${matches[0].pct}%` : "—", note: d.kMatchNote },
       ]} />
+
+      {data.cvs.length > 0 && (
+      <Card title={d.myCVs} sub={d.cvsSub} style={{ marginBottom: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: 12 }}>
+          {data.cvs.slice(0, 5).map((c) => (
+            <Link key={c.id} href={`/cv/${c.id}`} style={{ display: "flex", flexDirection: "column", gap: 4, padding: "14px 16px", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, background: "#fffefb", textDecoration: "none", color: "inherit", minWidth: 0 }}>
+              <span dir="auto" style={{ fontWeight: 700, fontSize: 15, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name || "CV"}</span>
+              <span style={{ fontSize: 12.5, color: MUTED }}>{d.updated} {fmtDate(c.updated_at)}</span>
+              <span style={{ fontSize: 13, color: PRIMARY, fontWeight: 700, marginTop: 4 }}>{d.openCV} →</span>
+            </Link>
+          ))}
+          <Link href="/cv/builder" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 84, border: "2px dashed rgba(32,21,21,0.24)", borderRadius: 12, textDecoration: "none", color: PRIMARY, fontWeight: 700, fontSize: 14.5 }}>+ {d.newCV}</Link>
+        </div>
+        {data.cvs.length > 5 && <div style={{ marginTop: 12 }}><Link href="/cv" style={{ fontSize: 13.5, color: MUTED, fontWeight: 600 }}>{d.manageAll} →</Link></div>}
+      </Card>
+      )}
 
       {!latest && (
         <Card title={d.noCV} sub={d.noCVNote}>
@@ -155,17 +174,6 @@ export default function SeekerDashboard() {
                     <Link key="o" href={`/cv/${t.cv_id}`} style={{ color: PRIMARY, fontWeight: 700, textDecoration: "none" }}>{d.openCV}</Link>,
                   ];
                 })}
-              />
-            </Card>
-            <Card title={d.myCVs}>
-              <Table
-                head={[d.myCVs, d.updated, ""]}
-                empty={d.noCV}
-                rows={data.cvs.map((c) => [
-                  <span key="n" dir="auto" style={{ fontWeight: 600 }}>{c.name || "CV"}</span>,
-                  fmtDate(c.updated_at),
-                  <Link key="o" href={`/cv/${c.id}`} style={{ color: PRIMARY, fontWeight: 700, textDecoration: "none" }}>{d.openCV}</Link>,
-                ])}
               />
             </Card>
           </Grid>

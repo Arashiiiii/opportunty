@@ -22,7 +22,7 @@ export default function SignupPage() {
     const { error: err } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: typeof window !== "undefined" ? `${window.location.origin}/cv` : undefined },
+      options: { emailRedirectTo: typeof window !== "undefined" ? `${window.location.origin}/dashboard` : undefined },
     });
     setBusy(false);
     if (err) { setError(err.message); return; }
