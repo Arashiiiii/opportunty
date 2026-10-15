@@ -105,6 +105,8 @@ export default function HomeClient() {
   const [detailsSeen, setDetailsSeen] = useState<Set<string>>(new Set());
   const [confirmJob, setConfirmJob] = useState<Job | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  // Phones/tablets have no mouse: dragging a card to a CV panel far below the fold is unusable, so touch gets a one-tap action.
+  const [finePointer, setFinePointer] = useState(true);
   const [cvJobId, setCvJobId] = useState<string | null>(null);
   const [tailoring, setTailoring] = useState(false);
   const [tailoredCV, setTailoredCV] = useState<CVData | null>(null);
@@ -123,6 +125,14 @@ export default function HomeClient() {
     // silently skip the upload step when a job is dropped.
     const inMemory = useCVStore.getState().cv;
     if (cvHasContent(inMemory)) setHomeCV(inMemory);
+  }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: fine)");
+    const sync = () => setFinePointer(mq.matches);
+    sync();
+    mq.addEventListener?.("change", sync);
+    return () => mq.removeEventListener?.("change", sync);
   }, []);
 
   // Remembered country (client-only; first paint is Morocco to avoid hydration mismatch).
@@ -264,6 +274,7 @@ export default function HomeClient() {
 
   /** Tailor `job` to the visitor's CV; asks for an upload first when there isn't one. */
   const startTailor = useCallback(async (job: Job) => {
+    revealCvPanel();
     if (homeCV) { void runTailor(job, homeCV); return; }
     // No CV on this device: use the one saved in the user's dashboard…
     const saved = await loadSavedCV();
@@ -276,7 +287,7 @@ export default function HomeClient() {
     // …otherwise ask for an upload first instead of tailoring a blank page.
     setPendingJobId(job.id);
     setUploadError(null);
-    document.querySelector(".opp-cv-panel")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    revealCvPanel();
   }, [homeCV, runTailor, loadSavedCV]);
 
   const handleDrop = useCallback(async (e: React.DragEvent) => {
@@ -482,7 +493,7 @@ export default function HomeClient() {
           </div>
 
           <div style={{ fontSize: 14, color: "#605d52" }}>
-            {feedLoading ? T.loading : T.rolesIn(visibleJobs.length, cIn)} · {T.dragHint}
+            {feedLoading ? T.loading : T.rolesIn(visibleJobs.length, cIn)} · {finePointer ? T.dragHint : T.tapHint}
             {usingPlaceholders && <span style={{ color: "#c5a15a" }}> {T.sample}</span>}
           </div>
 
@@ -497,15 +508,15 @@ export default function HomeClient() {
             return (
               <div
                 key={job.id}
-                draggable
+                draggable={finePointer}
                 onDragStart={(e) => {
                   e.dataTransfer.setData("text/plain", job.id);
                   e.dataTransfer.effectAllowed = "move";
                 }}
-                style={{ background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 24, cursor: "grab" }}
+                style={{ background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 24, cursor: finePointer ? "grab" : "default" }}
               >
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-                  <div style={{ display: "flex", gap: 14, minWidth: 0 }}>
+                <div className="opp-card-head" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                  <div className="opp-card-id" style={{ display: "flex", gap: 14, minWidth: 0 }}>
                     <CompanyLogo company={job.company} logoUrl={job.logo_url} />
                     <div style={{ minWidth: 0 }}>
                       <div dir="auto" style={{ fontSize: 24, lineHeight: "30px", fontWeight: 600, letterSpacing: "-0.6px", marginBottom: 4 }}>{job.title}</div>
@@ -525,11 +536,11 @@ export default function HomeClient() {
                   <p style={{ fontSize: 16, lineHeight: "24px", color: "#36342e", margin: "14px 0 0", paddingTop: 14, borderTop: "1px solid rgba(32,21,21,0.12)" }}>{job.description}</p>
                 )}
 
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(32,21,21,0.12)" }}>
+                <div className="opp-card-foot" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(32,21,21,0.12)" }}>
                   <button type="button" onClick={() => { setExpandedId(isExpanded ? null : job.id); if (!isExpanded) setDetailsSeen((s) => new Set(s).add(job.id)); }} style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", background: "none", border: "none", padding: 0, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 2, fontFamily: "inherit" }}>
                     {isExpanded ? T.hideDetails : T.viewDetails}
                   </button>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                  <div className="opp-card-actions" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
                     {applyUrl(job) ? (
                       <button type="button" onClick={() => handleApply(job)} className="opp-apply" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "9px 20px", borderRadius: 9999, border: "1.5px solid #201515", background: "#201515", color: "#fffefb", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
                         {T.apply} ↗
@@ -537,11 +548,11 @@ export default function HomeClient() {
                     ) : (
                       <span title={T.applySample} style={{ fontSize: 14.4, fontWeight: 700, padding: "9px 20px", borderRadius: 9999, border: "1.5px solid rgba(32,21,21,0.2)", color: "#a39c8f", whiteSpace: "nowrap", cursor: "not-allowed" }}>{T.apply}</span>
                     )}
-                    <span className="opp-drag-pill" title={T.dragTitle} style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 14.4, fontWeight: 800, letterSpacing: "0.2px", padding: "9px 16px 9px 12px", borderRadius: 9999, background: "linear-gradient(135deg, #ff4f00, #ff8a3d)", color: "#fffefb", whiteSpace: "nowrap", userSelect: "none" }}>
-                      <svg width="14" height="16" viewBox="0 0 14 18" fill="#fffefb"><circle cx="4" cy="3" r="1.6" /><circle cx="10" cy="3" r="1.6" /><circle cx="4" cy="9" r="1.6" /><circle cx="10" cy="9" r="1.6" /><circle cx="4" cy="15" r="1.6" /><circle cx="10" cy="15" r="1.6" /></svg>
-                      {T.dragToCV}
+                    <button type="button" className="opp-drag-pill" onClick={() => void startTailor(job)} title={finePointer ? T.dragTitle : T.tapTitle} style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 14.4, fontWeight: 800, letterSpacing: "0.2px", padding: "9px 16px 9px 12px", minHeight: 40, borderRadius: 9999, border: "none", background: "linear-gradient(135deg, #ff4f00, #ff8a3d)", color: "#fffefb", whiteSpace: "nowrap", userSelect: "none", fontFamily: "inherit", WebkitTapHighlightColor: "transparent" }}>
+                      <svg className="opp-grip" width="14" height="16" viewBox="0 0 14 18" fill="#fffefb"><circle cx="4" cy="3" r="1.6" /><circle cx="10" cy="3" r="1.6" /><circle cx="4" cy="9" r="1.6" /><circle cx="10" cy="9" r="1.6" /><circle cx="4" cy="15" r="1.6" /><circle cx="10" cy="15" r="1.6" /></svg>
+                      {finePointer ? T.dragToCV : T.tapToCV}
                       <span className="opp-drag-arrow" aria-hidden>{T.arrow}</span>
-                    </span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -553,7 +564,7 @@ export default function HomeClient() {
         <div className="opp-cv-panel" style={{ position: "sticky", top: 88 }}>
           <div style={{ background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 24 }}>
             <div style={{ fontSize: 20, lineHeight: "25px", fontWeight: 700, letterSpacing: "-0.5px", marginBottom: 4 }}>{T.yourCV}</div>
-            <p style={{ fontSize: 16, lineHeight: "24px", color: "#605d52", margin: "0 0 24px" }}>{T.panelIntro}</p>
+            <p style={{ fontSize: 16, lineHeight: "24px", color: "#605d52", margin: "0 0 24px" }}>{finePointer ? T.panelIntro : T.panelIntroTap}</p>
 
             {uploadError && (
               <div style={{ marginBottom: 16, padding: "10px 14px", borderRadius: 10, background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", fontSize: 13.5, display: "flex", justifyContent: "space-between", gap: 10 }}>
@@ -574,7 +585,7 @@ export default function HomeClient() {
                     {fill(T.pending, pendingJob.title, pendingJob.company)}
                   </div>
                 ) : (
-                  <div style={{ fontSize: 16, color: "#605d52", maxWidth: 300 }}>{T.startWithCV}</div>
+                  <div style={{ fontSize: 16, color: "#605d52", maxWidth: 300 }}>{finePointer ? T.startWithCV : T.startWithCVTap}</div>
                 )}
                 <button type="button" onClick={handleUploadClick} disabled={uploading} style={{ width: "100%", maxWidth: 260, fontSize: 15, fontWeight: 700, padding: "13px 24px", borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.7 : 1 }}>
                   {uploading ? T.reading : T.uploadCV}
@@ -605,7 +616,7 @@ export default function HomeClient() {
                   {`${homeCV.profile.firstName} ${homeCV.profile.lastName}`.trim() || T.cvFallback}
                 </div>
                 {homeCV.profile.title && <div style={{ fontSize: 14.5, color: "#605d52", marginTop: -6 }}>{homeCV.profile.title}</div>}
-                <div style={{ fontSize: 16, color: PRIMARY, fontWeight: 700 }}>{dragOver ? T.dropIt : `${T.nowDrag} ${T.arrow}`}</div>
+                <div style={{ fontSize: 16, color: PRIMARY, fontWeight: 700 }}>{dragOver ? T.dropIt : `${finePointer ? T.nowDrag : T.nowTap} ${T.arrow}`}</div>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
                   <button type="button" onClick={() => enterBuilder(homeCV, templateId ?? undefined)} style={{ fontSize: 14.4, fontWeight: 700, padding: "10px 18px", borderRadius: 10, border: "none", background: "#201515", color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>{T.openBuilder}</button>
                   <button type="button" onClick={handleUploadClick} disabled={uploading} style={{ fontSize: 14.4, fontWeight: 700, padding: "10px 18px", borderRadius: 10, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit" }}>{uploading ? T.readingShort : T.replaceCV}</button>
@@ -689,13 +700,15 @@ export default function HomeClient() {
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes oppNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(5px); } }
         @keyframes oppGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,79,0,0.45); } 60% { box-shadow: 0 0 0 9px rgba(255,79,0,0); } }
-        .opp-drag-pill { cursor: grab; animation: oppGlow 2.2s ease-out infinite; transition: transform 140ms; }
+        .opp-drag-pill { cursor: pointer; animation: oppGlow 2.2s ease-out infinite; transition: transform 140ms; }
         .opp-drag-pill:hover { transform: translateY(-2px) rotate(-2deg) scale(1.04); }
         .opp-drag-arrow { display: inline-block; animation: oppNudge 1.1s ease-in-out infinite; }
+        @media (pointer: coarse) { .opp-grip { display: none; } .opp-drag-pill { animation: none; } .opp-apply { min-height: 40px; } }
         .opp-apply { transition: transform 140ms, background 140ms; }
         .opp-apply:hover { transform: translateY(-1px); background: #ff4f00 !important; border-color: #ff4f00 !important; }
 
         .opp-band > div, .opp-workspace > div { min-width: 0; }
+        .opp-cv-panel { scroll-margin-top: 84px; }
         .opp-tpl-card { transition: transform .15s ease; }
         .opp-tpl-card:hover { transform: translateY(-3px); }
         .opp-tpl-fade { animation: oppFade .25s ease; }
@@ -724,6 +737,13 @@ export default function HomeClient() {
           .opp-search      { flex-direction: column; align-items: stretch !important; padding: 10px !important; gap: 8px; }
           .opp-search-divider { display: none !important; }
           .opp-search-btn  { width: 100%; padding: 13px 0 !important; }
+          .opp-card-head   { flex-wrap: wrap; }
+          .opp-card-id     { flex: 1 1 100%; }
+          .opp-card-id > div:last-child { flex: 1 1 0; min-width: 0; }
+          .opp-card-foot   { flex-direction: column; align-items: stretch !important; gap: 12px; }
+          .opp-card-foot > button { align-self: flex-start; }
+          .opp-card-actions { width: 100%; flex-wrap: nowrap !important; }
+          .opp-card-actions > * { flex: 1 1 0; justify-content: center; text-align: center; }
         }
       `}</style>
     </div>
@@ -736,6 +756,12 @@ function hexToRgbaLite(hex: string) {
   const g = parseInt(h.substring(2, 4), 16);
   const b = parseInt(h.substring(4, 6), 16);
   return `rgba(${r},${g},${b},0.1)`;
+}
+
+/** On the stacked (phone/tablet) layout the CV panel sits below the job list: bring it into view. */
+function revealCvPanel() {
+  if (typeof window === "undefined" || !window.matchMedia("(max-width: 900px)").matches) return;
+  requestAnimationFrame(() => document.querySelector(".opp-cv-panel")?.scrollIntoView({ behavior: "smooth", block: "start" }));
 }
 
 const LOGO_COLORS = ["#ff4f00", "#0f766e", "#7c3aed", "#be123c", "#1d4ed8", "#b45309", "#047857", "#9333ea"];
