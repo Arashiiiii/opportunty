@@ -7,7 +7,7 @@ import { UiLangSwitch } from "@/app/_components/UiLangSwitch";
 import { LogoMark } from "../_components/LogoMark";
 
 export default function SignupPage() {
-  const { u, rtl } = useUI();
+  const { u, rtl, lang } = useUI();
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy]         = useState(false);
@@ -22,7 +22,7 @@ export default function SignupPage() {
     const { error: err } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: typeof window !== "undefined" ? `${window.location.origin}/dashboard` : undefined },
+      options: { data: { lang }, emailRedirectTo: typeof window !== "undefined" ? `${window.location.origin}/dashboard` : undefined },
     });
     setBusy(false);
     if (err) { setError(err.message); return; }
