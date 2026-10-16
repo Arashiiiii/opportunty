@@ -15,7 +15,7 @@ export interface UiDict {
   complete: string; savingShort: string; previewTab: string; formTab: string; gateDownloadTitle: string; gateDownloadMsg: string;
   scoreTitle: string; scoreImprove: string; scoreDone: string; scoreGate: string; scoreItems: Record<string, string>;
   dragReorder: string; hideSection: string; showSection: string; hide: string; show: string;
-  fit: string; templates: string; aiRewrite: string; remove: string;
+  fit: string; templates: string; color: string; aiRewrite: string; remove: string;
   firstName: string; lastName: string; jobTitle: string; phone: string; city: string; linkedin: string; website: string;
   changePhoto: string; click: string;
   certification: string; certName: string; issuer: string; year: string; addCert: string;
@@ -54,7 +54,7 @@ const en: UiDict = {
     linkedin: "Add your LinkedIn URL", certifications: "Add a certification",
   },
   dragReorder: "Drag to reorder", hideSection: "Hide section", showSection: "Show section", hide: "Hide", show: "Show",
-  fit: "Fit", templates: "Templates", aiRewrite: "Rewrite with AI", remove: "Remove",
+  fit: "Fit", templates: "Templates", color: "Color", aiRewrite: "Rewrite with AI", remove: "Remove",
   firstName: "First name", lastName: "Last name", jobTitle: "Job title", phone: "Phone", city: "City", linkedin: "LinkedIn", website: "Website / Portfolio",
   changePhoto: "Click to change photo", click: "click",
   certification: "Certification", certName: "Name", issuer: "Issuer", year: "Year", addCert: "+ Add a certification",
@@ -93,7 +93,7 @@ const fr: UiDict = {
     linkedin: "Ajouter votre URL LinkedIn", certifications: "Ajouter une certification",
   },
   dragReorder: "Glisser pour réordonner", hideSection: "Masquer la section", showSection: "Afficher la section", hide: "Masquer", show: "Afficher",
-  fit: "Ajuster", templates: "Modèles", aiRewrite: "Reformuler avec l'IA", remove: "Supprimer",
+  fit: "Ajuster", templates: "Modèles", color: "Couleur", aiRewrite: "Reformuler avec l'IA", remove: "Supprimer",
   firstName: "Prénom", lastName: "Nom", jobTitle: "Titre du poste", phone: "Téléphone", city: "Ville", linkedin: "LinkedIn", website: "Site web / Portfolio",
   changePhoto: "Cliquez pour changer la photo", click: "cliquer",
   certification: "Certification", certName: "Nom", issuer: "Émetteur", year: "Année", addCert: "+ Ajouter une certification",
@@ -132,7 +132,7 @@ const ar: UiDict = {
     linkedin: "أضف رابط LinkedIn", certifications: "أضف شهادة مهنية",
   },
   dragReorder: "اسحب لإعادة الترتيب", hideSection: "إخفاء القسم", showSection: "إظهار القسم", hide: "إخفاء", show: "إظهار",
-  fit: "ملاءمة", templates: "القوالب", aiRewrite: "إعادة الصياغة بالذكاء الاصطناعي", remove: "حذف",
+  fit: "ملاءمة", templates: "القوالب", color: "اللون", aiRewrite: "إعادة الصياغة بالذكاء الاصطناعي", remove: "حذف",
   firstName: "الاسم الأول", lastName: "اسم العائلة", jobTitle: "المسمى الوظيفي", phone: "الهاتف", city: "المدينة", linkedin: "LinkedIn", website: "الموقع / المعرض",
   changePhoto: "انقر لتغيير الصورة", click: "انقر",
   certification: "شهادة", certName: "الاسم", issuer: "الجهة المانحة", year: "السنة", addCert: "+ إضافة شهادة",

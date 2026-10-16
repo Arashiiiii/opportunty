@@ -7,7 +7,7 @@ export function AccentPicker() {
   const setAccent = useCVStore((s) => s.setAccent);
 
   return (
-    <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
+    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
       {ACCENT_OPTIONS.map((hex) => (
         <button
           key={hex}
@@ -16,8 +16,8 @@ export function AccentPicker() {
           title={hex}
           aria-label={`Couleur ${hex}`}
           style={{
-            width:        18,
-            height:       18,
+            width:        24,
+            height:       24,
             borderRadius: "50%",
             background:   hex,
             border:       hex === accent ? "2.5px solid #0f172a" : "1.5px solid rgba(0,0,0,.12)",

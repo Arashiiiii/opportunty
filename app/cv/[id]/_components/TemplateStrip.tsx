@@ -24,15 +24,20 @@ export function TemplateStrip() {
 
   const { u } = useUI();
   return (
+    <div style={{ display: "flex", flexDirection: "column", borderBottom: "1px solid #e5e7eb", background: "#fff", flexShrink: 0 }}>
+    {/* Accent colour: its own always-visible row, never scrolled out of view */}
+    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 20px 0", flexWrap: "wrap" }}>
+      <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".14em", color: "#94a3b8", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+        {u.color}
+      </span>
+      <AccentPicker />
+    </div>
     <div style={{
       display:       "flex",
       gap:           10,
-      padding:       "12px 20px",
-      borderBottom:  "1px solid #e5e7eb",
-      background:    "#fff",
+      padding:       "10px 20px 12px",
       overflowX:     "auto",
       alignItems:    "center",
-      flexShrink:    0,
     }}>
       {/* "Modèles" label */}
       <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".14em", color: "#94a3b8", textTransform: "uppercase", marginRight: 4, whiteSpace: "nowrap" }}>
@@ -92,16 +97,7 @@ export function TemplateStrip() {
         );
       })}
 
-      {/* Spacer */}
-      <div style={{ flex: 1 }} />
-
-      {/* Accent colour picker */}
-      <div style={{ display: "flex", gap: 5, alignItems: "center", borderLeft: "1px solid #e5e7eb", paddingLeft: 14, flexShrink: 0 }}>
-        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".14em", color: "#94a3b8", textTransform: "uppercase", marginRight: 4 }}>
-          Couleur
-        </span>
-        <AccentPicker />
-      </div>
+    </div>
     </div>
   );
 }
