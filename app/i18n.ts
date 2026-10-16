@@ -17,7 +17,7 @@ export interface Dict {
   rolesIn: (n: number, inCountry: string) => string;
   noMatch: (q: string, inCountry: string) => string;
   noRoles: (inCountry: string) => string;
-  viewDetails: string; hideDetails: string; apply: string; applySample: string; confirmTitle: string; confirmMsg: string; tailorFirst: string; applyAnyway: string; dragToCV: string; dragTitle: string; tapToCV: string; tapTitle: string; tapHint: string; panelIntroTap: string; startWithCVTap: string; nowTap: string;
+  viewDetails: string; hideDetails: string; apply: string; applySample: string; confirmTitle: string; confirmMsg: string; tailorFirst: string; applyAnyway: string; dragToCV: string; dragTitle: string; tapToCV: string; tapTitle: string; tapHint: string; panelIntroTap: string; startWithCVTap: string; nowTap: string; prev: string; next: string; pageOf: (p: number, n: number) => string;
   yourCV: string; panelIntro: string; startWithCV: string; pending: string;
   uploadCV: string; reading: string; pdfDocx: string; createScratch: string; useSaved: string;
   cvReady: string; cvFallback: string; dropIt: string; nowDrag: string; openBuilder: string; replaceCV: string; readingShort: string;
@@ -42,7 +42,7 @@ export const DICT: Record<Lang, Dict> = {
     noRoles: (c) => `No open roles ${c} yet — check back soon, or try another country.`,
     viewDetails: "View details", hideDetails: "Hide details", apply: "Apply", confirmTitle: "Apply without tailoring your CV?", confirmMsg: "A CV tailored to {job} gets noticed more often. Are you sure you don't want to tailor your CV first?", tailorFirst: "Tailor my CV first", applyAnyway: "Apply anyway", applySample: "Sample listing — no application link",
     dragToCV: "Drag to CV", dragTitle: "Drag this job onto your CV",
-    tapToCV: "Use for my CV", tapTitle: "Tailor your CV to this job", tapHint: "tap “Use for my CV” on any job", panelIntroTap: "Tap “Use for my CV” on a job and we’ll tailor your CV to it. No account needed until you download.", startWithCVTap: "Start with your CV — then tap “Use for my CV” on any job.", nowTap: "Now tap “Use for my CV” on a job",
+    tapToCV: "Use for my CV", tapTitle: "Tailor your CV to this job", tapHint: "tap “Use for my CV” on any job", panelIntroTap: "Tap “Use for my CV” on a job and we’ll tailor your CV to it. No account needed until you download.", startWithCVTap: "Start with your CV — then tap “Use for my CV” on any job.", nowTap: "Now tap “Use for my CV” on a job", prev: "Previous", next: "Next", pageOf: (p, n) => `Page ${p} of ${n}`,
     yourCV: "Your CV", panelIntro: "Drag a job from the list and we'll tailor your CV to it. No account needed until you download.",
     startWithCV: "Start with your CV — then drag any job here to tailor it.",
     pending: "To tailor your CV for {job} at {company}, first add your CV below.",
@@ -74,7 +74,7 @@ export const DICT: Record<Lang, Dict> = {
     noRoles: (c) => `Aucune offre ${c} pour le moment — revenez bientôt ou essayez un autre pays.`,
     viewDetails: "Voir les détails", hideDetails: "Masquer les détails", apply: "Postuler", confirmTitle: "Postuler sans adapter votre CV ?", confirmMsg: "Un CV adapté à {job} est plus souvent remarqué. Êtes-vous sûr de ne pas vouloir adapter votre CV d'abord ?", tailorFirst: "Adapter mon CV d'abord", applyAnyway: "Postuler quand même", applySample: "Offre d'exemple — pas de lien de candidature",
     dragToCV: "Glisser vers le CV", dragTitle: "Glissez cette offre sur votre CV",
-    tapToCV: "Utiliser pour mon CV", tapTitle: "Adapter votre CV à cette offre", tapHint: "touchez « Utiliser pour mon CV » sur une offre", panelIntroTap: "Touchez « Utiliser pour mon CV » sur une offre et nous adaptons votre CV. Aucun compte requis avant le téléchargement.", startWithCVTap: "Commencez par votre CV — puis touchez « Utiliser pour mon CV » sur une offre.", nowTap: "Touchez maintenant « Utiliser pour mon CV » sur une offre",
+    tapToCV: "Utiliser pour mon CV", tapTitle: "Adapter votre CV à cette offre", tapHint: "touchez « Utiliser pour mon CV » sur une offre", panelIntroTap: "Touchez « Utiliser pour mon CV » sur une offre et nous adaptons votre CV. Aucun compte requis avant le téléchargement.", startWithCVTap: "Commencez par votre CV — puis touchez « Utiliser pour mon CV » sur une offre.", nowTap: "Touchez maintenant « Utiliser pour mon CV » sur une offre", prev: "Précédent", next: "Suivant", pageOf: (p, n) => `Page ${p} sur ${n}`,
     yourCV: "Votre CV", panelIntro: "Glissez une offre depuis la liste et nous adapterons votre CV. Aucun compte requis avant le téléchargement.",
     startWithCV: "Commencez par votre CV — puis glissez une offre ici pour l'adapter.",
     pending: "Pour adapter votre CV à {job} chez {company}, ajoutez d'abord votre CV ci-dessous.",
@@ -106,7 +106,7 @@ export const DICT: Record<Lang, Dict> = {
     noRoles: (c) => `لا توجد وظائف مفتوحة ${c} حالياً — عد قريباً أو جرّب دولة أخرى.`,
     viewDetails: "عرض التفاصيل", hideDetails: "إخفاء التفاصيل", apply: "قدّم الآن", confirmTitle: "التقديم دون تخصيص سيرتك الذاتية؟", confirmMsg: "السيرة الذاتية المخصّصة لوظيفة {job} تلفت الانتباه أكثر. هل أنت متأكد أنك لا تريد تخصيص سيرتك أولاً؟", tailorFirst: "خصّص سيرتي أولاً", applyAnyway: "قدّم على أي حال", applySample: "وظيفة تجريبية — لا يوجد رابط تقديم",
     dragToCV: "اسحب إلى السيرة", dragTitle: "اسحب هذه الوظيفة إلى سيرتك الذاتية",
-    tapToCV: "استخدمها لسيرتي", tapTitle: "كيّف سيرتك الذاتية مع هذه الوظيفة", tapHint: "اضغط «استخدمها لسيرتي» على أي وظيفة", panelIntroTap: "اضغط «استخدمها لسيرتي» على وظيفة وسنكيّف سيرتك الذاتية. لا حاجة لحساب قبل التحميل.", startWithCVTap: "ابدأ بسيرتك الذاتية — ثم اضغط «استخدمها لسيرتي» على أي وظيفة.", nowTap: "الآن اضغط «استخدمها لسيرتي» على وظيفة",
+    tapToCV: "استخدمها لسيرتي", tapTitle: "كيّف سيرتك الذاتية مع هذه الوظيفة", tapHint: "اضغط «استخدمها لسيرتي» على أي وظيفة", panelIntroTap: "اضغط «استخدمها لسيرتي» على وظيفة وسنكيّف سيرتك الذاتية. لا حاجة لحساب قبل التحميل.", startWithCVTap: "ابدأ بسيرتك الذاتية — ثم اضغط «استخدمها لسيرتي» على أي وظيفة.", nowTap: "الآن اضغط «استخدمها لسيرتي» على وظيفة", prev: "السابق", next: "التالي", pageOf: (p, n) => `صفحة ${p} من ${n}`,
     yourCV: "سيرتك الذاتية", panelIntro: "اسحب وظيفة من القائمة وسنكيّف سيرتك الذاتية معها. لا حاجة لحساب حتى تقوم بالتحميل.",
     startWithCV: "ابدأ بسيرتك الذاتية — ثم اسحب أي وظيفة إلى هنا لتكييفها.",
     pending: "لتكييف سيرتك الذاتية مع {job} لدى {company}، أضف سيرتك الذاتية أولاً أدناه.",

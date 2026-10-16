@@ -200,6 +200,17 @@ export default function HomeClient() {
     (!activeCity || cityOf(j.location)?.toLowerCase() === activeCity) &&
     (!q || [j.title, j.company, j.location, ...(j.tags ?? [])].some((t) => t?.toLowerCase().includes(q))));
 
+  const PAGE_SIZE = 10;
+  const [page, setPage] = useState(1);
+  useEffect(() => { setPage(1); }, [country, city, query]);
+  const pageCount = Math.max(1, Math.ceil(visibleJobs.length / PAGE_SIZE));
+  const curPage = Math.min(page, pageCount);
+  const pagedJobs = visibleJobs.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE);
+  const goPage = (n: number) => {
+    setPage(n);
+    document.querySelector(".opp-feed-top")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   useEffect(() => {
     document.querySelector<HTMLElement>('.opp-country-tabs [aria-selected="true"]')
       ?.scrollIntoView({ inline: "nearest", block: "nearest" });
@@ -497,7 +508,7 @@ export default function HomeClient() {
             })}
           </div>
 
-          <div style={{ fontSize: 14, color: "#605d52" }}>
+          <div className="opp-feed-top" style={{ fontSize: 14, color: "#605d52", scrollMarginTop: 80 }}>
             {feedLoading ? T.loading : T.rolesIn(visibleJobs.length, cIn)} · {finePointer ? T.dragHint : T.tapHint}
             {usingPlaceholders && <span style={{ color: "#c5a15a" }}> {T.sample}</span>}
           </div>
@@ -508,7 +519,7 @@ export default function HomeClient() {
             </div>
           )}
 
-          {visibleJobs.map((job) => {
+          {pagedJobs.map((job) => {
             const isExpanded = expandedId === job.id;
             return (
               <div
@@ -563,6 +574,27 @@ export default function HomeClient() {
               </div>
             );
           })}
+
+          {pageCount > 1 && (() => {
+            const nums: (number | "…")[] = [];
+            for (let n = 1; n <= pageCount; n++) {
+              if (n === 1 || n === pageCount || Math.abs(n - curPage) <= 1) nums.push(n);
+              else if (nums[nums.length - 1] !== "…") nums.push("…");
+            }
+            const btn = (active: boolean, disabled = false): React.CSSProperties => ({ minWidth: 40, height: 40, padding: "0 12px", borderRadius: 10, border: active ? "1.5px solid #201515" : "1px solid rgba(32,21,21,0.2)", background: active ? "#201515" : "#fffefb", color: active ? "#fffefb" : "#201515", fontWeight: 700, fontSize: 14.4, fontFamily: "inherit", cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.4 : 1 });
+            return (
+              <nav aria-label={T.pageOf(curPage, pageCount)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginTop: 4 }}>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center" }} dir="ltr">
+                  <button type="button" disabled={curPage === 1} onClick={() => goPage(curPage - 1)} style={btn(false, curPage === 1)}>‹ {T.prev}</button>
+                  {nums.map((n, i) => n === "…"
+                    ? <span key={`e${i}`} style={{ alignSelf: "center", color: "#939084" }}>…</span>
+                    : <button key={n} type="button" aria-current={n === curPage ? "page" : undefined} onClick={() => goPage(n)} style={btn(n === curPage)}>{n}</button>)}
+                  <button type="button" disabled={curPage === pageCount} onClick={() => goPage(curPage + 1)} style={btn(false, curPage === pageCount)}>{T.next} ›</button>
+                </div>
+                <div style={{ fontSize: 13, color: "#939084" }}>{T.pageOf(curPage, pageCount)}</div>
+              </nav>
+            );
+          })()}
         </div>
 
         {/* Right: CV space */}
