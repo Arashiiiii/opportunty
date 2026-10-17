@@ -54,6 +54,21 @@ interface Job {
   logo_url?: string | null;
   external_url?: string | null;
   original_url?: string | null;
+  created_at?: string | null;
+}
+
+
+/** "2 days ago" in the UI language; `fresh` = posted within the last 3 days. */
+function postedInfo(iso: string | null | undefined, lang: string): { label: string; fresh: boolean } | null {
+  const t = iso ? new Date(iso).getTime() : NaN;
+  if (!Number.isFinite(t)) return null;
+  const mins = Math.max(0, Math.round((Date.now() - t) / 60000));
+  const rtf = new Intl.RelativeTimeFormat(lang, { numeric: "auto" });
+  const label = mins < 60 ? rtf.format(-Math.max(1, mins), "minute")
+    : mins < 1440 ? rtf.format(-Math.round(mins / 60), "hour")
+    : mins < 43200 ? rtf.format(-Math.round(mins / 1440), "day")
+    : rtf.format(-Math.round(mins / 43200), "month");
+  return { label, fresh: mins < 3 * 1440 };
 }
 
 const applyUrl = (j: Job) => j.external_url || j.original_url || null;
@@ -149,7 +164,7 @@ export default function HomeClient() {
   useEffect(() => {
     let cancelled = false;
     setFeedLoading(true);
-    const cols = "id, title, company, location, job_type, salary_range, tags, description, logo_url, external_url, original_url";
+    const cols = "id, title, company, location, job_type, salary_range, tags, description, logo_url, external_url, original_url, created_at";
     (async () => {
       let rows: Job[] | null = null;
       const byCol = await supabase.from("jobs").select(cols).eq("is_active", true).eq("country", country)
@@ -538,6 +553,11 @@ export default function HomeClient() {
                     <div style={{ minWidth: 0 }}>
                       <div dir="auto" style={{ fontSize: 24, lineHeight: "30px", fontWeight: 600, letterSpacing: "-0.6px", marginBottom: 4 }}>{job.title}</div>
                       <div dir="auto" style={{ fontSize: 16, lineHeight: "24px", color: "#605d52" }}>{job.company} · {job.location} · {job.job_type}</div>
+                      {(() => { const pi = postedInfo(job.created_at, lang); return pi ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#605d52", marginTop: 2 }}>
+                          {pi.fresh && <span style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: 0.3, textTransform: "uppercase", color: "#fff", background: PRIMARY, padding: "2px 8px", borderRadius: 9999 }}>{T.newBadge}</span>}
+                          <span title={job.created_at ? new Date(job.created_at).toLocaleDateString(lang) : undefined}>{T.posted} {pi.label}</span>
+                        </div>) : null; })()}
                     </div>
                   </div>
                   <div dir="ltr" style={{ fontSize: 14, fontWeight: 600, background: "#fffefb", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 9999, padding: "4px 12px", whiteSpace: "nowrap", unicodeBidi: "isolate" }}>{job.salary_range}</div>
