@@ -34,6 +34,7 @@ import type { CountryCode } from "./i18n";
 import { useUiLang } from "./_lib/useUiLang";
 import { UiLangSwitch } from "./_components/UiLangSwitch";
 import { LoginGateModal } from "./_components/LoginGateModal";
+import { TourPopup } from "./_components/TourPopup";
 import { inferCountry } from "./_lib/country";
 import { isEmployer } from "./employers/_role";
 import { LogoMark } from "./_components/LogoMark";
@@ -729,6 +730,7 @@ export default function HomeClient() {
           </div>
         </div>
       )}
+      <TourPopup />
       {showLoginGate && <LoginGateModal onClose={() => setShowLoginGate(false)} />}
 
       <SiteFooter />
