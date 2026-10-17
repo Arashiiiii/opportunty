@@ -22,7 +22,7 @@ const T: Record<L, Record<string, string>> = {
 
 const WEBVIEW = /Instagram|FBAN|FBAV|FB_IAB|Line\/|MicroMessenger|; wv\)/i;
 
-export function CodeAuth({ next = "/dashboard" }: { next?: string }) {
+export function CodeAuth({ next = "/dashboard", hideDivider = false }: { next?: string; hideDivider?: boolean }) {
   const { lang, rtl } = useUI();
   const t = T[lang];
   const router = useRouter();
@@ -106,7 +106,7 @@ export function CodeAuth({ next = "/dashboard" }: { next?: string }) {
         </form>
       )}
 
-      <div style={{ textAlign: "center", fontSize: 12.5, color: "#939084", margin: "6px 0 0" }}>— {t.or} —</div>
+      {!hideDivider && <div style={{ textAlign: "center", fontSize: 12.5, color: "#939084", margin: "6px 0 0" }}>— {t.or} —</div>}
     </div>
   );
 }

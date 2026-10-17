@@ -9,6 +9,7 @@
 import Link from "next/link";
 import { useUI } from "@/app/_lib/useUiLang";
 import { LogoMark } from "./LogoMark";
+import { CodeAuth } from "./CodeAuth";
 
 interface Props {
   onClose: () => void;
@@ -33,9 +34,11 @@ export function LoginGateModal({ onClose, next, title, message }: Props) {
         <p style={{ fontSize: 14, color: "#605d52", margin: "0 0 24px", lineHeight: 1.5 }}>
           {message ?? u.gateMsg}
         </p>
-        <div style={{ display: "flex", gap: 10 }}>
-          <Link href={`/login${nextParam}`} style={{ flex: 1, padding: "11px 0", borderRadius: 10, border: "1px solid rgba(32,21,21,0.24)", color: "#201515", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>{u.signIn}</Link>
-          <Link href={`/signup${nextParam}`} style={{ flex: 1, padding: "11px 0", borderRadius: 10, border: "none", background: "#ff4f00", color: "#fffefb", textDecoration: "none", fontSize: 14, fontWeight: 700 }}>{u.createAccount}</Link>
+        {/* Sign in / create account in place: no page change, no password, no mailed link to open. */}
+        <div style={{ textAlign: rtl ? "right" : "left" }}><CodeAuth next={next && next.startsWith("/") && !next.startsWith("//") ? next : (typeof window !== "undefined" ? window.location.pathname : "/dashboard")} hideDivider /></div>
+        <div style={{ display: "flex", gap: 14, justifyContent: "center", marginTop: 14, fontSize: 13 }}>
+          <Link href={`/login${nextParam}`} style={{ color: "#605d52", textDecoration: "underline" }}>{u.signIn}</Link>
+          <Link href={`/signup${nextParam}`} style={{ color: "#605d52", textDecoration: "underline" }}>{u.createAccount}</Link>
         </div>
         <button type="button" onClick={onClose} style={{ marginTop: 16, background: "none", border: "none", color: "#939084", fontSize: 13, cursor: "pointer" }}>{u.notNow}</button>
       </div>
