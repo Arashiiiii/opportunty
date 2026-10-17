@@ -4,6 +4,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useUI } from "@/app/_lib/useUiLang";
 import { UiLangSwitch } from "@/app/_components/UiLangSwitch";
+import { CodeAuth } from "@/app/_components/CodeAuth";
 import { LogoMark } from "../_components/LogoMark";
 
 export default function SignupPage() {
@@ -56,6 +57,7 @@ export default function SignupPage() {
               </div>
             )}
 
+            <CodeAuth />
             <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <input type="email" required placeholder={u.email} value={email} onChange={(e) => setEmail(e.target.value)}
                 style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #e5ded3", fontSize: 14, fontFamily: "inherit" }} />

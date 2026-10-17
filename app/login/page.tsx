@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useUI } from "@/app/_lib/useUiLang";
 import { EMP } from "@/app/employers/_dict";
 import { isEmployer } from "@/app/employers/_role";
+import { CodeAuth } from "@/app/_components/CodeAuth";
 import { LogoMark } from "../_components/LogoMark";
 
 function LoginForm() {
@@ -60,6 +61,7 @@ function LoginForm() {
           </div>
         )}
 
+        <CodeAuth next={next} />
         <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <input type="email" required placeholder={u.email} value={email} onChange={(e) => setEmail(e.target.value)}
             style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #e5ded3", fontSize: 14, fontFamily: "inherit" }} />
