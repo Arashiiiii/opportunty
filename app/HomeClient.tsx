@@ -438,6 +438,13 @@ export default function HomeClient() {
           <p style={{ margin: 0, fontSize: 16, lineHeight: 1.5, color: "#605d52", maxWidth: 480 }}>
             {T.sub}
           </p>
+          {!homeCV && (
+            <button type="button" onClick={handleUploadClick} disabled={uploading}
+              style={{ marginTop: 16, display: "inline-flex", alignItems: "center", gap: 10, fontSize: 17, fontWeight: 700, padding: "14px 26px", borderRadius: 14, border: "none", background: PRIMARY, color: "#fff", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.75 : 1, boxShadow: "0 6px 18px rgba(255,79,0,0.28)" }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 16V4M12 4l-5 5M12 4l5 5M4 20h16" /></svg>
+              {uploading ? T.reading : T.uploadCV}
+            </button>
+          )}
         <div className="opp-search" style={{ width: "100%", maxWidth: 560, marginTop: 20, display: "flex", flexWrap: "wrap", alignItems: "center", background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 6, gap: 4 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flex: "1 1 100%", padding: "8px 12px", borderBottom: "1px solid rgba(32,21,21,0.08)", marginBottom: 2 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
