@@ -4,6 +4,7 @@ import { UiLangSwitch } from "./UiLangSwitch";
 import { SiteFooter } from "./SiteFooter";
 import { useUiLang } from "../_lib/useUiLang";
 import { LogoMark } from "./LogoMark";
+import { Wordmark } from "./Wordmark";
 
 /** Page chrome shared by the footer pages: slim header, content column, footer. */
 export function PageShell({ children }: { children: React.ReactNode }) {
@@ -13,7 +14,7 @@ export function PageShell({ children }: { children: React.ReactNode }) {
       <header style={{ height: 64, borderBottom: "1px solid rgba(32,21,21,0.12)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
           <LogoMark size={26} />
-          <span style={{ fontSize: 15, fontWeight: 700, color: "#201515" }}>opportunity<span style={{ color: "#ff4f00" }}>.com</span></span>
+          <Wordmark tld style={{ fontSize: 15, fontWeight: 700 }} />
         </Link>
         <UiLangSwitch compact />
       </header>

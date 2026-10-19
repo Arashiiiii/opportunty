@@ -38,7 +38,7 @@ Style: start each bullet with a strong, precise action verb (in the infinitive f
 
 const RESUME_TOOL = {
   name: "submit_cv",
-  description: "Submit the résumé, structured into opportunity.com's CV schema.",
+  description: "Submit the résumé, structured into opportunty.com's CV schema.",
   input_schema: {
     type: "object" as const,
     properties: {

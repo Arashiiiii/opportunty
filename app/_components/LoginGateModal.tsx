@@ -2,7 +2,7 @@
 /**
  * Shared login-gate modal — shown wherever a signed-out visitor hits an
  * action that genuinely needs a real account (downloading, saving to a
- * named account, paying). opportunity.com has no anonymous sessions, so
+ * named account, paying). opportunty.com has no anonymous sessions, so
  * this is the one honest place that says so instead of the action
  * silently failing or proceeding.
  */

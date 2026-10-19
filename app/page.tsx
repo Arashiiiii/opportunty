@@ -1,13 +1,9 @@
-import type { Metadata } from "next";
-import HomeClient from "./HomeClient";
-import { SITE_TITLE, SITE_DESCRIPTION } from "@/lib/site";
+import { HomePage, homeMetadata } from "./_lib/home-page";
 
-export const metadata: Metadata = {
-  title: SITE_TITLE,
-  description: SITE_DESCRIPTION,
-  alternates: { canonical: "/" },
-};
+export const revalidate = 1800;
+export const metadata = homeMetadata("en");
 
 export default function Home() {
-  return <HomeClient />;
+  // "/" is the English URL for search engines, but visitors keep the language they picked before.
+  return <HomePage lang={null} />;
 }

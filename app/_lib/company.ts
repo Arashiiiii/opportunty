@@ -3,7 +3,7 @@
  * Fill the empty values before launch — empty fields are simply hidden.
  */
 export const COMPANY = {
-  brand: "opportunity.com",
+  brand: "opportunty.com",
   domain: "opportunty.com",
   contactEmail: "contact@opportunty.com",
   privacyEmail: "privacy@opportunty.com",
