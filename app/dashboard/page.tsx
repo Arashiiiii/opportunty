@@ -1,7 +1,7 @@
 import SeekerDashboard from "./SeekerDashboard";
 
 export const metadata = {
-  title: "Dashboard — opportunity.com",
+  title: "Dashboard — opportunty.com",
   description: "Your CVs, tailored jobs and best matches in one place.",
 };
 

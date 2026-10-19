@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { LegalPage } from "../_components/LegalPage";
 
 export const metadata: Metadata = {
-  title: "Legal notice — opportunity.com",
-  description: "Legal notice: publisher and hosting information for opportunity.com.",
+  title: "Legal notice — opportunty.com",
+  description: "Legal notice: publisher and hosting information for opportunty.com.",
   alternates: { canonical: "/legal" },
 };
 

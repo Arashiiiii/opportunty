@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
 import { PageShell } from "../../_components/LegalShell";
+import { tailorHref } from "../_components/JobList";
 import { createPublicClient } from "@/lib/supabase/public";
 import { COUNTRY_INFO, JOB_COLUMNS, absolute, countryOf, descriptionParagraphs, idFromSlug, jobPath, jobPostingJsonLd, metaDescription, type JobRow } from "@/lib/jobs-seo";
 
@@ -17,11 +18,12 @@ const getJob = cache(async (id: string): Promise<JobRow | null> => {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const id = idFromSlug((await params).slug);
   const job = id ? await getJob(id) : null;
-  if (!job) return { title: "Job not found — opportunity.com", robots: { index: false } };
-  const title = `${job.title} — ${job.company}${job.location ? `, ${job.location}` : ""} | opportunity.com`;
+  if (!job) return { title: "Job not found — opportunty.com", robots: { index: false } };
+  const title = `${job.title} — ${job.company}${job.location ? `, ${job.location}` : ""} | opportunty.com`;
   return {
     title, description: metaDescription(job), alternates: { canonical: jobPath(job) },
     openGraph: { type: "article", title, description: metaDescription(job), url: jobPath(job) },
+    twitter: { card: "summary_large_image", title, description: metaDescription(job) },
   };
 }
 
@@ -51,8 +53,9 @@ export default async function JobPage({ params }: { params: Promise<{ slug: stri
         {[job.location, country.name, job.job_type, job.salary_range].filter(Boolean).join(" · ")}
       </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, margin: "0 0 28px" }}>
-        {apply && <a href={apply} target="_blank" rel="nofollow noopener noreferrer" style={{ ...btn, background: "#ff4f00", color: "#fffefb" }}>Apply on the employer site ↗</a>}
-        <Link href="/cv/builder" style={{ ...btn, border: "1px solid rgba(32,21,21,0.24)", color: "#201515" }}>Tailor my CV with AI</Link>
+        {/* Tailoring is the main action: it carries this job into the CV flow (upload or reuse a CV, then AI tailors it). */}
+        <Link href={tailorHref(job.id)} rel="nofollow" style={{ ...btn, background: "#ff4f00", color: "#fffefb" }}>Tailor my CV to this job — free</Link>
+        {apply && <a href={apply} target="_blank" rel="nofollow noopener noreferrer" style={{ ...btn, border: "1px solid rgba(32,21,21,0.24)", color: "#201515" }}>Apply on the employer site ↗</a>}
       </div>
       {(job.tags ?? []).length > 0 && (
         <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -62,7 +65,14 @@ export default async function JobPage({ params }: { params: Promise<{ slug: stri
       <section aria-label="Job description" dir="auto">
         {paras.map((p, i) => <p key={i} style={{ fontSize: 15, lineHeight: 1.7, color: "#36342e", margin: "0 0 12px", whiteSpace: "pre-line" }}>{p}</p>)}
       </section>
-      <p style={{ fontSize: 12.5, color: "#939084", marginTop: 28 }}>Job listing collected from a public source. opportunity.com is not the employer — always verify the offer before sharing personal information.</p>
+      <aside style={{ marginTop: 32, padding: "20px 22px", borderRadius: 14, background: "#fff1e8", border: "1px solid #ffcbab" }}>
+        <div style={{ fontSize: 18, fontWeight: 700, margin: "0 0 6px" }}>Get your CV ready for this job</div>
+        <p style={{ fontSize: 15, lineHeight: 1.6, color: "#36342e", margin: "0 0 14px" }}>
+          Upload your CV (PDF or Word) and AI rewrites your title, summary and skills to match {job.company}&apos;s offer. Free to edit — pay only when you download.
+        </p>
+        <Link href={tailorHref(job.id)} rel="nofollow" style={{ ...btn, background: "#ff4f00", color: "#fffefb" }}>Tailor my CV →</Link>
+      </aside>
+      <p style={{ fontSize: 12.5, color: "#939084", marginTop: 28 }}>Job listing collected from a public source. opportunty.com is not the employer — always verify the offer before sharing personal information.</p>
     </PageShell>
   );
 }

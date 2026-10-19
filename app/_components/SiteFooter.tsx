@@ -4,6 +4,7 @@ import { useUiLang } from "../_lib/useUiLang";
 import { FOOTER } from "../_lib/legal-dict";
 import { COMPANY } from "../_lib/company";
 import { LogoMark } from "./LogoMark";
+import { Wordmark } from "./Wordmark";
 
 const INK = "#201515";
 const col: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 10, minWidth: 140 };
@@ -19,7 +20,7 @@ export function SiteFooter() {
         <div style={{ maxWidth: 300, flex: "1 1 220px" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
             <LogoMark size={24} />
-            <span style={{ fontSize: 15, fontWeight: 700, color: "#fffefb" }}>opportunity<span style={{ color: "#ff4f00" }}>.com</span></span>
+            <Wordmark tld onDark style={{ fontSize: 15, fontWeight: 700 }} />
           </Link>
           <p style={{ fontSize: 14, color: "#b9b0a5", lineHeight: 1.5, margin: "12px 0 0" }}>{f.tagline}</p>
         </div>
@@ -29,7 +30,7 @@ export function SiteFooter() {
           <Link href="/jobs/country/morocco" style={link}>Morocco</Link>
           <Link href="/jobs/country/france" style={link}>France</Link>
           <Link href="/jobs/country/saudi-arabia" style={link}>Saudi Arabia</Link>
-          <Link href="/cv" style={link}>{f.cvBuilder}</Link>
+          <Link href={lang === "en" ? "/cv-builder" : `/${lang}/cv-builder`} style={link}>{f.cvBuilder}</Link>
           <Link href="/employers/login" style={link}>{f.employers}</Link>
         </nav>
         <nav aria-label={f.company} style={col}>

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { LegalPage } from "../_components/LegalPage";
 
 export const metadata: Metadata = {
-  title: "Terms of use — opportunity.com",
-  description: "Terms of use (CGU) of opportunity.com: accounts, job offers, AI-generated content, payments and liability.",
+  title: "Terms of use — opportunty.com",
+  description: "Terms of use (CGU) of opportunty.com: accounts, job offers, AI-generated content, payments and liability.",
   alternates: { canonical: "/terms" },
 };
 

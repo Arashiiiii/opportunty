@@ -8,6 +8,7 @@ import { UiLangSwitch } from "@/app/_components/UiLangSwitch";
 import { EMP } from "./_dict";
 import { isEmployer } from "./_role";
 import { LogoMark } from "../_components/LogoMark";
+import { Wordmark } from "@/app/_components/Wordmark";
 
 const supabase = createClient();
 const INK = "#201515";
@@ -66,7 +67,7 @@ function Form({ mode }: { mode: "login" | "signup" }) {
         <div style={{ width: "100%", maxWidth: 400 }}>
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 24, textDecoration: "none" }}>
             <LogoMark size={26} />
-            <span style={{ fontSize: 15, fontWeight: 700, color: INK }}>opportunity<span style={{ color: "#ff4f00" }}>.com</span></span>
+            <Wordmark tld style={{ fontSize: 15, fontWeight: 700 }} />
           </Link>
           <div style={{ marginBottom: 20 }}><UiLangSwitch compact /></div>
 

@@ -1,13 +1,13 @@
 "use client";
 /**
- * opportunity.com homepage — built from the approved design mockup
+ * opportunty.com homepage — built from the approved design mockup
  * (Artifact 6eda429d…): search bar, job feed (left) + CV space (right),
  * CV template strip below.
  *
  * No login required to use the CV workspace: uploading a résumé, dragging
  * a job onto it, and picking a template all work signed out — the CV
  * lives in the browser (Zustand store, mirrored to localStorage) and
- * hands off into /cv/builder. opportunity.com only asks for a real
+ * hands off into /cv/builder. opportunty.com only asks for a real
  * account at the one point that matters: downloading (Topbar), which is
  * also where a signed-in visitor is sent on to pay.
  *
@@ -35,14 +35,15 @@ import { useUiLang } from "./_lib/useUiLang";
 import { UiLangSwitch } from "./_components/UiLangSwitch";
 import { LoginGateModal } from "./_components/LoginGateModal";
 import { TourPopup } from "./_components/TourPopup";
-import { inferCountry } from "./_lib/country";
+import { inferCountry, dedupeJobs } from "./_lib/country";
 import { isEmployer } from "./employers/_role";
 import { LogoMark } from "./_components/LogoMark";
 import { SiteFooter } from "./_components/SiteFooter";
+import { Wordmark } from "@/app/_components/Wordmark";
 
 const PRIMARY = "#ff4f00";
 
-interface Job {
+export interface Job {
   id: string;
   title: string;
   company: string;
@@ -79,15 +80,6 @@ function cvHasContent(cv: CVData | null | undefined): cv is CVData {
   return !!(cv.profile.firstName || cv.profile.lastName || cv.summary.trim() || cv.experience.length);
 }
 
-const PLACEHOLDER_JOBS: Job[] = [
-  { id: "1", title: "Senior Backend Engineer", company: "Atlas Cloud", location: "Casablanca", job_type: "Full-time", salary_range: "25,000–35,000 MAD", tags: ["Node.js", "PostgreSQL", "AWS"], description: "Own core API services for a fast-growing fintech platform used across North Africa." },
-  { id: "2", title: "Product Designer", company: "Cedar Studio", location: "Casablanca", job_type: "Full-time", salary_range: "15,000–20,000 MAD", tags: ["Figma", "Design systems", "UX research"], description: "Shape the product experience for a design-led SaaS studio working with regional retailers." },
-  { id: "3", title: "DevOps Engineer", company: "Meridian Bank", location: "Casablanca", job_type: "Full-time", salary_range: "20,000–28,000 MAD", tags: ["Kubernetes", "CI/CD", "Terraform"], description: "Modernize deployment pipelines for a bank's digital-first lending platform." },
-  { id: "4", title: "Growth Marketing Manager", company: "Route6 Logistics", location: "Tangier", job_type: "Full-time", salary_range: "12,000–18,000 MAD", tags: ["SEO", "Paid media", "Analytics"], description: "Drive customer acquisition for a logistics platform expanding across the Maghreb." },
-  { id: "5", title: "Data Analyst", company: "BluePeak Analytics", location: "Rabat", job_type: "Hybrid", salary_range: "14,000–19,000 MAD", tags: ["SQL", "Python", "Tableau"], description: "Turn operational data into decisions for consumer-goods clients across Morocco." },
-  { id: "6", title: "Frontend Developer", company: "Atlas Cloud", location: "Casablanca", job_type: "Remote", salary_range: "18,000–24,000 MAD", tags: ["React", "TypeScript", "Tailwind"], description: "Build the customer dashboard for a fintech product used by thousands of SMEs." },
-];
-
 const supabase = createClient();
 
 const COUNTRIES: { code: CountryCode; flag: string }[] = [
@@ -107,17 +99,19 @@ function cityOf(location: string | null | undefined): string | null {
   return c;
 }
 
-export default function HomeClient() {
+export default function HomeClient({ initialJobs }: { initialJobs: Job[] }) {
   const router = useRouter();
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [employer, setEmployer] = useState(false);
   const [country, setCountry] = useState<CountryCode>("MA");
   const [lang] = useUiLang();
-  const [jobs, setJobs] = useState<Job[]>(PLACEHOLDER_JOBS);
+  const [jobs, setJobs] = useState<Job[]>(initialJobs);
+  // A job opened from a job page (/?tailor=<id>) that may not be in the current country's feed.
+  const [extraJob, setExtraJob] = useState<Job | null>(null);
+  const skipFirstFetch = useRef(initialJobs.length > 0);
   const [feedLoading, setFeedLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [city, setCity] = useState("");
-  const [usingPlaceholders, setUsingPlaceholders] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [detailsSeen, setDetailsSeen] = useState<Set<string>>(new Set());
   const [confirmJob, setConfirmJob] = useState<Job | null>(null);
@@ -162,12 +156,14 @@ export default function HomeClient() {
 
   // One country's feed at a time.
   useEffect(() => {
+    // The server already rendered Morocco's feed: don't fetch it again on first load.
+    if (skipFirstFetch.current) { skipFirstFetch.current = false; if (country === "MA") return; }
     let cancelled = false;
     setFeedLoading(true);
     const cols = "id, title, company, location, job_type, salary_range, tags, description, logo_url, external_url, original_url, created_at";
     (async () => {
       let rows: Job[] | null = null;
-      const byCol = await supabase.from("jobs").select(cols).eq("is_active", true).eq("country", country)
+      const byCol = await supabase.from("jobs").select(cols).eq("is_active", true).eq("Country", country)
         .order("created_at", { ascending: false }).limit(60);
       if (!byCol.error) {
         rows = (byCol.data ?? []) as Job[];
@@ -178,15 +174,14 @@ export default function HomeClient() {
         if (!all.error && all.data) rows = (all.data as Job[]).filter((j) => inferCountry(j.location) === country).slice(0, 60);
       }
       if (cancelled) return;
-      if (rows && rows.length > 0) { setJobs(rows); setUsingPlaceholders(false); }
-      else if (rows) { setJobs([]); setUsingPlaceholders(false); }
-      else if (country === "MA") { setJobs(PLACEHOLDER_JOBS); setUsingPlaceholders(true); }
-      else { setJobs([]); setUsingPlaceholders(false); }
+      setJobs(dedupeJobs((rows ?? []).map((j) => ({ ...j, tags: j.tags ?? [] }))));
       setExpandedId(null);
       setFeedLoading(false);
     })();
     return () => { cancelled = true; };
   }, [country]);
+
+  const allJobs = extraJob && !jobs.some((j) => j.id === extraJob.id) ? [extraJob, ...jobs] : jobs;
 
   const T = DICT[lang];
   const rtl = lang === "ar";
@@ -322,13 +317,37 @@ export default function HomeClient() {
     revealCvPanel();
   }, [homeCV, runTailor, loadSavedCV]);
 
+  // Arriving from a job page's "Tailor my CV" button (/?tailor=<job id>): load that job and start
+  // tailoring right away — or, without a CV yet, ask for one with the job already attached.
+  const tailorParamDone = useRef(false);
+  useEffect(() => {
+    if (tailorParamDone.current) return;
+    tailorParamDone.current = true;
+    const id = new URLSearchParams(window.location.search).get("tailor");
+    if (!id || !/^[0-9a-f-]{36}$/i.test(id)) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete("tailor");
+    window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+    (async () => {
+      const { data } = await supabase.from("jobs")
+        .select("id, title, company, location, job_type, salary_range, tags, description, logo_url, external_url, original_url, created_at")
+        .eq("id", id).eq("is_active", true).maybeSingle();
+      if (!data) return;
+      const job = { ...(data as Job), tags: (data as Job).tags ?? [] };
+      setExtraJob(job);
+      const inMemory = useCVStore.getState().cv;
+      if (cvHasContent(inMemory)) { setHomeCV(inMemory); revealCvPanel(); void runTailor(job, inMemory); }
+      else void startTailor(job);
+    })();
+  }, [startTailor, runTailor]);
+
   const handleDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
     const id = e.dataTransfer.getData("text/plain");
-    const job = jobs.find((j) => j.id === id);
+    const job = allJobs.find((j) => j.id === id);
     if (job) await startTailor(job);
-  }, [jobs, startTailor]);
+  }, [allJobs, startTailor]);
 
   /** Apply: first click reveals the details; after that, nudge towards tailoring before leaving. */
   const handleApply = useCallback((job: Job) => {
@@ -366,14 +385,14 @@ export default function HomeClient() {
       const parsed = json.cv as CVData;
       useCVStore.getState().loadCV(parsed);
       setHomeCV(parsed);
-      const pending = jobs.find((j) => j.id === pendingJobId);
+      const pending = allJobs.find((j) => j.id === pendingJobId);
       if (pending) await runTailor(pending, parsed);
     } catch {
       setUploadError(T.uploadFailed);
     } finally {
       setUploading(false);
     }
-  }, [jobs, pendingJobId, runTailor, T]);
+  }, [allJobs, pendingJobId, runTailor, T]);
 
   const useSavedCV = useCallback(async () => {
     if (!authed) { setShowLoginGate(true); return; }
@@ -394,13 +413,13 @@ export default function HomeClient() {
     }
   }, [authed, router, enterBuilder]);
 
-  const cvJob = jobs.find((j) => j.id === cvJobId) ?? null;
-  const pendingJob = jobs.find((j) => j.id === pendingJobId) ?? null;
+  const cvJob = allJobs.find((j) => j.id === cvJobId) ?? null;
+  const pendingJob = allJobs.find((j) => j.id === pendingJobId) ?? null;
   const showResult = !!cvJob && !tailoring && !!tailoredCV;
   const showEmpty = !cvJob && !tailoring;
 
   return (
-    <div dir={rtl ? "rtl" : "ltr"} style={{ width: "100%", minHeight: "100vh", background: "#fffefb", display: "flex", flexDirection: "column", fontFamily: "'Inter', system-ui, -apple-system, sans-serif", color: "#201515" }}>
+    <div lang={lang} dir={rtl ? "rtl" : "ltr"} style={{ width: "100%", minHeight: "100vh", background: "#fffefb", display: "flex", flexDirection: "column", fontFamily: "'Inter', system-ui, -apple-system, sans-serif", color: "#201515" }}>
 
       <input
         ref={fileInputRef}
@@ -412,7 +431,7 @@ export default function HomeClient() {
 
       {/* Header */}
       <header className="opp-topbar" style={{ position: "sticky", top: 0, zIndex: 20, background: "#fffefb", borderBottom: "1px solid rgba(32,21,21,0.12)", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px" }}><LogoMark size={28} /><span>opportunity<span style={{ color: PRIMARY }}>.</span></span></div>
+        <Link href={lang === "en" ? "/" : `/${lang}`} aria-label="opportunty" style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px", textDecoration: "none" }}><LogoMark size={28} /><Wordmark /></Link>
         <nav style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <UiLangSwitch />
           <Link href={employer ? "/dashboard/employer" : "/employers/login"} className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.employers}</Link>
@@ -422,48 +441,35 @@ export default function HomeClient() {
               {!employer && <Link href="/cv" className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.myCVs}</Link>}
             </>
           ) : (
-            <Link href="/login" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.signIn}</Link>
+            <Link href="/login" className="opp-signin" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.signIn}</Link>
           )}
-          <button type="button" onClick={() => router.push(employer ? "/dashboard/employer" : "/employers/signup")} className="opp-post-btn" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 24px", borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>
-            {T.nav.postJob}
-          </button>
+          {employer ? (
+            <button type="button" onClick={() => router.push("/dashboard/employer")} className="opp-post-btn" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 24px", borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>
+              {T.nav.postJob}
+            </button>
+          ) : (
+            <button type="button" onClick={() => (homeCV ? enterBuilder(homeCV, templateId ?? undefined) : router.push("/cv/builder"))} className="opp-cv-btn" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 22px", borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
+              {T.buildCV}
+            </button>
+          )}
         </nav>
       </header>
 
-      {/* Header band: slogan + search | CV template carousel */}
-      <div className="opp-band" style={{ width: "100%", maxWidth: 1280, margin: "0 auto", padding: "20px 24px 12px", display: "grid", gridTemplateColumns: "minmax(320px, 1fr) minmax(380px, 1.15fr)", gap: 24, alignItems: "center" }}>
-        <div>
-          <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", color: PRIMARY, marginBottom: 8 }}>{T.eyebrow}</div>
-          <h1 style={{ margin: "0 0 8px", fontSize: "clamp(28px, 4vw, 42px)", lineHeight: 1.05, fontWeight: 500 }}>{T.h1}</h1>
-          <p style={{ margin: 0, fontSize: 16, lineHeight: 1.5, color: "#605d52", maxWidth: 480 }}>
-            {T.sub}
-          </p>
-          {!homeCV && (
-            <button type="button" onClick={handleUploadClick} disabled={uploading}
-              style={{ marginTop: 16, display: "inline-flex", alignItems: "center", gap: 10, fontSize: 17, fontWeight: 700, padding: "14px 26px", borderRadius: 14, border: "none", background: PRIMARY, color: "#fff", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.75 : 1, boxShadow: "0 6px 18px rgba(255,79,0,0.28)" }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 16V4M12 4l-5 5M12 4l5 5M4 20h16" /></svg>
-              {uploading ? T.reading : T.uploadCV}
-            </button>
-          )}
-        <div className="opp-search" style={{ width: "100%", maxWidth: 560, marginTop: 20, display: "flex", flexWrap: "wrap", alignItems: "center", background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 6, gap: 4 }}>
+      {/* Hero: headline + free hook, then search with the CV button beside it (the sketch: search | CV) */}
+      <div className="opp-band" style={{ width: "100%", maxWidth: 1060, margin: "0 auto", padding: "28px 24px 16px" }}>
+        <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", color: PRIMARY, marginBottom: 8 }}>{T.eyebrow}</div>
+        <h1 style={{ margin: "0 0 8px", fontSize: "clamp(28px, 4vw, 42px)", lineHeight: 1.05, fontWeight: 500 }}>{T.h1}</h1>
+        <p style={{ margin: 0, fontSize: 16, lineHeight: 1.5, color: "#605d52", maxWidth: 560 }}>{T.sub}</p>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 12, fontSize: 14, fontWeight: 600, color: "#166534", background: "#e8f7ee", borderRadius: 9999, padding: "5px 12px" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+          {T.freeHook}
+        </div>
+        <div className="opp-search-row" style={{ display: "flex", flexWrap: "wrap", alignItems: "stretch", gap: 12, marginTop: 20 }}>
+        <div className="opp-search" style={{ width: "100%", maxWidth: 640, marginTop: 0, flex: "1 1 420px", display: "flex", flexWrap: "wrap", alignItems: "center", background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 6, gap: 4 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flex: "1 1 100%", padding: "8px 12px", borderBottom: "1px solid rgba(32,21,21,0.08)", marginBottom: 2 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
             <input type="text" dir="auto" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={T.searchPlaceholder} style={{ border: "none", outline: "none", fontSize: 16, fontFamily: "inherit", width: "100%", color: "#201515", background: "transparent" }} />
           </div>
-          <div className="opp-search-divider" style={{ display: "none", width: 1, height: 24, background: "rgba(32,21,21,0.12)" }} />
-          <label style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", flex: "0 0 auto", cursor: "pointer" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-            <select
-              aria-label={T.countryLabel}
-              value={country}
-              onChange={(e) => switchCountry(e.target.value as CountryCode)}
-              style={{ border: "none", outline: "none", background: "transparent", fontSize: 16, fontFamily: "inherit", color: "#201515", cursor: "pointer", appearance: "auto" }}
-            >
-              {COUNTRIES.map((c) => (
-                <option key={c.code} value={c.code}>{c.flag} {cName(c.code)}</option>
-              ))}
-            </select>
-          </label>
           <div className="opp-search-divider" style={{ width: 1, height: 24, background: "rgba(32,21,21,0.12)" }} />
           <label style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", flex: "0 0 auto", cursor: "pointer", minWidth: 0 }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6" /></svg>
@@ -481,30 +487,18 @@ export default function HomeClient() {
             {T.search}
           </button>
         </div>
-        </div>
-        <div>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-            <div style={{ fontSize: 16, fontWeight: 600 }}>{T.pickTemplate}</div>
-            <div style={{ fontSize: 13, color: "#605d52" }}>{T.templatesMeta}</div>
-          </div>
-        <TemplateCarousel
-          compact
-          labels={{ use: T.useTemplate + " " + T.arrow, prev: T.prevTemplate, next: T.nextTemplate }}
-          templates={TEMPLATE_REGISTRY.map((t) => ({ id: t.id, name: t.name, sub: t.sub, accent: t.accent }))}
-          onUse={(id) => {
-            const tid = id as TemplateId;
-            setTemplateId(tid);
-            enterBuilder(useCVStore.getState().cv ?? EMPTY_CV, tid);
-          }}
-        />
+          {!homeCV && (
+            <button type="button" onClick={handleUploadClick} disabled={uploading} className="opp-hero-upload"
+              style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, fontSize: 16, fontWeight: 700, padding: "14px 24px", borderRadius: 12, border: "none", background: "#201515", color: "#fffefb", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.75 : 1, whiteSpace: "nowrap" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 16V4M12 4l-5 5M12 4l5 5M4 20h16" /></svg>
+              {uploading ? T.reading : T.uploadCV}
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Decorative photo strip */}
-      <div className="opp-photo" aria-hidden="true" style={{ width: "calc(100% - 48px)", maxWidth: 1012, height: 220, margin: "4px auto 16px", borderRadius: 14, backgroundImage: "linear-gradient(90deg, rgba(32,21,21,.25), rgba(32,21,21,0) 40%), url(/employers-hero.jpg)", backgroundSize: "cover", backgroundPosition: "50% 40%", border: "1px solid rgba(32,21,21,0.12)" }} />
-
       {/* Two-column workspace */}
-      <div className="opp-workspace" style={{ width: "100%", maxWidth: 1060, margin: "0 auto", padding: "4px 24px 96px", display: "grid", gridTemplateColumns: "minmax(300px, 1fr) minmax(340px, 1.1fr)", gap: 20, justifyContent: "center", alignItems: "start" }}>
+      <div className="opp-workspace" style={{ width: "100%", maxWidth: 1060, margin: "0 auto", padding: "8px 24px 40px", display: "grid", gridTemplateColumns: "minmax(300px, 1fr) minmax(340px, 1.1fr)", gap: 20, justifyContent: "center", alignItems: "start" }}>
 
         {/* Left: job feed */}
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -533,7 +527,6 @@ export default function HomeClient() {
 
           <div className="opp-feed-top" style={{ fontSize: 14, color: "#605d52", scrollMarginTop: 80 }}>
             {feedLoading ? T.loading : T.rolesIn(visibleJobs.length, cIn)} · {finePointer ? T.dragHint : T.tapHint}
-            {usingPlaceholders && <span style={{ color: "#c5a15a" }}> {T.sample}</span>}
           </div>
 
           {!feedLoading && visibleJobs.length === 0 && (
@@ -742,6 +735,24 @@ export default function HomeClient() {
         </div>
       </div>
 
+      {/* Templates: a second way in, below the main job → CV flow */}
+      <section aria-labelledby="opp-tpl-h" style={{ width: "100%", maxWidth: 1060, margin: "0 auto", padding: "8px 24px 72px" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 4 }}>
+          <h2 id="opp-tpl-h" style={{ fontSize: 22, fontWeight: 600, margin: 0 }}>{T.orTemplate}</h2>
+          <div style={{ fontSize: 13, color: "#605d52" }}>{T.templatesMeta}</div>
+        </div>
+        <TemplateCarousel
+          compact
+          labels={{ use: T.useTemplate + " " + T.arrow, prev: T.prevTemplate, next: T.nextTemplate }}
+          templates={TEMPLATE_REGISTRY.map((t) => ({ id: t.id, name: t.name, sub: t.sub, accent: t.accent }))}
+          onUse={(id) => {
+            const tid = id as TemplateId;
+            setTemplateId(tid);
+            enterBuilder(useCVStore.getState().cv ?? EMPTY_CV, tid);
+          }}
+        />
+      </section>
+
       {confirmJob && (
         <div role="dialog" aria-modal="true" onClick={(e) => { if (e.target === e.currentTarget) setConfirmJob(null); }}
           style={{ position: "fixed", inset: 0, zIndex: 9000, background: "rgba(32,21,21,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
@@ -788,12 +799,15 @@ export default function HomeClient() {
           .opp-cv-panel  { position: static !important; top: auto !important; }
         }
 
+        @media (max-width: 420px) { .opp-signin { display: none !important; } }
+        .opp-search-row > .opp-search { min-width: 0; }
         @media (max-width: 640px) {
           .opp-band        { padding: 16px 16px 8px !important; }
           .opp-workspace   { padding: 8px 16px 24px !important; gap: 20px !important; }
           .opp-hide-mobile { display: none !important; }
-          .opp-photo { height: 120px !important; width: calc(100% - 32px) !important; }
           .opp-post-btn { display: none !important; }
+          .opp-cv-btn { padding: 10px 14px !important; font-size: 13px !important; }
+          .opp-hero-upload { width: 100%; }
           .opp-topbar { padding: 0 16px !important; }
           .opp-topbar nav { gap: 10px !important; }
           .opp-topbar nav a { white-space: nowrap; font-size: 14px !important; }

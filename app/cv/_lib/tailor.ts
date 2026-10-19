@@ -1,6 +1,6 @@
 /**
  * Deterministic, client-side CV tailoring for the "drag a job onto your
- * CV" flow. This is NOT an LLM call (opportunity.com has no AI backend
+ * CV" flow. This is NOT an LLM call (opportunty.com has no AI backend
  * wired up yet) — it's a real, useful heuristic: it sets the target title,
  * writes an honest lead sentence naming the role and company, and surfaces
  * the job's listed skills/tags as a dedicated skills group (deduped

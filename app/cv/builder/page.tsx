@@ -5,7 +5,7 @@
  * The anonymous-capable editor. No login required: reachable straight from
  * the homepage (upload a CV, drag a job onto it, or pick a template) with
  * zero friction. The CV lives in the Zustand store and is mirrored to
- * localStorage only — opportunity.com never creates a Supabase row, let
+ * localStorage only — opportunty.com never creates a Supabase row, let
  * alone an anonymous session, for a signed-out visitor.
  *
  * The store may already be populated when this page mounts (the homepage

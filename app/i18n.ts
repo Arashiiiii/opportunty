@@ -23,11 +23,13 @@ export interface Dict {
   cvReady: string; cvFallback: string; dropIt: string; nowDrag: string; openBuilder: string; replaceCV: string; readingShort: string;
   tailoring: string; tailoredFor: string; keyMatches: string; continueBuilder: string; startOver: string; freeToEdit: string;
   uploadFailed: string; couldntRead: string; nameFallback: string;
+  buildCV: string; freeHook: string; orTemplate: string;
   countries: Record<CountryCode, { name: string; in: string }>;
 }
 
 export const DICT: Record<Lang, Dict> = {
   en: {
+    buildCV: "Build my CV", freeHook: "Free CV builder · 10 ATS templates · pay only to download", orTemplate: "Or start from a template",
     arrow: "→",
     nav: { employers: "For employers", myCVs: "My CVs", signIn: "Sign in", postJob: "Post a job", dashboard: "Dashboard" },
     eyebrow: "Job board · Morocco, Europe & Saudi Arabia",
@@ -60,6 +62,7 @@ export const DICT: Record<Lang, Dict> = {
     },
   },
   fr: {
+    buildCV: "Créer mon CV", freeHook: "CV gratuit · 10 modèles ATS · payez seulement au téléchargement", orTemplate: "Ou partez d'un modèle",
     arrow: "→",
     nav: { employers: "Recruteurs", myCVs: "Mes CV", signIn: "Connexion", postJob: "Publier une offre", dashboard: "Tableau de bord" },
     eyebrow: "Offres d'emploi · Maroc, Europe & Arabie saoudite",
@@ -92,6 +95,7 @@ export const DICT: Record<Lang, Dict> = {
     },
   },
   ar: {
+    buildCV: "أنشئ سيرتي", freeHook: "منشئ سيرة ذاتية مجاني · 10 قوالب ATS · الدفع عند التحميل فقط", orTemplate: "أو ابدأ من قالب",
     arrow: "←",
     nav: { employers: "للشركات", myCVs: "سيرتي الذاتية", signIn: "تسجيل الدخول", postJob: "انشر وظيفة", dashboard: "لوحة التحكم" },
     eyebrow: "وظائف · المغرب وأوروبا والسعودية",

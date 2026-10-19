@@ -1,7 +1,7 @@
 "use client";
 /**
  * Topbar — every template is free to edit; the "Download PDF" button is
- * where opportunity.com actually asks for something:
+ * where opportunty.com actually asks for something:
  *
  *  - signed out            → show the login gate, don't navigate anywhere.
  *  - signed in, local draft → claim the draft into a real `cvs` row (the
@@ -30,6 +30,7 @@ import { LangToggle }   from "./LangToggle";
 import { ProofreadButton } from "./ProofreadButton";
 import { useUI } from "@/app/_lib/useUiLang";
 import { LogoMark } from "../../../_components/LogoMark";
+import { Wordmark } from "@/app/_components/Wordmark";
 
 const supabase = createClient();
 
@@ -149,9 +150,7 @@ export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
       >
         <LogoMark size={26} style={{ flexShrink: 0 }} />
         {!isMobile && (
-          <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
-            opportunity<span style={{ color: "#ff4f00" }}>.com</span>
-          </span>
+          <Wordmark tld style={{ fontSize: 13, fontWeight: 700 }} />
         )}
       </Link>
 

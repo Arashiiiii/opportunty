@@ -11,6 +11,7 @@ import { saveLocalDraft } from "../cv/_lib/local-draft";
 import { markHandoff } from "../cv/_lib/handoff";
 import type { CVData } from "../cv/_lib/schema";
 import type { Lang } from "../i18n";
+import { Wordmark } from "@/app/_components/Wordmark";
 
 const PRIMARY = "#ff4f00";
 
@@ -55,7 +56,7 @@ export default function StartClient() {
     <main dir={rtl ? "rtl" : "ltr"} style={{ minHeight: "100dvh", background: "#fffefb", color: "#201515", display: "flex", flexDirection: "column", fontFamily: "inherit" }}>
       <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px" }}>
-          <LogoMark size={28} /><span>opportunity<span style={{ color: PRIMARY }}>.</span></span>
+          <LogoMark size={28} /><Wordmark />
         </div>
         <UiLangSwitch />
       </header>

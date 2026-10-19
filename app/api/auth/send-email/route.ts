@@ -6,7 +6,7 @@
  * branded, localised email through Resend.
  *
  * Env: SEND_EMAIL_HOOK_SECRET ("v1,whsec_…" from the Supabase hook screen),
- *      RESEND_API_KEY, RESEND_FROM (e.g. "opportunity. <no-reply@contact.opportunty.com>"),
+ *      RESEND_API_KEY, RESEND_FROM (e.g. "opportunty <no-reply@contact.opportunty.com>"),
  *      NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SITE_URL (optional).
  */
 import { createHmac, timingSafeEqual } from "node:crypto";
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     method: "POST",
     headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: process.env.RESEND_FROM || "opportunity. <no-reply@contact.opportunty.com>",
+      from: process.env.RESEND_FROM || "opportunty <no-reply@contact.opportunty.com>",
       to: [to],
       subject: mail.subject,
       html: mail.html,

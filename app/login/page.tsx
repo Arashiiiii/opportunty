@@ -9,6 +9,7 @@ import { EMP } from "@/app/employers/_dict";
 import { isEmployer } from "@/app/employers/_role";
 import { CodeAuth } from "@/app/_components/CodeAuth";
 import { LogoMark } from "../_components/LogoMark";
+import { Wordmark } from "@/app/_components/Wordmark";
 
 function LoginForm() {
   const { u, rtl, lang } = useUI();
@@ -46,7 +47,7 @@ function LoginForm() {
       <div style={{ width: "100%", maxWidth: 380 }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 32, textDecoration: "none" }}>
           <LogoMark size={26} />
-          <span style={{ fontSize: 15, fontWeight: 700, color: "#201515" }}>opportunity<span style={{ color: "#ff4f00" }}>.com</span></span>
+          <Wordmark tld style={{ fontSize: 15, fontWeight: 700 }} />
         </Link>
 
         <div style={{ marginBottom: 20 }}><UiLangSwitch compact /></div>

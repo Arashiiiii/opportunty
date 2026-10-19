@@ -8,17 +8,11 @@ export const metadata: Metadata = {
   title: { default: SITE_TITLE, template: "%s" },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
-  keywords: [
-    "job search", "jobs in Morocco", "emploi Maroc", "offres d'emploi", "CV builder", "free CV builder",
-    "AI CV tailoring", "ATS CV templates", "créateur de CV", "générateur de CV", "CV gratuit",
-    "jobs in France", "jobs in Germany", "jobs in Saudi Arabia", "وظائف المغرب", "سيرة ذاتية",
-  ],
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
-  openGraph: {
-    type: "website", url: SITE_URL, siteName: SITE_NAME, title: SITE_TITLE, description: SITE_DESCRIPTION,
-    locale: "en_US", alternateLocale: ["fr_FR", "ar_MA"],
-  },
-  twitter: { card: "summary_large_image", title: SITE_TITLE, description: SITE_DESCRIPTION },
+  // No url/title here: each page sets its own, and a site-wide og:url would point every page at the homepage.
+  openGraph: { type: "website", siteName: SITE_NAME, locale: "en_US", alternateLocale: ["fr_FR", "ar_MA"] },
+  // Card type only: X/Twitter falls back to each page's own og:title / og:description.
+  twitter: { card: "summary_large_image" },
   formatDetection: { telephone: false },
 };
 
@@ -36,7 +30,7 @@ const jsonLd = {
       description: SITE_DESCRIPTION, inLanguage: ["en", "fr", "ar"], publisher: { "@id": `${SITE_URL}/#org` },
     },
     {
-      "@type": "WebApplication", "@id": `${SITE_URL}/#app`, name: `${SITE_NAME} CV builder`, url: `${SITE_URL}/cv/builder`,
+      "@type": "WebApplication", "@id": `${SITE_URL}/#app`, name: `${SITE_NAME} CV builder`, url: `${SITE_URL}/cv-builder`,
       applicationCategory: "BusinessApplication", operatingSystem: "Any", browserRequirements: "Requires JavaScript",
       description: "Free online CV builder with AI tailoring to a job offer and 10 ATS-friendly templates. Pay only to download the PDF.",
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Free to edit; one-time payment to download a template as PDF." },

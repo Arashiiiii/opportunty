@@ -5,10 +5,16 @@
  * the CV builder and checkout. Not to be confused with the CV's own content
  * language (the builder's FR/EN/ع toggle), which is a property of the CV.
  */
-import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { createContext, createElement, useCallback, useContext, useEffect, useSyncExternalStore } from "react";
 import { DICT } from "../i18n";
 import type { Lang } from "../i18n";
 import { UI } from "./ui-dict";
+
+/** Set by the /fr and /ar routes: the URL decides the language, also during server rendering. */
+const LangOverride = createContext<Lang | null>(null);
+export function LangProvider({ lang, children }: { lang: Lang; children: React.ReactNode }) {
+  return createElement(LangOverride.Provider, { value: lang }, children);
+}
 
 const KEY = "opportunity_lang_v1";
 const listeners = new Set<() => void>();
@@ -30,11 +36,18 @@ function subscribe(cb: () => void) {
 }
 
 export function useUiLang(): [Lang, (l: Lang) => void] {
-  const lang = useSyncExternalStore(subscribe, read, () => "en" as Lang);
+  const forced = useContext(LangOverride);
+  const stored = useSyncExternalStore(subscribe, read, () => (forced ?? "en") as Lang);
+  const lang = forced ?? stored;
   const setLang = useCallback((l: Lang) => {
     try { localStorage.setItem(KEY, l); } catch { /* ignore */ }
     listeners.forEach((f) => f());
   }, []);
+  // Arriving on /fr or /ar makes that the visitor's language for the rest of the site too.
+  useEffect(() => {
+    if (!forced) return;
+    try { if (localStorage.getItem(KEY) !== forced) { localStorage.setItem(KEY, forced); listeners.forEach((f) => f()); } } catch { /* ignore */ }
+  }, [forced]);
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 
+// The editor is an app screen with no readable content for search engines.
+// /cv-builder (and /fr, /ar versions) is the indexable page that sends people here.
 export const metadata: Metadata = {
-  title: "Free CV builder with AI — 10 ATS-friendly templates | opportunity.com",
-  description: "Build your CV online for free: pick one of 10 ATS-friendly templates, edit live, and let AI tailor it to any job offer. English, French and Arabic.",
-  alternates: { canonical: "/cv/builder" },
-  robots: { index: true, follow: true },
-  openGraph: { url: "/cv/builder", title: "Free CV builder with AI — opportunity.com", description: "10 ATS-friendly templates, live editing and AI tailoring to any job." },
+  title: "CV builder — opportunty",
+  description: "Build your CV online for free and let AI tailor it to any job offer.",
+  robots: { index: false, follow: true },
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) { return children; }
