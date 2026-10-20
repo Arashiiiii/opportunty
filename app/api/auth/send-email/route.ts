@@ -57,8 +57,15 @@ export async function POST(req: NextRequest) {
   if (!user?.email || !data || !type || !TYPES.has(type)) return fail(400, "Unsupported email type");
 
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://opportunty.com").replace(/\/$/, "");
+  // The link goes to OUR confirm page (the token is only spent when the person presses its button), not straight to
+  // Supabase's /verify — mail scanners auto-open links, and that would use up the token and the 6-digit code with it.
+  let nextPath = "/dashboard";
+  try {
+    const u = new URL(data.redirect_to || `${siteUrl}/dashboard`);
+    if (u.origin === new URL(siteUrl).origin) nextPath = `${u.pathname}${u.search}`;
+  } catch { /* keep default */ }
   const link = type === "reauthentication" || !data.token_hash ? undefined
-    : `${supabaseUrl.replace(/\/$/, "")}/auth/v1/verify?token=${encodeURIComponent(data.token_hash)}&type=${encodeURIComponent(type)}&redirect_to=${encodeURIComponent(data.redirect_to || `${siteUrl}/dashboard`)}`;
+    : `${siteUrl.replace(/\/$/, "")}/auth/confirm?token_hash=${encodeURIComponent(data.token_hash)}&type=${encodeURIComponent(type)}&next=${encodeURIComponent(nextPath)}`;
 
   const mail = renderAuthEmail({ type, lang: pickLang(user.user_metadata?.lang), link, code: data.token, siteUrl });
   const to = type === "email_change" && user.new_email ? user.new_email : user.email;
