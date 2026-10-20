@@ -2,7 +2,7 @@
  * Local-draft persistence — how an anonymous visitor's in-progress CV
  * survives a page refresh without ever touching Supabase.
  *
- * opportunity.com has no anonymous accounts, so a signed-out visitor's
+ * opportunty.com has no anonymous accounts, so a signed-out visitor's
  * work lives ONLY in this browser's localStorage until they sign in and
  * download, at which point Topbar claims it into a real `cvs` row.
  */

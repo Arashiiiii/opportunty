@@ -148,10 +148,10 @@ export default function CVListPage() {
 
       <div style={{ background: "#fff", borderBottom: "1px solid #e5e7eb", padding: "0 28px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Link href="/" aria-label="opportunity.com" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
+          <Link href="/" aria-label="opportunty.com" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
             <LogoMark size={26} />
             <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
-              opportunity<span style={{ color: "#0079a8" }}>.com</span>
+              opportunty<span style={{ color: "#0079a8" }}>.com</span>
             </span>
           </Link>
           <span style={{ color: "#cbd5e1", margin: "0 6px", fontWeight: 300, fontSize: 18 }}>/</span>

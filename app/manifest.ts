@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "opportunity.com — Jobs & AI CV builder",
-    short_name: "opportunity",
+    name: "opportunty.com — Jobs & AI CV builder",
+    short_name: "opportunty",
     description: "Find jobs and build a tailored CV with AI.",
     start_url: "/",
     display: "standalone",

@@ -1,7 +1,7 @@
 import CVListPageClient from "./CVListPageClient";
 
 export const metadata = {
-  title: "Your CVs — opportunity.com",
+  title: "Your CVs — opportunty.com",
   description: "Build and tailor your CV, then match it against live job listings.",
 };
 

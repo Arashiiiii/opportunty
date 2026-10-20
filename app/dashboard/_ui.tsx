@@ -24,7 +24,7 @@ export function Shell({ active, title, sub, children }: { active: "seeker" | "em
   return (
     <div dir={rtl ? "rtl" : "ltr"} style={{ minHeight: "100vh", background: "#ffffff", color: INK, fontFamily: "'Inter Variable', 'Inter', system-ui, sans-serif" }}>
       <header className="dash-head" style={{ position: "sticky", top: 0, zIndex: 10, background: "#ffffff", borderBottom: `1px solid ${LINE}`, height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", gap: 12 }}>
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px", color: INK, textDecoration: "none" }}><LogoMark size={28} /><span>opportunity<span style={{ color: PRIMARY }}>.</span></span></Link>
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px", color: INK, textDecoration: "none" }}><LogoMark size={28} /><span>opportunty<span style={{ color: PRIMARY }}>.</span></span></Link>
         <nav style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <UiLangSwitch compact />
           <Link href="/" className="dash-home" style={{ fontSize: 14, color: MUTED, textDecoration: "none", whiteSpace: "nowrap" }}>{d.home}</Link>

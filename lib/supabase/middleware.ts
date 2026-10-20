@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * Refreshes the Supabase auth session on every request and gates the
  * parts of the CV builder that touch a saved account.
  *
- * opportunity.com intentionally has NO anonymous-session fallback: unlike
+ * opportunty.com intentionally has NO anonymous-session fallback: unlike
  * talentmaroc, a signed-out visitor hitting a *saved* CV (/cv/[id]) is
  * redirected to /login rather than being silently signed in as an
  * anonymous user.

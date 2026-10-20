@@ -17,8 +17,8 @@ const getJob = cache(async (id: string): Promise<JobRow | null> => {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const id = idFromSlug((await params).slug);
   const job = id ? await getJob(id) : null;
-  if (!job) return { title: "Job not found — opportunity.com", robots: { index: false } };
-  const title = `${job.title} — ${job.company}${job.location ? `, ${job.location}` : ""} | opportunity.com`;
+  if (!job) return { title: "Job not found — opportunty.com", robots: { index: false } };
+  const title = `${job.title} — ${job.company}${job.location ? `, ${job.location}` : ""} | opportunty.com`;
   return {
     title, description: metaDescription(job), alternates: { canonical: jobPath(job) },
     openGraph: { type: "article", title, description: metaDescription(job), url: jobPath(job) },
@@ -62,7 +62,7 @@ export default async function JobPage({ params }: { params: Promise<{ slug: stri
       <section aria-label="Job description" dir="auto">
         {paras.map((p, i) => <p key={i} style={{ fontSize: 15, lineHeight: 1.7, color: "#26343d", margin: "0 0 12px", whiteSpace: "pre-line" }}>{p}</p>)}
       </section>
-      <p style={{ fontSize: 12.5, color: "#5f7280", marginTop: 28 }}>Job listing collected from a public source. opportunity.com is not the employer — always verify the offer before sharing personal information.</p>
+      <p style={{ fontSize: 12.5, color: "#5f7280", marginTop: 28 }}>Job listing collected from a public source. opportunty.com is not the employer — always verify the offer before sharing personal information.</p>
     </PageShell>
   );
 }

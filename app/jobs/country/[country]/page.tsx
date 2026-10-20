@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ country: 
   if (!code) return {};
   const c = COUNTRY_INFO[code];
   return {
-    title: `Jobs in ${c.name} — latest job offers | opportunity.com`,
+    title: `Jobs in ${c.name} — latest job offers | opportunty.com`,
     description: `Browse the latest job offers in ${c.name}, then tailor your CV to any of them with AI. Free CV builder with ATS-friendly templates.`,
     alternates: { canonical: `/jobs/country/${c.slug}` },
   };

@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "opportunity.com — Job search & free AI CV builder";
+export const alt = "opportunty.com — Job search & free AI CV builder";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -14,7 +14,7 @@ export default function OpengraphImage() {
             <circle cx="30" cy="31" r="14" fill="none" stroke="#ffffff" strokeWidth="8" />
             <circle cx="49" cy="46" r="6" fill="#0e1a21" />
           </svg>
-          <div style={{ display: "flex", fontSize: 48, fontWeight: 700, color: "#0e1a21" }}>opportunity<span style={{ color: "#0079a8" }}>.com</span></div>
+          <div style={{ display: "flex", fontSize: 48, fontWeight: 700, color: "#0e1a21" }}>opportunty<span style={{ color: "#0079a8" }}>.com</span></div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div style={{ display: "flex", fontSize: 78, fontWeight: 700, lineHeight: 1.05, color: "#0e1a21" }}>Find work you actually want</div>

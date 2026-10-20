@@ -1,13 +1,13 @@
 "use client";
 /**
- * opportunity.com homepage — built from the approved design mockup
+ * opportunty.com homepage — built from the approved design mockup
  * (Artifact 6eda429d…): search bar, job feed (left) + CV space (right),
  * CV template strip below.
  *
  * No login required to use the CV workspace: uploading a résumé, dragging
  * a job onto it, and picking a template all work signed out — the CV
  * lives in the browser (Zustand store, mirrored to localStorage) and
- * hands off into /cv/builder. opportunity.com only asks for a real
+ * hands off into /cv/builder. opportunty.com only asks for a real
  * account at the one point that matters: downloading (Topbar), which is
  * also where a signed-in visitor is sent on to pay.
  *
@@ -412,7 +412,7 @@ export default function HomeClient() {
 
       {/* Header */}
       <header className="opp-topbar" style={{ position: "sticky", top: 0, zIndex: 20, background: "#ffffff", borderBottom: "1px solid rgba(14,26,33,0.12)", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px" }}><LogoMark size={28} /><span>opportunity<span style={{ color: PRIMARY }}>.</span></span></div>
+        <div style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px" }}><LogoMark size={28} /><span>opportunty<span style={{ color: PRIMARY }}>.</span></span></div>
         <nav style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <UiLangSwitch />
           <Link href={employer ? "/dashboard/employer" : "/employers/login"} className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#26343d" }}>{T.nav.employers}</Link>

@@ -7,7 +7,7 @@ import { JOB_COLUMNS, type JobRow } from "@/lib/jobs-seo";
 export const revalidate = 1800;
 
 export const metadata: Metadata = {
-  title: "Latest jobs in Morocco, France, Germany, Belgium, Netherlands & Saudi Arabia | opportunity.com",
+  title: "Latest jobs in Morocco, France, Germany, Belgium, Netherlands & Saudi Arabia | opportunty.com",
   description: "Browse the latest job offers in Morocco, France, Germany, Belgium, the Netherlands and Saudi Arabia, and tailor your CV to any of them with AI.",
   alternates: { canonical: "/jobs" },
 };

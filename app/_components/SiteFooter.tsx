@@ -19,7 +19,7 @@ export function SiteFooter() {
         <div style={{ maxWidth: 300, flex: "1 1 220px" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
             <LogoMark size={24} />
-            <span style={{ fontSize: 15, fontWeight: 700, color: "#ffffff" }}>opportunity<span style={{ color: "#0079a8" }}>.com</span></span>
+            <span style={{ fontSize: 15, fontWeight: 700, color: "#ffffff" }}>opportunty<span style={{ color: "#0079a8" }}>.com</span></span>
           </Link>
           <p style={{ fontSize: 14, color: "#b9b0a5", lineHeight: 1.5, margin: "12px 0 0" }}>{f.tagline}</p>
         </div>

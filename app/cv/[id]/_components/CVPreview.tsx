@@ -3,7 +3,7 @@
  * CVPreview — the right column of the builder.
  *
  * Ported from talentmaroc's CV builder, with the paid-template-unlock /
- * watermark logic removed: opportunity.com has no per-template purchase
+ * watermark logic removed: opportunty.com has no per-template purchase
  * flow (yet), so every template is fully free to edit and export.
  *
  * Layout (flex column):
@@ -177,7 +177,7 @@ export function CVPreview() {
             >
               {Array.from({ length: 24 }).map((_, i) => (
                 <span key={i} style={{ fontSize: 22, fontWeight: 800, color: "rgba(15,23,42,0.09)", whiteSpace: "nowrap", letterSpacing: 1 }}>
-                  opportunity.com
+                  opportunty.com
                 </span>
               ))}
             </div>

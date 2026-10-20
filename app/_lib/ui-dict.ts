@@ -29,8 +29,8 @@ export interface UiDict {
 
 const en: UiDict = {
   signIn: "Sign in", createAccount: "Create account", notNow: "Not now",
-  gateTitle: "Sign in to continue", gateMsg: "opportunity.com saves and downloads CVs to a real account — no anonymous sessions — so this step needs you signed in.",
-  loginTitle: "Sign in", loginNote: "A real account is required — opportunity.com doesn't use anonymous sessions.", email: "Email", password: "Password",
+  gateTitle: "Sign in to continue", gateMsg: "opportunty.com saves and downloads CVs to a real account — no anonymous sessions — so this step needs you signed in.",
+  loginTitle: "Sign in", loginNote: "A real account is required — opportunty.com doesn't use anonymous sessions.", email: "Email", password: "Password",
   signingIn: "Signing in…", noAccount: "No account yet?", createOne: "Create one",
   signupTitle: "Create your account", signupNote: "Job feed + AI-tailored CVs, saved to your own account.", passwordMin: "Password (min 6 characters)",
   creatingAccount: "Creating account…", checkInbox: "Check your inbox to confirm {email}, then sign in.", haveAccount: "Already have an account?",
@@ -38,7 +38,7 @@ const en: UiDict = {
   payNote: "One-time payment for this template, no subscription. You'll be redirected to our secure payment partner and brought straight back to download.",
   payBtn: "Pay & download", payBtnTitle: "Secure checkout", backToEditor: "← Back to editor",
   payRedirecting: "Redirecting to secure checkout…", payConfirming: "Confirming your payment…", payFailed: "Something went wrong. Please try again.", payPending: "We haven't received the payment confirmation yet. Refresh this page in a moment.", paidTitle: "Payment received — thank you!", paidNote: "This template is unlocked. Download your CV as a PDF; you can come back and download it again any time.", downloadNow: "Download PDF", printTitle: "Your CV is ready", printHint: "In the print window choose “Save as PDF” as the destination, and turn off headers and footers.", printLocked: "Please unlock this template first.",
-  needSignInBuild: "Sign in to build your CV", needSignInNote: "opportunity.com saves your CVs to a real account — no anonymous sessions.",
+  needSignInBuild: "Sign in to build your CV", needSignInNote: "opportunty.com saves your CVs to a real account — no anonymous sessions.",
   myCVs: "My CVs", home: "← Home", firstCV: "Create your first professional CV", nCVs: (n) => `${n} CV${n > 1 ? "s" : ""} saved`,
   fixGrammar: "Polish CV", fixGrammarTitle: "Proofread and professionally rephrase the whole CV (infinitive verbs)", proofreading: "Checking your CV…", proofreadDone: "CV corrected and rephrased", proofreadNone: "No corrections needed — your CV reads well", proofreadFailed: "Couldn’t proofread the CV. Please try again.",
   translating: "Translating your CV…", translatedTo: "CV translated", undo: "Undo", translateFailed: "Couldn't translate the CV text. Only the headings changed.", reportTitle: "Tailored for {job}", reportFit: "Match with this job", reportChanged: "What we changed", reportMissing: "Asked by the job, not on your CV", reportMissingNote: "Add these only if you really have them.", reportMatched: "Already covered", reportRestore: "Restore my original CV", reportClose: "Close", reportBasic: "Basic tailoring was used (AI unavailable right now).", newCV: "+ New CV", uploadCV: "Upload your CV", uploadingCV: "Reading…", uploadFailed: "Couldn't read that file. Try a text-based PDF or a DOCX.", deleteCV: "Delete", clearAll: "Clear all CVs", confirmDelete: "Delete this CV? This cannot be undone.", confirmClear: "Delete ALL your saved CVs? This cannot be undone.", deleteFailed: "Could not delete. Please try again.", noCVs: "No CVs yet", noCVsNote: "Create a professional CV in a few minutes.", createFirst: "Create my first CV", chooseTemplate: "Choose a template",
@@ -68,8 +68,8 @@ const en: UiDict = {
 
 const fr: UiDict = {
   signIn: "Connexion", createAccount: "Créer un compte", notNow: "Pas maintenant",
-  gateTitle: "Connectez-vous pour continuer", gateMsg: "opportunity.com enregistre et télécharge les CV sur un vrai compte — sans session anonyme — cette étape nécessite donc une connexion.",
-  loginTitle: "Connexion", loginNote: "Un vrai compte est requis — opportunity.com n'utilise pas de sessions anonymes.", email: "E-mail", password: "Mot de passe",
+  gateTitle: "Connectez-vous pour continuer", gateMsg: "opportunty.com enregistre et télécharge les CV sur un vrai compte — sans session anonyme — cette étape nécessite donc une connexion.",
+  loginTitle: "Connexion", loginNote: "Un vrai compte est requis — opportunty.com n'utilise pas de sessions anonymes.", email: "E-mail", password: "Mot de passe",
   signingIn: "Connexion…", noAccount: "Pas encore de compte ?", createOne: "En créer un",
   signupTitle: "Créez votre compte", signupNote: "Offres d'emploi + CV adaptés par l'IA, enregistrés sur votre compte.", passwordMin: "Mot de passe (6 caractères min.)",
   creatingAccount: "Création du compte…", checkInbox: "Consultez votre boîte mail pour confirmer {email}, puis connectez-vous.", haveAccount: "Vous avez déjà un compte ?",
@@ -77,7 +77,7 @@ const fr: UiDict = {
   payNote: "Paiement unique pour ce modèle, sans abonnement. Vous serez redirigé vers notre partenaire de paiement sécurisé puis ramené ici pour télécharger.",
   payBtn: "Payer et télécharger", payBtnTitle: "Paiement sécurisé", backToEditor: "← Retour à l'éditeur",
   payRedirecting: "Redirection vers le paiement sécurisé…", payConfirming: "Confirmation de votre paiement…", payFailed: "Une erreur est survenue. Veuillez réessayer.", payPending: "Nous n'avons pas encore reçu la confirmation du paiement. Actualisez la page dans un instant.", paidTitle: "Paiement reçu — merci !", paidNote: "Ce modèle est débloqué. Téléchargez votre CV en PDF ; vous pourrez le retélécharger à tout moment.", downloadNow: "Télécharger le PDF", printTitle: "Votre CV est prêt", printHint: "Dans la fenêtre d'impression, choisissez « Enregistrer au format PDF » et désactivez les en-têtes et pieds de page.", printLocked: "Veuillez d'abord débloquer ce modèle.",
-  needSignInBuild: "Connectez-vous pour créer votre CV", needSignInNote: "opportunity.com enregistre vos CV sur un vrai compte — sans session anonyme.",
+  needSignInBuild: "Connectez-vous pour créer votre CV", needSignInNote: "opportunty.com enregistre vos CV sur un vrai compte — sans session anonyme.",
   myCVs: "Mes CV", home: "← Accueil", firstCV: "Créez votre premier CV professionnel", nCVs: (n) => `${n} CV enregistré${n > 1 ? "s" : ""}`,
   fixGrammar: "Améliorer le CV", fixGrammarTitle: "Relire et reformuler professionnellement tout le CV (verbes à l'infinitif)", proofreading: "Relecture du CV…", proofreadDone: "CV corrigé et reformulé", proofreadNone: "Aucune correction nécessaire — votre CV est bien rédigé", proofreadFailed: "Impossible de relire le CV. Veuillez réessayer.",
   translating: "Traduction du CV…", translatedTo: "CV traduit", undo: "Annuler", translateFailed: "Traduction impossible. Seuls les titres ont changé.", reportTitle: "Adapté pour {job}", reportFit: "Adéquation avec l'offre", reportChanged: "Ce qui a changé", reportMissing: "Demandé par l'offre, absent de votre CV", reportMissingNote: "Ajoutez-les seulement si vous les maîtrisez vraiment.", reportMatched: "Déjà couvert", reportRestore: "Restaurer mon CV d'origine", reportClose: "Fermer", reportBasic: "Adaptation basique utilisée (IA indisponible pour le moment).", newCV: "+ Nouveau CV", uploadCV: "Importer votre CV", uploadingCV: "Lecture…", uploadFailed: "Impossible de lire ce fichier. Essayez un PDF texte ou un DOCX.", deleteCV: "Supprimer", clearAll: "Supprimer tous les CV", confirmDelete: "Supprimer ce CV ? Action irréversible.", confirmClear: "Supprimer TOUS vos CV enregistrés ? Action irréversible.", deleteFailed: "Suppression impossible. Réessayez.", noCVs: "Aucun CV pour l'instant", noCVsNote: "Créez un CV professionnel en quelques minutes.", createFirst: "Créer mon premier CV", chooseTemplate: "Choisissez un modèle",
@@ -107,8 +107,8 @@ const fr: UiDict = {
 
 const ar: UiDict = {
   signIn: "تسجيل الدخول", createAccount: "إنشاء حساب", notNow: "ليس الآن",
-  gateTitle: "سجّل الدخول للمتابعة", gateMsg: "يحفظ opportunity.com السير الذاتية ويحمّلها في حساب حقيقي — بدون جلسات مجهولة — لذلك تحتاج هذه الخطوة إلى تسجيل الدخول.",
-  loginTitle: "تسجيل الدخول", loginNote: "يلزم حساب حقيقي — لا يستخدم opportunity.com جلسات مجهولة.", email: "البريد الإلكتروني", password: "كلمة المرور",
+  gateTitle: "سجّل الدخول للمتابعة", gateMsg: "يحفظ opportunty.com السير الذاتية ويحمّلها في حساب حقيقي — بدون جلسات مجهولة — لذلك تحتاج هذه الخطوة إلى تسجيل الدخول.",
+  loginTitle: "تسجيل الدخول", loginNote: "يلزم حساب حقيقي — لا يستخدم opportunty.com جلسات مجهولة.", email: "البريد الإلكتروني", password: "كلمة المرور",
   signingIn: "جارٍ تسجيل الدخول…", noAccount: "ليس لديك حساب؟", createOne: "أنشئ حساباً",
   signupTitle: "أنشئ حسابك", signupNote: "وظائف + سير ذاتية مكيّفة بالذكاء الاصطناعي، محفوظة في حسابك.", passwordMin: "كلمة المرور (6 أحرف على الأقل)",
   creatingAccount: "جارٍ إنشاء الحساب…", checkInbox: "تحقق من بريدك الإلكتروني لتأكيد {email}، ثم سجّل الدخول.", haveAccount: "لديك حساب بالفعل؟",
@@ -116,7 +116,7 @@ const ar: UiDict = {
   payNote: "دفعة واحدة لهذا القالب دون اشتراك. ستُحوَّل إلى شريك الدفع الآمن ثم تعود مباشرة للتنزيل.",
   payBtn: "ادفع وحمّل", payBtnTitle: "دفع آمن", backToEditor: "← العودة إلى المحرر",
   payRedirecting: "جارٍ التحويل إلى الدفع الآمن…", payConfirming: "جارٍ تأكيد الدفع…", payFailed: "حدث خطأ. يرجى المحاولة مرة أخرى.", payPending: "لم نتلقَّ تأكيد الدفع بعد. حدّث الصفحة بعد لحظات.", paidTitle: "تم استلام الدفع — شكرًا!", paidNote: "تم فتح هذا القالب. حمّل سيرتك بصيغة PDF، ويمكنك تنزيلها مجددًا في أي وقت.", downloadNow: "تنزيل PDF", printTitle: "سيرتك جاهزة", printHint: "في نافذة الطباعة اختر «حفظ بصيغة PDF» وعطّل الترويسة والتذييل.", printLocked: "يرجى فتح هذا القالب أولاً.",
-  needSignInBuild: "سجّل الدخول لإنشاء سيرتك الذاتية", needSignInNote: "يحفظ opportunity.com سيرك الذاتية في حساب حقيقي — بدون جلسات مجهولة.",
+  needSignInBuild: "سجّل الدخول لإنشاء سيرتك الذاتية", needSignInNote: "يحفظ opportunty.com سيرك الذاتية في حساب حقيقي — بدون جلسات مجهولة.",
   myCVs: "سيرتي الذاتية", home: "→ الرئيسية", firstCV: "أنشئ أول سيرة ذاتية احترافية", nCVs: (n) => `${n} سيرة محفوظة`,
   fixGrammar: "تدقيق لغوي", fixGrammarTitle: "تدقيق السيرة كاملة وإعادة صياغتها باحترافية (بصيغة المصدر)", proofreading: "جارٍ تدقيق السيرة…", proofreadDone: "تم تصحيح السيرة وإعادة صياغتها", proofreadNone: "لا حاجة لتصحيحات — سيرتك سليمة لغويًا", proofreadFailed: "تعذّر تدقيق السيرة. حاول مرة أخرى.",
   translating: "جارٍ ترجمة السيرة…", translatedTo: "تمت ترجمة السيرة", undo: "تراجع", translateFailed: "تعذّرت ترجمة النص. تغيّرت العناوين فقط.", reportTitle: "مخصّصة لـ {job}", reportFit: "التطابق مع الوظيفة", reportChanged: "ما الذي تغيّر", reportMissing: "مطلوب في الوظيفة وغير موجود في سيرتك", reportMissingNote: "أضفها فقط إن كنت تتقنها فعلاً.", reportMatched: "مغطّى بالفعل", reportRestore: "استعادة سيرتي الأصلية", reportClose: "إغلاق", reportBasic: "تم استخدام تخصيص أساسي (الذكاء الاصطناعي غير متاح حالياً).", newCV: "+ سيرة جديدة", uploadCV: "ارفع سيرتك الذاتية", uploadingCV: "جارٍ القراءة…", uploadFailed: "تعذّرت قراءة الملف. جرّب PDF نصياً أو DOCX.", deleteCV: "حذف", clearAll: "حذف كل السير", confirmDelete: "حذف هذه السيرة؟ لا يمكن التراجع.", confirmClear: "حذف كل سيرك المحفوظة؟ لا يمكن التراجع.", deleteFailed: "تعذّر الحذف. حاول مجدداً.", noCVs: "لا توجد سير ذاتية بعد", noCVsNote: "أنشئ سيرة ذاتية احترافية في دقائق.", createFirst: "أنشئ أول سيرة ذاتية", chooseTemplate: "اختر قالباً",

@@ -46,7 +46,7 @@ function LoginForm() {
       <div style={{ width: "100%", maxWidth: 380 }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 32, textDecoration: "none" }}>
           <LogoMark size={26} />
-          <span style={{ fontSize: 15, fontWeight: 700, color: "#0e1a21" }}>opportunity<span style={{ color: "#0079a8" }}>.com</span></span>
+          <span style={{ fontSize: 15, fontWeight: 700, color: "#0e1a21" }}>opportunty<span style={{ color: "#0079a8" }}>.com</span></span>
         </Link>
 
         <div style={{ marginBottom: 20 }}><UiLangSwitch compact /></div>

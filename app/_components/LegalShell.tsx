@@ -13,7 +13,7 @@ export function PageShell({ children }: { children: React.ReactNode }) {
       <header style={{ height: 64, borderBottom: "1px solid rgba(14,26,33,0.12)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
           <LogoMark size={26} />
-          <span style={{ fontSize: 15, fontWeight: 700, color: "#0e1a21" }}>opportunity<span style={{ color: "#0079a8" }}>.com</span></span>
+          <span style={{ fontSize: 15, fontWeight: 700, color: "#0e1a21" }}>opportunty<span style={{ color: "#0079a8" }}>.com</span></span>
         </Link>
         <UiLangSwitch compact />
       </header>

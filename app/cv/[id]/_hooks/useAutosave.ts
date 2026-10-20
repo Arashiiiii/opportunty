@@ -7,7 +7,7 @@
  *  - cvId is a real id  → persists to the `cvs` row in Supabase (signed-in,
  *    saved-CV builder at /cv/[id]).
  *  - cvId is null       → persists to localStorage only (anonymous draft
- *    at /cv/builder) — opportunity.com never creates a Supabase row for a
+ *    at /cv/builder) — opportunty.com never creates a Supabase row for a
  *    signed-out visitor.
  */
 
