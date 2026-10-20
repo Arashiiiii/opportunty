@@ -4,7 +4,7 @@
  *
  * Table-based layout with inline styles only: Gmail, Outlook and Apple Mail
  * strip <style> blocks and ignore flexbox/grid. Colours match the site
- * (ink #201515, cream #fffefb, orange #ff4f00).
+ * (ink #0e1a21, cream #ffffff, orange #0079a8).
  */
 
 export type Lang = "en" | "fr" | "ar";
@@ -80,15 +80,15 @@ export function renderAuthEmail({ type, lang, link, code, siteUrl }: AuthEmailIn
   const logo = `${siteUrl}/email/logo.png`;
 
   const button = link && c.cta
-    ? `<tr><td style="padding:8px 0 28px"><a href="${esc(link)}" style="display:inline-block;background:#ff4f00;color:#fffefb;font-weight:700;font-size:16px;line-height:20px;text-decoration:none;padding:15px 30px;border-radius:12px;box-shadow:0 6px 16px rgba(255,79,0,.28)">${esc(c.cta)}</a></td></tr>`
+    ? `<tr><td style="padding:8px 0 28px"><a href="${esc(link)}" style="display:inline-block;background:#0079a8;color:#ffffff;font-weight:700;font-size:16px;line-height:20px;text-decoration:none;padding:15px 30px;border-radius:12px;box-shadow:0 6px 16px rgba(0,121,168,.28)">${esc(c.cta)}</a></td></tr>`
     : "";
 
   const codeBlock = code
-    ? `<tr><td style="padding:0 0 ${link ? "24" : "28"}px"><div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#939084;margin-bottom:8px">${esc(c.codeLabel)}</div><div dir="ltr" style="display:inline-block;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:28px;font-weight:700;letter-spacing:.32em;color:#201515;background:#f8f4f0;border:1px solid rgba(32,21,21,.12);border-radius:12px;padding:12px 20px">${esc(code)}</div></td></tr>`
+    ? `<tr><td style="padding:0 0 ${link ? "24" : "28"}px"><div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5f7280;margin-bottom:8px">${esc(c.codeLabel)}</div><div dir="ltr" style="display:inline-block;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:28px;font-weight:700;letter-spacing:.32em;color:#0e1a21;background:#f3f2ed;border:1px solid rgba(14,26,33,.12);border-radius:12px;padding:12px 20px">${esc(code)}</div></td></tr>`
     : "";
 
   const fallback = link && c.fallback
-    ? `<tr><td style="padding:0 0 22px;font-size:13px;line-height:20px;color:#605d52">${esc(c.fallback)}<br><a href="${esc(link)}" style="color:#ff4f00;word-break:break-all;text-decoration:underline" dir="ltr">${esc(link)}</a></td></tr>`
+    ? `<tr><td style="padding:0 0 22px;font-size:13px;line-height:20px;color:#26343d">${esc(c.fallback)}<br><a href="${esc(link)}" style="color:#0079a8;word-break:break-all;text-decoration:underline" dir="ltr">${esc(link)}</a></td></tr>`
     : "";
 
   const html = `<!doctype html>
@@ -98,31 +98,31 @@ export function renderAuthEmail({ type, lang, link, code, siteUrl }: AuthEmailIn
 <meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light">
 <title>${esc(c.subject)}</title>
 </head>
-<body style="margin:0;padding:0;background:#f3eee8;-webkit-text-size-adjust:100%">
+<body style="margin:0;padding:0;background:#f3f2ed;-webkit-text-size-adjust:100%">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">${esc(c.preheader)}&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f3eee8"><tr><td align="center" style="padding:32px 14px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f3f2ed"><tr><td align="center" style="padding:32px 14px">
   <table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:560px;font-family:${font}">
     <tr><td align="${align}" style="padding:0 6px 18px" dir="${dir}">
-      <a href="${esc(siteUrl)}" style="text-decoration:none;color:#201515;font-size:20px;font-weight:700;letter-spacing:-.4px"><img src="${esc(logo)}" width="30" height="30" alt="" style="vertical-align:middle;border:0;border-radius:8px;margin:0 8px"><span dir="ltr" style="vertical-align:middle;unicode-bidi:isolate">opportunity<span style="color:#ff4f00">.</span></span></a>
+      <a href="${esc(siteUrl)}" style="text-decoration:none;color:#0e1a21;font-size:20px;font-weight:700;letter-spacing:-.4px"><img src="${esc(logo)}" width="30" height="30" alt="" style="vertical-align:middle;border:0;border-radius:8px;margin:0 8px"><span dir="ltr" style="vertical-align:middle;unicode-bidi:isolate">opportunity<span style="color:#0079a8">.</span></span></a>
     </td></tr>
-    <tr><td style="background:#fffefb;border:1px solid rgba(32,21,21,.1);border-radius:20px;overflow:hidden">
+    <tr><td style="background:#ffffff;border:1px solid rgba(14,26,33,.1);border-radius:20px;overflow:hidden">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr><td style="height:6px;background:#ff4f00;background-image:linear-gradient(90deg,#ff4f00,#ff8a3d);font-size:0;line-height:0">&nbsp;</td></tr>
-        <tr><td align="${align}" dir="${dir}" style="padding:36px 36px 12px;color:#201515">
+        <tr><td style="height:6px;background:#0079a8;background-image:linear-gradient(90deg,#0079a8,#25a8e0);font-size:0;line-height:0">&nbsp;</td></tr>
+        <tr><td align="${align}" dir="${dir}" style="padding:36px 36px 12px;color:#0e1a21">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-            <tr><td style="padding:0 0 12px;font-size:28px;line-height:34px;font-weight:700;letter-spacing:-.6px;color:#201515">${esc(c.title)}</td></tr>
-            <tr><td style="padding:0 0 26px;font-size:16px;line-height:25px;color:#36342e">${esc(c.body)}</td></tr>
+            <tr><td style="padding:0 0 12px;font-size:28px;line-height:34px;font-weight:700;letter-spacing:-.6px;color:#0e1a21">${esc(c.title)}</td></tr>
+            <tr><td style="padding:0 0 26px;font-size:16px;line-height:25px;color:#26343d">${esc(c.body)}</td></tr>
             ${button}${codeBlock}${fallback}
-            <tr><td style="padding:20px 0 0;border-top:1px solid rgba(32,21,21,.1);font-size:13px;line-height:20px;color:#605d52">${esc(c.ignore)}${c.expires ? ` ${esc(c.expires)}` : ""}</td></tr>
+            <tr><td style="padding:20px 0 0;border-top:1px solid rgba(14,26,33,.1);font-size:13px;line-height:20px;color:#26343d">${esc(c.ignore)}${c.expires ? ` ${esc(c.expires)}` : ""}</td></tr>
           </table>
         </td></tr>
         <tr><td style="height:28px;font-size:0;line-height:0">&nbsp;</td></tr>
       </table>
     </td></tr>
-    <tr><td align="center" style="padding:22px 10px 0;font-size:12.5px;line-height:19px;color:#939084">
-      <div style="font-weight:600;color:#605d52">opportunity<span style="color:#ff4f00">.</span></div>
+    <tr><td align="center" style="padding:22px 10px 0;font-size:12.5px;line-height:19px;color:#5f7280">
+      <div style="font-weight:600;color:#26343d">opportunity<span style="color:#0079a8">.</span></div>
       <div>${esc(FOOT[lang])}</div>
-      <div style="margin-top:6px"><a href="${esc(siteUrl)}" style="color:#939084;text-decoration:underline">${esc(siteUrl.replace(/^https?:\/\//, ""))}</a></div>
+      <div style="margin-top:6px"><a href="${esc(siteUrl)}" style="color:#5f7280;text-decoration:underline">${esc(siteUrl.replace(/^https?:\/\//, ""))}</a></div>
     </td></tr>
   </table>
 </td></tr></table>

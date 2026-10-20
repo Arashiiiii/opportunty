@@ -40,7 +40,7 @@ import { isEmployer } from "./employers/_role";
 import { LogoMark } from "./_components/LogoMark";
 import { SiteFooter } from "./_components/SiteFooter";
 
-const PRIMARY = "#ff4f00";
+const PRIMARY = "#0079a8";
 
 interface Job {
   id: string;
@@ -400,7 +400,7 @@ export default function HomeClient() {
   const showEmpty = !cvJob && !tailoring;
 
   return (
-    <div dir={rtl ? "rtl" : "ltr"} style={{ width: "100%", minHeight: "100vh", background: "#fffefb", display: "flex", flexDirection: "column", fontFamily: "'Inter', system-ui, -apple-system, sans-serif", color: "#201515" }}>
+    <div dir={rtl ? "rtl" : "ltr"} style={{ width: "100%", minHeight: "100vh", background: "#ffffff", display: "flex", flexDirection: "column", fontFamily: "'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif", color: "#0e1a21" }}>
 
       <input
         ref={fileInputRef}
@@ -411,20 +411,20 @@ export default function HomeClient() {
       />
 
       {/* Header */}
-      <header className="opp-topbar" style={{ position: "sticky", top: 0, zIndex: 20, background: "#fffefb", borderBottom: "1px solid rgba(32,21,21,0.12)", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
+      <header className="opp-topbar" style={{ position: "sticky", top: 0, zIndex: 20, background: "#ffffff", borderBottom: "1px solid rgba(14,26,33,0.12)", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px" }}><LogoMark size={28} /><span>opportunity<span style={{ color: PRIMARY }}>.</span></span></div>
         <nav style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <UiLangSwitch />
-          <Link href={employer ? "/dashboard/employer" : "/employers/login"} className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.employers}</Link>
+          <Link href={employer ? "/dashboard/employer" : "/employers/login"} className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#26343d" }}>{T.nav.employers}</Link>
           {authed ? (
             <>
-              <Link href={employer ? "/dashboard/employer" : "/dashboard"} style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.dashboard}</Link>
-              {!employer && <Link href="/cv" className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.myCVs}</Link>}
+              <Link href={employer ? "/dashboard/employer" : "/dashboard"} style={{ fontSize: 16, textDecoration: "none", color: "#26343d" }}>{T.nav.dashboard}</Link>
+              {!employer && <Link href="/cv" className="opp-hide-mobile" style={{ fontSize: 16, textDecoration: "none", color: "#26343d" }}>{T.nav.myCVs}</Link>}
             </>
           ) : (
-            <Link href="/login" style={{ fontSize: 16, textDecoration: "none", color: "#605d52" }}>{T.nav.signIn}</Link>
+            <Link href="/login" style={{ fontSize: 16, textDecoration: "none", color: "#26343d" }}>{T.nav.signIn}</Link>
           )}
-          <button type="button" onClick={() => router.push(employer ? "/dashboard/employer" : "/employers/signup")} className="opp-post-btn" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 24px", borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>
+          <button type="button" onClick={() => router.push(employer ? "/dashboard/employer" : "/employers/signup")} className="opp-post-btn" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 24px", borderRadius: 12, border: "none", background: PRIMARY, color: "#ffffff", cursor: "pointer", fontFamily: "inherit" }}>
             {T.nav.postJob}
           </button>
         </nav>
@@ -433,51 +433,51 @@ export default function HomeClient() {
       {/* Header band: slogan + search | CV template carousel */}
       <div className="opp-band" style={{ width: "100%", maxWidth: 1280, margin: "0 auto", padding: "20px 24px 12px", display: "grid", gridTemplateColumns: "minmax(320px, 1fr) minmax(380px, 1.15fr)", gap: 24, alignItems: "center" }}>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", color: PRIMARY, marginBottom: 8 }}>{T.eyebrow}</div>
-          <h1 style={{ margin: "0 0 8px", fontSize: "clamp(28px, 4vw, 42px)", lineHeight: 1.05, fontWeight: 500 }}>{T.h1}</h1>
-          <p style={{ margin: 0, fontSize: 16, lineHeight: 1.5, color: "#605d52", maxWidth: 480 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: PRIMARY, marginBottom: 8 }}>{T.eyebrow}</div>
+          <h1 style={{ margin: "0 0 8px", fontSize: "clamp(28px, 4vw, 42px)", lineHeight: 1.05, fontWeight: 700, letterSpacing: "-0.02em" }}>{T.h1}</h1>
+          <p style={{ margin: 0, fontSize: 16, lineHeight: 1.5, color: "#26343d", maxWidth: 480 }}>
             {T.sub}
           </p>
           {!homeCV && (
             <button type="button" onClick={handleUploadClick} disabled={uploading}
-              style={{ marginTop: 16, display: "inline-flex", alignItems: "center", gap: 10, fontSize: 17, fontWeight: 700, padding: "14px 26px", borderRadius: 14, border: "none", background: PRIMARY, color: "#fff", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.75 : 1, boxShadow: "0 6px 18px rgba(255,79,0,0.28)" }}>
+              style={{ marginTop: 16, display: "inline-flex", alignItems: "center", gap: 10, fontSize: 17, fontWeight: 700, padding: "14px 26px", borderRadius: 14, border: "none", background: PRIMARY, color: "#fff", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.75 : 1, boxShadow: "0 6px 18px rgba(0,121,168,0.28)" }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 16V4M12 4l-5 5M12 4l5 5M4 20h16" /></svg>
               {uploading ? T.reading : T.uploadCV}
             </button>
           )}
-        <div className="opp-search" style={{ width: "100%", maxWidth: 560, marginTop: 20, display: "flex", flexWrap: "wrap", alignItems: "center", background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 6, gap: 4 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flex: "1 1 100%", padding: "8px 12px", borderBottom: "1px solid rgba(32,21,21,0.08)", marginBottom: 2 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-            <input type="text" dir="auto" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={T.searchPlaceholder} style={{ border: "none", outline: "none", fontSize: 16, fontFamily: "inherit", width: "100%", color: "#201515", background: "transparent" }} />
+        <div className="opp-search" style={{ width: "100%", maxWidth: 560, marginTop: 20, display: "flex", flexWrap: "wrap", alignItems: "center", background: "#f3f2ed", border: "1px solid rgba(14,26,33,0.12)", borderRadius: 12, padding: 6, gap: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flex: "1 1 100%", padding: "8px 12px", borderBottom: "1px solid rgba(14,26,33,0.08)", marginBottom: 2 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5f7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+            <input type="text" dir="auto" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={T.searchPlaceholder} style={{ border: "none", outline: "none", fontSize: 16, fontFamily: "inherit", width: "100%", color: "#0e1a21", background: "transparent" }} />
           </div>
-          <div className="opp-search-divider" style={{ display: "none", width: 1, height: 24, background: "rgba(32,21,21,0.12)" }} />
+          <div className="opp-search-divider" style={{ display: "none", width: 1, height: 24, background: "rgba(14,26,33,0.12)" }} />
           <label style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", flex: "0 0 auto", cursor: "pointer" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5f7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
             <select
               aria-label={T.countryLabel}
               value={country}
               onChange={(e) => switchCountry(e.target.value as CountryCode)}
-              style={{ border: "none", outline: "none", background: "transparent", fontSize: 16, fontFamily: "inherit", color: "#201515", cursor: "pointer", appearance: "auto" }}
+              style={{ border: "none", outline: "none", background: "transparent", fontSize: 16, fontFamily: "inherit", color: "#0e1a21", cursor: "pointer", appearance: "auto" }}
             >
               {COUNTRIES.map((c) => (
                 <option key={c.code} value={c.code}>{c.flag} {cName(c.code)}</option>
               ))}
             </select>
           </label>
-          <div className="opp-search-divider" style={{ width: 1, height: 24, background: "rgba(32,21,21,0.12)" }} />
+          <div className="opp-search-divider" style={{ width: 1, height: 24, background: "rgba(14,26,33,0.12)" }} />
           <label style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", flex: "0 0 auto", cursor: "pointer", minWidth: 0 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#939084" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6" /></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5f7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6" /></svg>
             <select
               aria-label={T.cityLabel}
               value={activeCity}
               onChange={(e) => setCity(e.target.value)}
-              style={{ border: "none", outline: "none", background: "transparent", fontSize: 16, fontFamily: "inherit", color: "#201515", cursor: "pointer", appearance: "auto", maxWidth: 150 }}
+              style={{ border: "none", outline: "none", background: "transparent", fontSize: 16, fontFamily: "inherit", color: "#0e1a21", cursor: "pointer", appearance: "auto", maxWidth: 150 }}
             >
               <option value="">{T.allCities}</option>
               {cityOptions.map((o) => <option key={o.key} value={o.key}>{o.label} ({o.n})</option>)}
             </select>
           </label>
-          <button type="button" className="opp-search-btn" style={{ flex: "1 1 auto", fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "10px 18px", borderRadius: 6, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" }}>
+          <button type="button" className="opp-search-btn" style={{ flex: "1 1 auto", fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "10px 18px", borderRadius: 6, border: "none", background: PRIMARY, color: "#ffffff", cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" }}>
             {T.search}
           </button>
         </div>
@@ -485,7 +485,7 @@ export default function HomeClient() {
         <div>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
             <div style={{ fontSize: 16, fontWeight: 600 }}>{T.pickTemplate}</div>
-            <div style={{ fontSize: 13, color: "#605d52" }}>{T.templatesMeta}</div>
+            <div style={{ fontSize: 13, color: "#26343d" }}>{T.templatesMeta}</div>
           </div>
         <TemplateCarousel
           compact
@@ -501,7 +501,7 @@ export default function HomeClient() {
       </div>
 
       {/* Decorative photo strip */}
-      <div className="opp-photo" aria-hidden="true" style={{ width: "calc(100% - 48px)", maxWidth: 1012, height: 220, margin: "4px auto 16px", borderRadius: 14, backgroundImage: "linear-gradient(90deg, rgba(32,21,21,.25), rgba(32,21,21,0) 40%), url(/employers-hero.jpg)", backgroundSize: "cover", backgroundPosition: "50% 40%", border: "1px solid rgba(32,21,21,0.12)" }} />
+      <div className="opp-photo" aria-hidden="true" style={{ width: "calc(100% - 48px)", maxWidth: 1012, height: 220, margin: "4px auto 16px", borderRadius: 14, backgroundImage: "linear-gradient(90deg, rgba(14,26,33,.25), rgba(14,26,33,0) 40%), url(/employers-hero.jpg)", backgroundSize: "cover", backgroundPosition: "50% 40%", border: "1px solid rgba(14,26,33,0.12)" }} />
 
       {/* Two-column workspace */}
       <div className="opp-workspace" style={{ width: "100%", maxWidth: 1060, margin: "0 auto", padding: "4px 24px 96px", display: "grid", gridTemplateColumns: "minmax(300px, 1fr) minmax(340px, 1.1fr)", gap: 20, justifyContent: "center", alignItems: "start" }}>
@@ -520,8 +520,8 @@ export default function HomeClient() {
                   onClick={() => switchCountry(c.code)}
                   style={{
                     flex: "0 0 auto", display: "flex", alignItems: "center", gap: 8, padding: "10px 16px", borderRadius: 999,
-                    border: active ? `1px solid ${PRIMARY}` : "1px solid rgba(32,21,21,0.12)",
-                    background: active ? PRIMARY : "#f8f4f0", color: active ? "#fffefb" : "#201515",
+                    border: active ? `1px solid ${PRIMARY}` : "1px solid rgba(14,26,33,0.12)",
+                    background: active ? PRIMARY : "#f3f2ed", color: active ? "#ffffff" : "#0e1a21",
                     fontSize: 14.4, fontWeight: 600, fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap",
                   }}
                 >
@@ -531,13 +531,13 @@ export default function HomeClient() {
             })}
           </div>
 
-          <div className="opp-feed-top" style={{ fontSize: 14, color: "#605d52", scrollMarginTop: 80 }}>
+          <div className="opp-feed-top" style={{ fontSize: 14, color: "#26343d", scrollMarginTop: 80 }}>
             {feedLoading ? T.loading : T.rolesIn(visibleJobs.length, cIn)} · {finePointer ? T.dragHint : T.tapHint}
             {usingPlaceholders && <span style={{ color: "#c5a15a" }}> {T.sample}</span>}
           </div>
 
           {!feedLoading && visibleJobs.length === 0 && (
-            <div style={{ background: "#f8f4f0", border: "1px dashed rgba(32,21,21,0.2)", borderRadius: 12, padding: 32, textAlign: "center", color: "#605d52", fontSize: 16 }}>
+            <div style={{ background: "#f3f2ed", border: "1px dashed rgba(14,26,33,0.2)", borderRadius: 12, padding: 32, textAlign: "center", color: "#26343d", fontSize: 16 }}>
               {q ? T.noMatch(query.trim(), cIn) : T.noRoles(cIn)}
             </div>
           )}
@@ -552,48 +552,48 @@ export default function HomeClient() {
                   e.dataTransfer.setData("text/plain", job.id);
                   e.dataTransfer.effectAllowed = "move";
                 }}
-                style={{ background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 24, cursor: finePointer ? "grab" : "default" }}
+                style={{ background: "#f3f2ed", border: "1px solid rgba(14,26,33,0.12)", borderRadius: 12, padding: 24, cursor: finePointer ? "grab" : "default" }}
               >
                 <div className="opp-card-head" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
                   <div className="opp-card-id" style={{ display: "flex", gap: 14, minWidth: 0 }}>
                     <CompanyLogo company={job.company} logoUrl={job.logo_url} />
                     <div style={{ minWidth: 0 }}>
                       <div dir="auto" style={{ fontSize: 24, lineHeight: "30px", fontWeight: 600, letterSpacing: "-0.6px", marginBottom: 4 }}>{job.title}</div>
-                      <div dir="auto" style={{ fontSize: 16, lineHeight: "24px", color: "#605d52" }}>{job.company} · {job.location} · {job.job_type}</div>
+                      <div dir="auto" style={{ fontSize: 16, lineHeight: "24px", color: "#26343d" }}>{job.company} · {job.location} · {job.job_type}</div>
                       {(() => { const pi = postedInfo(job.created_at, lang); return pi ? (
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#605d52", marginTop: 2 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#26343d", marginTop: 2 }}>
                           {pi.fresh && <span style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: 0.3, textTransform: "uppercase", color: "#fff", background: PRIMARY, padding: "2px 8px", borderRadius: 9999 }}>{T.newBadge}</span>}
                           <span title={job.created_at ? new Date(job.created_at).toLocaleDateString(lang) : undefined}>{T.posted} {pi.label}</span>
                         </div>) : null; })()}
                     </div>
                   </div>
-                  <div dir="ltr" style={{ fontSize: 14, fontWeight: 600, background: "#fffefb", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 9999, padding: "4px 12px", whiteSpace: "nowrap", unicodeBidi: "isolate" }}>{job.salary_range}</div>
+                  <div dir="ltr" style={{ fontSize: 14, fontWeight: 600, background: "#ffffff", border: "1px solid rgba(14,26,33,0.12)", borderRadius: 9999, padding: "4px 12px", whiteSpace: "nowrap", unicodeBidi: "isolate" }}>{job.salary_range}</div>
                 </div>
 
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 14 }}>
                   {job.tags.map((tag) => (
-                    <span key={tag} style={{ fontSize: 14, color: "#605d52", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 9999, padding: "3px 12px" }}>{tag}</span>
+                    <span key={tag} style={{ fontSize: 14, color: "#26343d", border: "1px solid rgba(14,26,33,0.12)", borderRadius: 9999, padding: "3px 12px" }}>{tag}</span>
                   ))}
                 </div>
 
                 {isExpanded && (
-                  <p style={{ fontSize: 16, lineHeight: "24px", color: "#36342e", margin: "14px 0 0", paddingTop: 14, borderTop: "1px solid rgba(32,21,21,0.12)" }}>{job.description}</p>
+                  <p style={{ fontSize: 16, lineHeight: "24px", color: "#26343d", margin: "14px 0 0", paddingTop: 14, borderTop: "1px solid rgba(14,26,33,0.12)" }}>{job.description}</p>
                 )}
 
-                <div className="opp-card-foot" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(32,21,21,0.12)" }}>
+                <div className="opp-card-foot" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(14,26,33,0.12)" }}>
                   <button type="button" onClick={() => { setExpandedId(isExpanded ? null : job.id); if (!isExpanded) setDetailsSeen((s) => new Set(s).add(job.id)); }} style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", background: "none", border: "none", padding: 0, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 2, fontFamily: "inherit" }}>
                     {isExpanded ? T.hideDetails : T.viewDetails}
                   </button>
                   <div className="opp-card-actions" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
                     {applyUrl(job) ? (
-                      <button type="button" onClick={() => handleApply(job)} className="opp-apply" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "9px 20px", borderRadius: 9999, border: "1.5px solid #201515", background: "#201515", color: "#fffefb", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
+                      <button type="button" onClick={() => handleApply(job)} className="opp-apply" style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "9px 20px", borderRadius: 9999, border: "1.5px solid #0e1a21", background: "#0e1a21", color: "#ffffff", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
                         {T.apply} ↗
                       </button>
                     ) : (
-                      <span title={T.applySample} style={{ fontSize: 14.4, fontWeight: 700, padding: "9px 20px", borderRadius: 9999, border: "1.5px solid rgba(32,21,21,0.2)", color: "#a39c8f", whiteSpace: "nowrap", cursor: "not-allowed" }}>{T.apply}</span>
+                      <span title={T.applySample} style={{ fontSize: 14.4, fontWeight: 700, padding: "9px 20px", borderRadius: 9999, border: "1.5px solid rgba(14,26,33,0.2)", color: "#a39c8f", whiteSpace: "nowrap", cursor: "not-allowed" }}>{T.apply}</span>
                     )}
-                    <button type="button" className="opp-drag-pill" onClick={() => void startTailor(job)} title={finePointer ? T.dragTitle : T.tapTitle} style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 14.4, fontWeight: 800, letterSpacing: "0.2px", padding: "9px 16px 9px 12px", minHeight: 40, borderRadius: 9999, border: "none", background: "linear-gradient(135deg, #ff4f00, #ff8a3d)", color: "#fffefb", whiteSpace: "nowrap", userSelect: "none", fontFamily: "inherit", WebkitTapHighlightColor: "transparent" }}>
-                      <svg className="opp-grip" width="14" height="16" viewBox="0 0 14 18" fill="#fffefb"><circle cx="4" cy="3" r="1.6" /><circle cx="10" cy="3" r="1.6" /><circle cx="4" cy="9" r="1.6" /><circle cx="10" cy="9" r="1.6" /><circle cx="4" cy="15" r="1.6" /><circle cx="10" cy="15" r="1.6" /></svg>
+                    <button type="button" className="opp-drag-pill" onClick={() => void startTailor(job)} title={finePointer ? T.dragTitle : T.tapTitle} style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 14.4, fontWeight: 800, letterSpacing: "0.2px", padding: "9px 16px 9px 12px", minHeight: 40, borderRadius: 9999, border: "none", background: "linear-gradient(135deg, #0079a8, #25a8e0)", color: "#ffffff", whiteSpace: "nowrap", userSelect: "none", fontFamily: "inherit", WebkitTapHighlightColor: "transparent" }}>
+                      <svg className="opp-grip" width="14" height="16" viewBox="0 0 14 18" fill="#ffffff"><circle cx="4" cy="3" r="1.6" /><circle cx="10" cy="3" r="1.6" /><circle cx="4" cy="9" r="1.6" /><circle cx="10" cy="9" r="1.6" /><circle cx="4" cy="15" r="1.6" /><circle cx="10" cy="15" r="1.6" /></svg>
                       {finePointer ? T.dragToCV : T.tapToCV}
                       <span className="opp-drag-arrow" aria-hidden>{T.arrow}</span>
                     </button>
@@ -609,17 +609,17 @@ export default function HomeClient() {
               if (n === 1 || n === pageCount || Math.abs(n - curPage) <= 1) nums.push(n);
               else if (nums[nums.length - 1] !== "…") nums.push("…");
             }
-            const btn = (active: boolean, disabled = false): React.CSSProperties => ({ minWidth: 40, height: 40, padding: "0 12px", borderRadius: 10, border: active ? "1.5px solid #201515" : "1px solid rgba(32,21,21,0.2)", background: active ? "#201515" : "#fffefb", color: active ? "#fffefb" : "#201515", fontWeight: 700, fontSize: 14.4, fontFamily: "inherit", cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.4 : 1 });
+            const btn = (active: boolean, disabled = false): React.CSSProperties => ({ minWidth: 40, height: 40, padding: "0 12px", borderRadius: 10, border: active ? "1.5px solid #0e1a21" : "1px solid rgba(14,26,33,0.2)", background: active ? "#0e1a21" : "#ffffff", color: active ? "#ffffff" : "#0e1a21", fontWeight: 700, fontSize: 14.4, fontFamily: "inherit", cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.4 : 1 });
             return (
               <nav aria-label={T.pageOf(curPage, pageCount)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginTop: 4 }}>
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center" }} dir="ltr">
                   <button type="button" disabled={curPage === 1} onClick={() => goPage(curPage - 1)} style={btn(false, curPage === 1)}>‹ {T.prev}</button>
                   {nums.map((n, i) => n === "…"
-                    ? <span key={`e${i}`} style={{ alignSelf: "center", color: "#939084" }}>…</span>
+                    ? <span key={`e${i}`} style={{ alignSelf: "center", color: "#5f7280" }}>…</span>
                     : <button key={n} type="button" aria-current={n === curPage ? "page" : undefined} onClick={() => goPage(n)} style={btn(n === curPage)}>{n}</button>)}
                   <button type="button" disabled={curPage === pageCount} onClick={() => goPage(curPage + 1)} style={btn(false, curPage === pageCount)}>{T.next} ›</button>
                 </div>
-                <div style={{ fontSize: 13, color: "#939084" }}>{T.pageOf(curPage, pageCount)}</div>
+                <div style={{ fontSize: 13, color: "#5f7280" }}>{T.pageOf(curPage, pageCount)}</div>
               </nav>
             );
           })()}
@@ -627,9 +627,9 @@ export default function HomeClient() {
 
         {/* Right: CV space */}
         <div className="opp-cv-panel" style={{ position: "sticky", top: 88 }}>
-          <div style={{ background: "#f8f4f0", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 24 }}>
+          <div style={{ background: "#f3f2ed", border: "1px solid rgba(14,26,33,0.12)", borderRadius: 12, padding: 24 }}>
             <div style={{ fontSize: 20, lineHeight: "25px", fontWeight: 700, letterSpacing: "-0.5px", marginBottom: 4 }}>{T.yourCV}</div>
-            <p style={{ fontSize: 16, lineHeight: "24px", color: "#605d52", margin: "0 0 24px" }}>{finePointer ? T.panelIntro : T.panelIntroTap}</p>
+            <p style={{ fontSize: 16, lineHeight: "24px", color: "#26343d", margin: "0 0 24px" }}>{finePointer ? T.panelIntro : T.panelIntroTap}</p>
 
             {uploadError && (
               <div style={{ marginBottom: 16, padding: "10px 14px", borderRadius: 10, background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", fontSize: 13.5, display: "flex", justifyContent: "space-between", gap: 10 }}>
@@ -643,26 +643,26 @@ export default function HomeClient() {
                 onDragOver={(e) => { e.preventDefault(); if (!dragOver) setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
-                style={{ border: `2px dashed ${pendingJob || dragOver ? PRIMARY : "rgba(32,21,21,0.24)"}`, borderRadius: 12, padding: "40px 24px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 14, transition: "border-color 120ms", background: "#fffefb" }}
+                style={{ border: `2px dashed ${pendingJob || dragOver ? PRIMARY : "rgba(14,26,33,0.24)"}`, borderRadius: 12, padding: "40px 24px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 14, transition: "border-color 120ms", background: "#ffffff" }}
               >
                 {pendingJob ? (
-                  <div style={{ background: "#fff1e8", border: "1px solid #ffcbab", borderRadius: 10, padding: "10px 14px", fontSize: 14.5, color: "#8a3a10", lineHeight: 1.45 }}>
+                  <div style={{ background: "#eaf6fc", border: "1px solid #9fd3ea", borderRadius: 10, padding: "10px 14px", fontSize: 14.5, color: "#075f91", lineHeight: 1.45 }}>
                     {fill(T.pending, pendingJob.title, pendingJob.company)}
                   </div>
                 ) : (
-                  <div style={{ fontSize: 16, color: "#605d52", maxWidth: 300 }}>{finePointer ? T.startWithCV : T.startWithCVTap}</div>
+                  <div style={{ fontSize: 16, color: "#26343d", maxWidth: 300 }}>{finePointer ? T.startWithCV : T.startWithCVTap}</div>
                 )}
-                <button type="button" onClick={handleUploadClick} disabled={uploading} style={{ width: "100%", maxWidth: 260, fontSize: 15, fontWeight: 700, padding: "13px 24px", borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.7 : 1 }}>
+                <button type="button" onClick={handleUploadClick} disabled={uploading} style={{ width: "100%", maxWidth: 260, fontSize: 15, fontWeight: 700, padding: "13px 24px", borderRadius: 12, border: "none", background: PRIMARY, color: "#ffffff", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.7 : 1 }}>
                   {uploading ? T.reading : T.uploadCV}
                 </button>
-                <div style={{ fontSize: 13, color: "#939084" }}>{T.pdfDocx}</div>
-                <button type="button" onClick={() => enterBuilder(EMPTY_CV)} style={{ width: "100%", maxWidth: 260, fontSize: 14.4, fontWeight: 700, padding: "12px 24px", borderRadius: 12, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: "pointer", fontFamily: "inherit" }}>
+                <div style={{ fontSize: 13, color: "#5f7280" }}>{T.pdfDocx}</div>
+                <button type="button" onClick={() => enterBuilder(EMPTY_CV)} style={{ width: "100%", maxWidth: 260, fontSize: 14.4, fontWeight: 700, padding: "12px 24px", borderRadius: 12, border: "1px solid rgba(14,26,33,0.24)", background: "#ffffff", color: "#0e1a21", cursor: "pointer", fontFamily: "inherit" }}>
                   {T.createScratch}
                 </button>
                 <a
                   href="#"
                   onClick={(e) => { e.preventDefault(); useSavedCV(); }}
-                  style={{ fontSize: 14, color: "#605d52", textDecoration: "underline", textUnderlineOffset: 2 }}
+                  style={{ fontSize: 14, color: "#26343d", textDecoration: "underline", textUnderlineOffset: 2 }}
                 >
                   {T.useSaved}
                 </a>
@@ -674,49 +674,49 @@ export default function HomeClient() {
                 onDragOver={(e) => { e.preventDefault(); if (!dragOver) setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
-                style={{ border: `2px dashed ${dragOver ? PRIMARY : "rgba(32,21,21,0.24)"}`, borderRadius: 12, padding: "32px 24px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 12, transition: "border-color 120ms", background: dragOver ? "#fff1e8" : "#fffefb" }}
+                style={{ border: `2px dashed ${dragOver ? PRIMARY : "rgba(14,26,33,0.24)"}`, borderRadius: 12, padding: "32px 24px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 12, transition: "border-color 120ms", background: dragOver ? "#eaf6fc" : "#ffffff" }}
               >
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#e8f7ee", color: "#166534", fontSize: 13.5, fontWeight: 700, borderRadius: 9999, padding: "4px 12px" }}>{T.cvReady}</div>
                 <div style={{ fontSize: 18, fontWeight: 700 }}>
                   {`${homeCV.profile.firstName} ${homeCV.profile.lastName}`.trim() || T.cvFallback}
                 </div>
-                {homeCV.profile.title && <div style={{ fontSize: 14.5, color: "#605d52", marginTop: -6 }}>{homeCV.profile.title}</div>}
+                {homeCV.profile.title && <div style={{ fontSize: 14.5, color: "#26343d", marginTop: -6 }}>{homeCV.profile.title}</div>}
                 <div style={{ fontSize: 16, color: PRIMARY, fontWeight: 700 }}>{dragOver ? T.dropIt : `${finePointer ? T.nowDrag : T.nowTap} ${T.arrow}`}</div>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
-                  <button type="button" onClick={() => enterBuilder(homeCV, templateId ?? undefined)} style={{ fontSize: 14.4, fontWeight: 700, padding: "10px 18px", borderRadius: 10, border: "none", background: "#201515", color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>{T.openBuilder}</button>
-                  <button type="button" onClick={handleUploadClick} disabled={uploading} style={{ fontSize: 14.4, fontWeight: 700, padding: "10px 18px", borderRadius: 10, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit" }}>{uploading ? T.readingShort : T.replaceCV}</button>
+                  <button type="button" onClick={() => enterBuilder(homeCV, templateId ?? undefined)} style={{ fontSize: 14.4, fontWeight: 700, padding: "10px 18px", borderRadius: 10, border: "none", background: "#0e1a21", color: "#ffffff", cursor: "pointer", fontFamily: "inherit" }}>{T.openBuilder}</button>
+                  <button type="button" onClick={handleUploadClick} disabled={uploading} style={{ fontSize: 14.4, fontWeight: 700, padding: "10px 18px", borderRadius: 10, border: "1px solid rgba(14,26,33,0.24)", background: "#ffffff", color: "#0e1a21", cursor: uploading ? "wait" : "pointer", fontFamily: "inherit" }}>{uploading ? T.readingShort : T.replaceCV}</button>
                 </div>
               </div>
             )}
 
             {tailoring && (
-              <div style={{ border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: "40px 24px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 14, background: "#fffefb" }}>
-                <div style={{ width: 32, height: 32, borderRadius: 9999, border: "3px solid rgba(32,21,21,0.12)", borderTopColor: PRIMARY, animation: "spin 0.8s linear infinite" }} />
-                <div style={{ fontSize: 16, color: "#36342e" }}>{fill(T.tailoring, cvJob?.title ?? "", cvJob?.company ?? "")}</div>
+              <div style={{ border: "1px solid rgba(14,26,33,0.12)", borderRadius: 12, padding: "40px 24px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 14, background: "#ffffff" }}>
+                <div style={{ width: 32, height: 32, borderRadius: 9999, border: "3px solid rgba(14,26,33,0.12)", borderTopColor: PRIMARY, animation: "spin 0.8s linear infinite" }} />
+                <div style={{ fontSize: 16, color: "#26343d" }}>{fill(T.tailoring, cvJob?.title ?? "", cvJob?.company ?? "")}</div>
               </div>
             )}
 
             {showResult && cvJob && tailoredCV && (
               <div>
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: PRIMARY, color: "#fffefb", fontSize: 14, fontWeight: 600, borderRadius: 9999, padding: "5px 14px", marginBottom: 16 }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fffefb" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: PRIMARY, color: "#ffffff", fontSize: 14, fontWeight: 600, borderRadius: 9999, padding: "5px 14px", marginBottom: 16 }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                   {T.tailoredFor.replace("{job}", cvJob.title)}
                 </div>
 
-                <div style={{ border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, padding: 20, background: "#fffefb" }}>
+                <div style={{ border: "1px solid rgba(14,26,33,0.12)", borderRadius: 12, padding: 20, background: "#ffffff" }}>
                   <div style={{ fontSize: 20, lineHeight: "25px", fontWeight: 700, letterSpacing: "-0.5px" }}>
                     {tailoredCV.profile.firstName || tailoredCV.profile.lastName
                       ? `${tailoredCV.profile.firstName} ${tailoredCV.profile.lastName}`.trim()
                       : T.nameFallback}
                   </div>
-                  <div style={{ fontSize: 16, lineHeight: "24px", color: "#605d52", marginBottom: 16 }}>{cvJob.title} · {cvJob.location}</div>
-                  <p style={{ fontSize: 16, lineHeight: "24px", color: "#36342e", margin: "0 0 16px" }}>
+                  <div style={{ fontSize: 16, lineHeight: "24px", color: "#26343d", marginBottom: 16 }}>{cvJob.title} · {cvJob.location}</div>
+                  <p style={{ fontSize: 16, lineHeight: "24px", color: "#26343d", margin: "0 0 16px" }}>
                     {tailoredCV.summary}
                   </p>
 
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "#605d52", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>{T.keyMatches}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#26343d", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>{T.keyMatches}</div>
                   {cvJob.tags.map((tag) => (
-                    <div key={tag} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 16, color: "#36342e", marginBottom: 6 }}>
+                    <div key={tag} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 16, color: "#26343d", marginBottom: 6 }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PRIMARY} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                       {tag}
                     </div>
@@ -727,11 +727,11 @@ export default function HomeClient() {
                   <button
                     type="button"
                     onClick={() => enterBuilder(tailoredCV, templateId ?? undefined)}
-                    style={{ flexGrow: 1, fontSize: 18, lineHeight: "27px", fontWeight: 600, padding: 12, borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}
+                    style={{ flexGrow: 1, fontSize: 18, lineHeight: "27px", fontWeight: 600, padding: 12, borderRadius: 12, border: "none", background: PRIMARY, color: "#ffffff", cursor: "pointer", fontFamily: "inherit" }}
                   >
                     {T.continueBuilder}
                   </button>
-                  <button type="button" onClick={() => { setCvJobId(null); setTailoring(false); setTailoredCV(null); setDragOver(false); }} style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 16px", borderRadius: 12, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: "pointer", fontFamily: "inherit" }}>
+                  <button type="button" onClick={() => { setCvJobId(null); setTailoring(false); setTailoredCV(null); setDragOver(false); }} style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: "12px 16px", borderRadius: 12, border: "1px solid rgba(14,26,33,0.24)", background: "#ffffff", color: "#0e1a21", cursor: "pointer", fontFamily: "inherit" }}>
                     {T.startOver}
                   </button>
                 </div>
@@ -744,15 +744,15 @@ export default function HomeClient() {
 
       {confirmJob && (
         <div role="dialog" aria-modal="true" onClick={(e) => { if (e.target === e.currentTarget) setConfirmJob(null); }}
-          style={{ position: "fixed", inset: 0, zIndex: 9000, background: "rgba(32,21,21,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div style={{ background: "#fffefb", borderRadius: 16, maxWidth: 440, width: "100%", padding: 28, boxShadow: "0 24px 64px rgba(0,0,0,.25)" }}>
+          style={{ position: "fixed", inset: 0, zIndex: 9000, background: "rgba(14,26,33,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div style={{ background: "#ffffff", borderRadius: 16, maxWidth: 440, width: "100%", padding: 28, boxShadow: "0 24px 64px rgba(0,0,0,.25)" }}>
             <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.4px", marginBottom: 8 }}>{T.confirmTitle}</div>
-            <p style={{ fontSize: 15.5, lineHeight: 1.5, color: "#36342e", margin: "0 0 22px" }}>{fill(T.confirmMsg, confirmJob.title, confirmJob.company)}</p>
+            <p style={{ fontSize: 15.5, lineHeight: 1.5, color: "#26343d", margin: "0 0 22px" }}>{fill(T.confirmMsg, confirmJob.title, confirmJob.company)}</p>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
               <button type="button" onClick={() => { const j = confirmJob; setConfirmJob(null); void startTailor(j); }}
-                style={{ flex: "1 1 180px", fontSize: 14.4, fontWeight: 700, padding: "12px 18px", borderRadius: 12, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}>{T.tailorFirst}</button>
+                style={{ flex: "1 1 180px", fontSize: 14.4, fontWeight: 700, padding: "12px 18px", borderRadius: 12, border: "none", background: PRIMARY, color: "#ffffff", cursor: "pointer", fontFamily: "inherit" }}>{T.tailorFirst}</button>
               <button type="button" onClick={() => { const url = applyUrl(confirmJob); setConfirmJob(null); if (url) window.open(url, "_blank", "noopener,noreferrer"); }}
-                style={{ flex: "1 1 140px", fontSize: 14.4, fontWeight: 700, padding: "12px 18px", borderRadius: 12, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: "#201515", cursor: "pointer", fontFamily: "inherit" }}>{T.applyAnyway} ↗</button>
+                style={{ flex: "1 1 140px", fontSize: 14.4, fontWeight: 700, padding: "12px 18px", borderRadius: 12, border: "1px solid rgba(14,26,33,0.24)", background: "#ffffff", color: "#0e1a21", cursor: "pointer", fontFamily: "inherit" }}>{T.applyAnyway} ↗</button>
             </div>
           </div>
         </div>
@@ -765,13 +765,13 @@ export default function HomeClient() {
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes oppNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(5px); } }
-        @keyframes oppGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,79,0,0.45); } 60% { box-shadow: 0 0 0 9px rgba(255,79,0,0); } }
+        @keyframes oppGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(0,121,168,0.45); } 60% { box-shadow: 0 0 0 9px rgba(0,121,168,0); } }
         .opp-drag-pill { cursor: pointer; animation: oppGlow 2.2s ease-out infinite; transition: transform 140ms; }
         .opp-drag-pill:hover { transform: translateY(-2px) rotate(-2deg) scale(1.04); }
         .opp-drag-arrow { display: inline-block; animation: oppNudge 1.1s ease-in-out infinite; }
         @media (pointer: coarse) { .opp-grip { display: none; } .opp-drag-pill { animation: none; } .opp-apply { min-height: 40px; } }
         .opp-apply { transition: transform 140ms, background 140ms; }
-        .opp-apply:hover { transform: translateY(-1px); background: #ff4f00 !important; border-color: #ff4f00 !important; }
+        .opp-apply:hover { transform: translateY(-1px); background: #0079a8 !important; border-color: #0079a8 !important; }
 
         .opp-band > div, .opp-workspace > div { min-width: 0; }
         .opp-cv-panel { scroll-margin-top: 84px; }
@@ -830,7 +830,7 @@ function revealCvPanel() {
   requestAnimationFrame(() => document.querySelector(".opp-cv-panel")?.scrollIntoView({ behavior: "smooth", block: "start" }));
 }
 
-const LOGO_COLORS = ["#ff4f00", "#0f766e", "#7c3aed", "#be123c", "#1d4ed8", "#b45309", "#047857", "#9333ea"];
+const LOGO_COLORS = ["#0079a8", "#0f766e", "#7c3aed", "#be123c", "#1d4ed8", "#b45309", "#047857", "#9333ea"];
 
 /** Company logo from the listing, falling back to a branded initials tile. */
 function CompanyLogo({ company, logoUrl }: { company: string; logoUrl?: string | null }) {
@@ -846,7 +846,7 @@ function CompanyLogo({ company, logoUrl }: { company: string; logoUrl?: string |
         height={size}
         referrerPolicy="no-referrer"
         onError={() => setFailed(true)}
-        style={{ width: size, height: size, borderRadius: 10, objectFit: "contain", background: "#fffefb", border: "1px solid rgba(32,21,21,0.12)", flexShrink: 0 }}
+        style={{ width: size, height: size, borderRadius: 10, objectFit: "contain", background: "#ffffff", border: "1px solid rgba(14,26,33,0.12)", flexShrink: 0 }}
       />
     );
   }
@@ -855,7 +855,7 @@ function CompanyLogo({ company, logoUrl }: { company: string; logoUrl?: string |
   const color = LOGO_COLORS[h % LOGO_COLORS.length];
   const initials = company.replace(/[^A-Za-zÀ-ÿ0-9 ]/g, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "?";
   return (
-    <div aria-hidden style={{ width: size, height: size, borderRadius: 10, background: color, color: "#fffefb", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 800, letterSpacing: 0.5, flexShrink: 0 }}>
+    <div aria-hidden style={{ width: size, height: size, borderRadius: 10, background: color, color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 800, letterSpacing: 0.5, flexShrink: 0 }}>
       {initials}
     </div>
   );

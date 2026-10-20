@@ -180,14 +180,14 @@ export function CVForm() {
           <DragOverlay dropAnimation={null}>
             {activeId ? (
               <div style={{
-                border:       "1.5px solid #7c3aed",
+                border:       "1.5px solid #0079a8",
                 borderRadius: 12,
                 padding:      "12px 14px",
                 background:   "#fff",
                 boxShadow:    "0 8px 24px rgba(124,58,237,.2)",
                 fontSize:     13,
                 fontWeight:   600,
-                color:        "#7c3aed",
+                color:        "#0079a8",
                 cursor:       "grabbing",
                 userSelect:   "none",
               }}>

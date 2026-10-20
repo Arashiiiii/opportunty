@@ -50,7 +50,7 @@ export function ExperienceSection() {
                 type="checkbox"
                 checked={!!e.current}
                 onChange={(ev) => updatePath(`${base}.current`, ev.target.checked)}
-                style={{ accentColor: "#7c3aed" }}
+                style={{ accentColor: "#0079a8" }}
               />
               Poste actuel
             </label>
@@ -62,7 +62,7 @@ export function ExperienceSection() {
                 {/* Numbered dot */}
                 <div style={{
                   width: 16, height: 16, marginTop: 6,
-                  borderRadius: "50%", background: "#7c3aed", color: "#fff",
+                  borderRadius: "50%", background: "#0079a8", color: "#fff",
                   fontSize: 9, fontWeight: 800,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   flexShrink: 0,
@@ -73,7 +73,7 @@ export function ExperienceSection() {
                   value={b}
                   rows={2}
                   onChange={(ev) => updatePath(`${base}.bullets.${bi}`, ev.target.value)}
-                  onFocus={(ev) => { ev.target.style.borderColor = "#7c3aed"; ev.target.style.boxShadow = "0 0 0 3px rgba(124,58,237,.12)"; }}
+                  onFocus={(ev) => { ev.target.style.borderColor = "#0079a8"; ev.target.style.boxShadow = "0 0 0 3px rgba(124,58,237,.12)"; }}
                   onBlur={(ev)  => { ev.target.style.borderColor = "#e5e7eb"; ev.target.style.boxShadow = "none"; }}
                   style={{
                     flex: 1, padding: "6px 9px", border: "1px solid #e5e7eb",

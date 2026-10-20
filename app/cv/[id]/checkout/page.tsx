@@ -78,21 +78,21 @@ function Checkout() {
   };
 
   const busy = phase === "loading" || phase === "redirecting" || phase === "confirming";
-  const btn: React.CSSProperties = { width: "100%", padding: "13px 0", borderRadius: 12, border: "none", background: "#ff4f00", color: "#fffefb", fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", textDecoration: "none", display: "block", boxSizing: "border-box" };
+  const btn: React.CSSProperties = { width: "100%", padding: "13px 0", borderRadius: 12, border: "none", background: "#0079a8", color: "#ffffff", fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer", textDecoration: "none", display: "block", boxSizing: "border-box" };
 
   return (
-    <div dir={rtl ? "rtl" : "ltr"} style={{ minHeight: "100vh", background: "#fffefb", fontFamily: "'Inter', system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+    <div dir={rtl ? "rtl" : "ltr"} style={{ minHeight: "100vh", background: "#ffffff", fontFamily: "'Inter Variable', 'Inter', system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div style={{ maxWidth: 440, width: "100%", textAlign: "center" }}>
         <div style={{ marginBottom: 16 }}><UiLangSwitch compact /></div>
         <LogoMark size={44} style={{ margin: "0 auto 20px" }} />
 
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: "#201515", margin: "0 0 8px" }}>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: "#0e1a21", margin: "0 0 8px" }}>
           {phase === "paid" ? u.paidTitle : u.payTitle}
         </h1>
-        <p style={{ fontSize: 14.5, color: "#605d52", lineHeight: 1.6, margin: "0 0 4px" }}>
+        <p style={{ fontSize: 14.5, color: "#26343d", lineHeight: 1.6, margin: "0 0 4px" }}>
           {cv ? u.cvSavedNamed.split(/(\{name\})/).map((part, i) => part === "{name}" ? <b key={i}>{cv.name}</b> : part.replace("{template}", cv.template)) : u.cvSaved}
         </p>
-        <p style={{ fontSize: 14.5, color: "#605d52", lineHeight: 1.6, margin: "0 0 24px" }}>
+        <p style={{ fontSize: 14.5, color: "#26343d", lineHeight: 1.6, margin: "0 0 24px" }}>
           {phase === "paid" ? u.paidNote : u.payNote}
         </p>
 
@@ -106,7 +106,7 @@ function Checkout() {
               {phase === "redirecting" ? u.payRedirecting : phase === "confirming" ? u.payConfirming : u.payBtn}
             </button>
           )}
-          <Link href={`/cv/${id}`} style={{ width: "100%", padding: "12px 0", borderRadius: 12, border: "1px solid rgba(32,21,21,0.24)", color: "#201515", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>
+          <Link href={`/cv/${id}`} style={{ width: "100%", padding: "12px 0", borderRadius: 12, border: "1px solid rgba(14,26,33,0.24)", color: "#0e1a21", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>
             {u.backToEditor}
           </Link>
         </div>

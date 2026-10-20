@@ -42,27 +42,27 @@ export default async function JobPage({ params }: { params: Promise<{ slug: stri
   return (
     <PageShell>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, "\\u003c") }} />
-      <nav aria-label="Breadcrumb" style={{ fontSize: 13, color: "#939084", marginBottom: 14 }}>
+      <nav aria-label="Breadcrumb" style={{ fontSize: 13, color: "#5f7280", marginBottom: 14 }}>
         <Link href="/jobs" style={{ color: "inherit" }}>Jobs</Link> › <Link href={`/jobs/country/${country.slug}`} style={{ color: "inherit" }}>{country.name}</Link>
       </nav>
       <h1 dir="auto" style={{ fontSize: "clamp(26px, 4vw, 34px)", fontWeight: 600, margin: "0 0 8px", lineHeight: 1.2 }}>{job.title}</h1>
-      <p dir="auto" style={{ fontSize: 17, color: "#36342e", margin: "0 0 6px", fontWeight: 600 }}>{job.company}</p>
-      <p dir="auto" style={{ fontSize: 14.5, color: "#605d52", margin: "0 0 18px" }}>
+      <p dir="auto" style={{ fontSize: 17, color: "#26343d", margin: "0 0 6px", fontWeight: 600 }}>{job.company}</p>
+      <p dir="auto" style={{ fontSize: 14.5, color: "#26343d", margin: "0 0 18px" }}>
         {[job.location, country.name, job.job_type, job.salary_range].filter(Boolean).join(" · ")}
       </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, margin: "0 0 28px" }}>
-        {apply && <a href={apply} target="_blank" rel="nofollow noopener noreferrer" style={{ ...btn, background: "#ff4f00", color: "#fffefb" }}>Apply on the employer site ↗</a>}
-        <Link href="/cv/builder" style={{ ...btn, border: "1px solid rgba(32,21,21,0.24)", color: "#201515" }}>Tailor my CV with AI</Link>
+        {apply && <a href={apply} target="_blank" rel="nofollow noopener noreferrer" style={{ ...btn, background: "#0079a8", color: "#ffffff" }}>Apply on the employer site ↗</a>}
+        <Link href="/cv/builder" style={{ ...btn, border: "1px solid rgba(14,26,33,0.24)", color: "#0e1a21" }}>Tailor my CV with AI</Link>
       </div>
       {(job.tags ?? []).length > 0 && (
         <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", display: "flex", flexWrap: "wrap", gap: 8 }}>
-          {job.tags!.map((t) => <li key={t} style={{ fontSize: 13, padding: "4px 11px", borderRadius: 9999, border: "1px solid rgba(32,21,21,0.15)", color: "#36342e" }}>{t}</li>)}
+          {job.tags!.map((t) => <li key={t} style={{ fontSize: 13, padding: "4px 11px", borderRadius: 9999, border: "1px solid rgba(14,26,33,0.15)", color: "#26343d" }}>{t}</li>)}
         </ul>
       )}
       <section aria-label="Job description" dir="auto">
-        {paras.map((p, i) => <p key={i} style={{ fontSize: 15, lineHeight: 1.7, color: "#36342e", margin: "0 0 12px", whiteSpace: "pre-line" }}>{p}</p>)}
+        {paras.map((p, i) => <p key={i} style={{ fontSize: 15, lineHeight: 1.7, color: "#26343d", margin: "0 0 12px", whiteSpace: "pre-line" }}>{p}</p>)}
       </section>
-      <p style={{ fontSize: 12.5, color: "#939084", marginTop: 28 }}>Job listing collected from a public source. opportunity.com is not the employer — always verify the offer before sharing personal information.</p>
+      <p style={{ fontSize: 12.5, color: "#5f7280", marginTop: 28 }}>Job listing collected from a public source. opportunity.com is not the employer — always verify the offer before sharing personal information.</p>
     </PageShell>
   );
 }

@@ -44,7 +44,7 @@ export default function CVBuilderPage() {
       init(id, {
         cv:      parsed.success ? parsed.data : undefined,
         template: (data.template as TemplateId) ?? "corso",
-        accent:   data.accent   ?? "#ff4f00",
+        accent:   data.accent   ?? "#0079a8",
         lang:     (data.lang    as Lang)       ?? "fr",
         order:    (data.section_order as SectionId[]) ?? DEFAULT_SECTION_ORDER,
         enabled:  (data.sections_enabled as Record<SectionId, boolean>) ?? { ...DEFAULT_SECTIONS_ENABLED },
@@ -63,7 +63,7 @@ export default function CVBuilderPage() {
 
   if (!ready) return (
     <div style={{ display: "flex", height: "100vh", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ width: 32, height: 32, borderRadius: "50%", border: "2px solid #f2ded1", borderTopColor: "#ff4f00", animation: "spin .7s linear infinite" }} />
+      <div style={{ width: 32, height: 32, borderRadius: "50%", border: "2px solid #cfe5f1", borderTopColor: "#0079a8", animation: "spin .7s linear infinite" }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );

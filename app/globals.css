@@ -6,6 +6,8 @@ html, body {
   padding: 0;
   margin: 0;
 }
+body { font-family: "Inter Variable", Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #0e1a21; -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font-family: inherit; }
 
 * {
   box-sizing: border-box;

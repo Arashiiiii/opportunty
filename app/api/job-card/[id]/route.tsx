@@ -6,8 +6,8 @@ import { idFromSlug } from "@/lib/jobs-seo";
 // Used by the social-video workflow: GET /api/job-card/<job id>[?w=960] → PNG with a transparent background.
 export const revalidate = 3600;
 
-const INK = "#201515";
-const ORANGE = "#ff4f00";
+const INK = "#0e1a21";
+const ORANGE = "#0079a8";
 
 /** Logos come from third-party hosts; satori only draws png/jpeg, so anything else falls back to the initial. */
 async function logoDataUri(url: string | null): Promise<string | null> {
@@ -42,9 +42,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", background: "#f7f3ee", borderRadius: px(36), border: `${px(3)}px solid #e5ded3`, padding: px(40), fontFamily: "sans-serif" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", background: "#f3f2ed", borderRadius: px(36), border: `${px(3)}px solid #e3e8eb`, padding: px(40), fontFamily: "sans-serif" }}>
         <div style={{ display: "flex", gap: px(28), alignItems: "flex-start" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: px(132), height: px(132), flexShrink: 0, background: "#fff", border: `${px(2)}px solid #e5ded3`, borderRadius: px(26), overflow: "hidden" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: px(132), height: px(132), flexShrink: 0, background: "#fff", border: `${px(2)}px solid #e3e8eb`, borderRadius: px(26), overflow: "hidden" }}>
             {logo
               // eslint-disable-next-line @next/next/no-img-element
               ? <img src={logo} alt="" width={px(104)} height={px(104)} style={{ objectFit: "contain" }} />
@@ -52,7 +52,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: px(12), flex: 1, minWidth: 0 }}>
             <div style={{ display: "flex", fontSize: px(46), fontWeight: 800, lineHeight: 1.12, color: INK }}>{title}</div>
-            <div style={{ display: "flex", fontSize: px(28), color: "#6b6259" }}>{sub}</div>
+            <div style={{ display: "flex", fontSize: px(28), color: "#4a5b66" }}>{sub}</div>
             {job.salary_range && (
               <div style={{ display: "flex", marginTop: px(4) }}>
                 <div style={{ display: "flex", fontSize: px(26), fontWeight: 700, color: "#166534", background: "#dcfce7", borderRadius: 9999, padding: `${px(6)}px ${px(18)}px` }}>{job.salary_range}</div>
@@ -63,7 +63,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", fontSize: px(28), fontWeight: 700, color: INK, textDecoration: "underline" }}>View details</div>
           <div style={{ display: "flex", gap: px(16) }}>
-            <div style={{ display: "flex", fontSize: px(28), fontWeight: 800, color: "#fffefb", background: INK, borderRadius: 9999, padding: `${px(16)}px ${px(38)}px` }}>Apply ↗</div>
+            <div style={{ display: "flex", fontSize: px(28), fontWeight: 800, color: "#ffffff", background: INK, borderRadius: 9999, padding: `${px(16)}px ${px(38)}px` }}>Apply ↗</div>
             <div style={{ display: "flex", fontSize: px(28), fontWeight: 800, color: "#fff", background: ORANGE, borderRadius: 9999, padding: `${px(16)}px ${px(38)}px` }}>Drag to CV →</div>
           </div>
         </div>

@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Find jobs and build a tailored CV with AI.",
     start_url: "/",
     display: "standalone",
-    background_color: "#fffefb",
-    theme_color: "#ff4f00",
+    background_color: "#ffffff",
+    theme_color: "#0079a8",
     icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }, { src: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
   };
 }

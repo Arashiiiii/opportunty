@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "@fontsource-variable/inter";
 import { Analytics } from "@vercel/analytics/next";
 import { SITE_URL, SITE_NAME, SITE_TITLE, SITE_DESCRIPTION } from "@/lib/site";
 
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
   formatDetection: { telephone: false },
 };
 
-export const viewport: Viewport = { themeColor: "#ff4f00", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#0079a8", width: "device-width", initialScale: 1 };
 
 const jsonLd = {
   "@context": "https://schema.org",

@@ -9,11 +9,11 @@ import { LogoMark } from "./LogoMark";
 export function PageShell({ children }: { children: React.ReactNode }) {
   const [lang] = useUiLang();
   return (
-    <div dir={lang === "ar" ? "rtl" : "ltr"} style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#fffefb", color: "#201515", fontFamily: "'Inter', system-ui, sans-serif" }}>
-      <header style={{ height: 64, borderBottom: "1px solid rgba(32,21,21,0.12)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
+    <div dir={lang === "ar" ? "rtl" : "ltr"} style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#ffffff", color: "#0e1a21", fontFamily: "'Inter Variable', 'Inter', system-ui, sans-serif" }}>
+      <header style={{ height: 64, borderBottom: "1px solid rgba(14,26,33,0.12)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
           <LogoMark size={26} />
-          <span style={{ fontSize: 15, fontWeight: 700, color: "#201515" }}>opportunity<span style={{ color: "#ff4f00" }}>.com</span></span>
+          <span style={{ fontSize: 15, fontWeight: 700, color: "#0e1a21" }}>opportunity<span style={{ color: "#0079a8" }}>.com</span></span>
         </Link>
         <UiLangSwitch compact />
       </header>

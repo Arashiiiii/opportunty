@@ -71,9 +71,9 @@ export function CodeAuth({ next = "/dashboard", hideDivider = false }: { next?: 
     if (err) setError(err.message);
   };
 
-  const input: React.CSSProperties = { padding: "12px 14px", borderRadius: 10, border: "1px solid #e5ded3", fontSize: 16, fontFamily: "inherit", width: "100%", boxSizing: "border-box" };
-  const primary: React.CSSProperties = { padding: "12px 14px", borderRadius: 10, border: "none", background: "#ff4f00", color: "#fff", fontSize: 15, fontWeight: 700, cursor: busy ? "wait" : "pointer", fontFamily: "inherit", opacity: busy ? 0.7 : 1, width: "100%" };
-  const link: React.CSSProperties = { background: "none", border: "none", padding: 0, color: "#ff4f00", fontWeight: 600, fontSize: 13, cursor: "pointer", fontFamily: "inherit" };
+  const input: React.CSSProperties = { padding: "12px 14px", borderRadius: 10, border: "1px solid #e3e8eb", fontSize: 16, fontFamily: "inherit", width: "100%", boxSizing: "border-box" };
+  const primary: React.CSSProperties = { padding: "12px 14px", borderRadius: 10, border: "none", background: "#0079a8", color: "#fff", fontSize: 15, fontWeight: 700, cursor: busy ? "wait" : "pointer", fontFamily: "inherit", opacity: busy ? 0.7 : 1, width: "100%" };
+  const link: React.CSSProperties = { background: "none", border: "none", padding: 0, color: "#0079a8", fontWeight: 600, fontSize: 13, cursor: "pointer", fontFamily: "inherit" };
 
   return (
     <div dir={rtl ? "rtl" : "ltr"} style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 6 }}>
@@ -81,10 +81,10 @@ export function CodeAuth({ next = "/dashboard", hideDivider = false }: { next?: 
 
       {showGoogle && (
         <>
-          <button type="button" onClick={google} style={{ ...primary, background: "#fff", color: "#201515", border: "1px solid #d9d2c6", opacity: 1, cursor: "pointer" }}>
+          <button type="button" onClick={google} style={{ ...primary, background: "#fff", color: "#0e1a21", border: "1px solid #d9d2c6", opacity: 1, cursor: "pointer" }}>
             <span aria-hidden style={{ marginInlineEnd: 8, fontWeight: 800, color: "#4285f4" }}>G</span>{t.google}
           </button>
-          <div style={{ textAlign: "center", fontSize: 12.5, color: "#939084" }}>{t.orG}</div>
+          <div style={{ textAlign: "center", fontSize: 12.5, color: "#5f7280" }}>{t.orG}</div>
         </>
       )}
 
@@ -92,11 +92,11 @@ export function CodeAuth({ next = "/dashboard", hideDivider = false }: { next?: 
         <form onSubmit={send} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <input type="email" required autoComplete="email" inputMode="email" placeholder={t.email} value={email} onChange={(e) => setEmail(e.target.value)} style={input} />
           <button type="submit" disabled={busy} style={primary}>{busy ? t.ctaBusy : t.cta}</button>
-          <div style={{ fontSize: 12.5, color: "#939084" }}>{t.hint}</div>
+          <div style={{ fontSize: 12.5, color: "#5f7280" }}>{t.hint}</div>
         </form>
       ) : (
         <form onSubmit={verify} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <div style={{ fontSize: 13.5, color: "#36342e" }}>{t.sent} <b dir="ltr">{email}</b></div>
+          <div style={{ fontSize: 13.5, color: "#26343d" }}>{t.sent} <b dir="ltr">{email}</b></div>
           <input type="text" required autoFocus inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6,8}" maxLength={8} placeholder={t.code} value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
             style={{ ...input, textAlign: "center", letterSpacing: "0.3em", fontSize: 22, fontWeight: 700 }} dir="ltr" />
@@ -108,7 +108,7 @@ export function CodeAuth({ next = "/dashboard", hideDivider = false }: { next?: 
         </form>
       )}
 
-      {!hideDivider && <div style={{ textAlign: "center", fontSize: 12.5, color: "#939084", margin: "6px 0 0" }}>— {t.or} —</div>}
+      {!hideDivider && <div style={{ textAlign: "center", fontSize: 12.5, color: "#5f7280", margin: "6px 0 0" }}>— {t.or} —</div>}
     </div>
   );
 }

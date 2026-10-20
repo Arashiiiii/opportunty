@@ -127,7 +127,7 @@ export function PhotoCropModal({ imageSrc, onCrop, onClose }: Props) {
             step={0.02}
             value={zoom}
             onChange={(e) => setZoom(Number(e.target.value))}
-            style={{ flex: 1, accentColor: "#7c3aed", cursor: "pointer" }}
+            style={{ flex: 1, accentColor: "#0079a8", cursor: "pointer" }}
           />
           <span style={{ fontSize: 11, color: "#94a3b8", minWidth: 28, textAlign: "right" }}>
             {zoom.toFixed(1)}×
@@ -160,7 +160,7 @@ export function PhotoCropModal({ imageSrc, onCrop, onClose }: Props) {
               padding:      "8px 18px",
               borderRadius: 8,
               border:       "none",
-              background:   "#7c3aed",
+              background:   "#0079a8",
               color:        "#fff",
               fontSize:     13,
               fontWeight:   600,

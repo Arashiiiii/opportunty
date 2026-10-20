@@ -100,7 +100,7 @@ export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
     [cv, order, enabled],
   );
 
-  const dotColor = saving ? "#f97316" : lastSaved ? "#16a34a" : "#94a3b8";
+  const dotColor = saving ? "#25a8e0" : lastSaved ? "#16a34a" : "#94a3b8";
 
   const ghost = {
     padding:      "7px 12px",
@@ -150,7 +150,7 @@ export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
         <LogoMark size={26} style={{ flexShrink: 0 }} />
         {!isMobile && (
           <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
-            opportunity<span style={{ color: "#ff4f00" }}>.com</span>
+            opportunity<span style={{ color: "#0079a8" }}>.com</span>
           </span>
         )}
       </Link>
@@ -185,7 +185,7 @@ export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
             borderRadius: 4,
             padding:      "2px 4px",
           }}
-          onFocus={(e) => { (e.currentTarget as HTMLElement).style.background = "#fff4ec"; }}
+          onFocus={(e) => { (e.currentTarget as HTMLElement).style.background = "#eaf6fc"; }}
           onBlurCapture={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
         >
           {cvName}
@@ -236,7 +236,7 @@ export function Topbar({ cvId, mobileTab, onToggleMobile }: Props) {
             <button
               type="button"
               onClick={() => setScoreOpen((o) => !o)}
-              style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 10px 4px 8px", border: "1px solid #e5e7eb", borderRadius: 100, background: scoreOpen ? "#fff4ec" : "#fff", cursor: "pointer", fontFamily: "inherit", fontSize: 11.5, fontWeight: 500, color: "#475569" }}
+              style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 10px 4px 8px", border: "1px solid #e5e7eb", borderRadius: 100, background: scoreOpen ? "#eaf6fc" : "#fff", cursor: "pointer", fontFamily: "inherit", fontSize: 11.5, fontWeight: 500, color: "#475569" }}
             >
               <ScoreRing value={score} />
               <span><b style={{ color: "#0f172a" }}>{score}%</b> {u.complete}</span>

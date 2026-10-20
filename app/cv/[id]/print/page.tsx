@@ -52,11 +52,11 @@ export default function PrintPage() {
   }, [state, d]);
 
   if (state !== "ready" || !d) {
-    return <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter', system-ui, sans-serif", fontSize: 14, color: state === "error" ? "#dc2626" : "#605d52" }}>{state === "locked" ? u.printLocked : state === "error" ? u.deleteFailed : "…"}</div>;
+    return <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter Variable', 'Inter', system-ui, sans-serif", fontSize: 14, color: state === "error" ? "#dc2626" : "#605d52" }}>{state === "locked" ? u.printLocked : state === "error" ? u.deleteFailed : "…"}</div>;
   }
 
   return (
-    <div dir={rtl ? "rtl" : "ltr"} style={{ background: "#f3f4f6", minHeight: "100vh", fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div dir={rtl ? "rtl" : "ltr"} style={{ background: "#f3f4f6", minHeight: "100vh", fontFamily: "'Inter Variable', 'Inter', system-ui, sans-serif" }}>
       <style>{`
         @page { size: A4; margin: 0; }
         @media print {

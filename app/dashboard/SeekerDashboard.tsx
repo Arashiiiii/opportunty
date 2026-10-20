@@ -100,13 +100,13 @@ export default function SeekerDashboard() {
       <Card title={d.myCVs} sub={d.cvsSub} style={{ marginBottom: 16 }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: 12 }}>
           {data.cvs.slice(0, 5).map((c) => (
-            <Link key={c.id} href={`/cv/${c.id}`} style={{ display: "flex", flexDirection: "column", gap: 4, padding: "14px 16px", border: "1px solid rgba(32,21,21,0.12)", borderRadius: 12, background: "#fffefb", textDecoration: "none", color: "inherit", minWidth: 0 }}>
+            <Link key={c.id} href={`/cv/${c.id}`} style={{ display: "flex", flexDirection: "column", gap: 4, padding: "14px 16px", border: "1px solid rgba(14,26,33,0.12)", borderRadius: 12, background: "#ffffff", textDecoration: "none", color: "inherit", minWidth: 0 }}>
               <span dir="auto" style={{ fontWeight: 700, fontSize: 15, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name || "CV"}</span>
               <span style={{ fontSize: 12.5, color: MUTED }}>{d.updated} {fmtDate(c.updated_at)}</span>
               <span style={{ fontSize: 13, color: PRIMARY, fontWeight: 700, marginTop: 4 }}>{d.openCV} →</span>
             </Link>
           ))}
-          <Link href="/cv/builder" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 84, border: "2px dashed rgba(32,21,21,0.24)", borderRadius: 12, textDecoration: "none", color: PRIMARY, fontWeight: 700, fontSize: 14.5 }}>+ {d.newCV}</Link>
+          <Link href="/cv/builder" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 84, border: "2px dashed rgba(14,26,33,0.24)", borderRadius: 12, textDecoration: "none", color: PRIMARY, fontWeight: 700, fontSize: 14.5 }}>+ {d.newCV}</Link>
         </div>
         {data.cvs.length > 5 && <div style={{ marginTop: 12 }}><Link href="/cv" style={{ fontSize: 13.5, color: MUTED, fontWeight: 600 }}>{d.manageAll} →</Link></div>}
       </Card>
@@ -146,7 +146,7 @@ export default function SeekerDashboard() {
           </Grid>
 
           <Card title={d.matches} sub={d.matchesSub} style={{ marginBottom: 16 }}>
-            {matches.length === 0 ? <div style={{ color: "#939084", fontSize: 14 }}>{d.noMatches}</div> : (
+            {matches.length === 0 ? <div style={{ color: "#5f7280", fontSize: 14 }}>{d.noMatches}</div> : (
               <Table
                 head={[d.jobCol, d.companyCol, d.matchCol, d.skillsCol]}
                 empty={d.noMatches}

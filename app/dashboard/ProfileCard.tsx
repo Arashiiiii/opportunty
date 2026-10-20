@@ -87,7 +87,7 @@ export function ProfileCard({ userId, email, profile, latestCV, onSaved }: {
     finally { setBusy(null); }
   };
 
-  const input: React.CSSProperties = { width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1px solid ${LINE}`, fontSize: 14, fontFamily: "inherit", background: "#fffefb" };
+  const input: React.CSSProperties = { width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1px solid ${LINE}`, fontSize: 14, fontFamily: "inherit", background: "#ffffff" };
   const label: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 4, fontSize: 12.5, fontWeight: 600, color: MUTED };
   const url = (s: string) => (/^https?:\/\//i.test(s) ? s : `https://${s}`);
 
@@ -97,7 +97,7 @@ export function ProfileCard({ userId, email, profile, latestCV, onSaved }: {
       <div className="dash-prof" style={{ display: "flex", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
           <button type="button" onClick={() => fileRef.current?.click()} disabled={busy === "photo"} aria-label={avatar ? d.changePhoto : d.addPhoto}
-            style={{ position: "relative", width: 96, height: 96, borderRadius: "50%", border: `2px solid ${LINE}`, padding: 0, overflow: "hidden", cursor: busy ? "wait" : "pointer", background: PRIMARY, color: "#fffefb", fontSize: 32, fontWeight: 800, fontFamily: "inherit" }}>
+            style={{ position: "relative", width: 96, height: 96, borderRadius: "50%", border: `2px solid ${LINE}`, padding: 0, overflow: "hidden", cursor: busy ? "wait" : "pointer", background: PRIMARY, color: "#ffffff", fontSize: 32, fontWeight: 800, fontFamily: "inherit" }}>
             {avatar
               // eslint-disable-next-line @next/next/no-img-element
               ? <img src={avatar} alt="" width={96} height={96} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: busy === "photo" ? 0.5 : 1 }} />
@@ -118,30 +118,30 @@ export function ProfileCard({ userId, email, profile, latestCV, onSaved }: {
                   {shown.headline && <div dir="auto" style={{ fontSize: 15, color: MUTED, marginTop: 2 }}>{shown.headline}</div>}
                 </div>
                 <button type="button" onClick={() => { setF(base); setEditing(true); setMsg(null); }}
-                  style={{ fontSize: 14, fontWeight: 700, padding: "9px 16px", borderRadius: 10, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: INK, cursor: "pointer", fontFamily: "inherit" }}>{d.editProfile}</button>
+                  style={{ fontSize: 14, fontWeight: 700, padding: "9px 16px", borderRadius: 10, border: "1px solid rgba(14,26,33,0.24)", background: "#ffffff", color: INK, cursor: "pointer", fontFamily: "inherit" }}>{d.editProfile}</button>
               </div>
 
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 18px", marginTop: 14, fontSize: 14, color: "#36342e" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 18px", marginTop: 14, fontSize: 14, color: "#26343d" }}>
                 <span dir="ltr">✉ {email}</span>
                 {shown.phone && <span dir="ltr">☎ {shown.phone}</span>}
                 {shown.city && <span dir="auto">⌖ {shown.city}</span>}
                 {shown.linkedin && <a href={url(shown.linkedin)} target="_blank" rel="noopener noreferrer" style={{ color: PRIMARY, textDecoration: "none", fontWeight: 600 }}>in LinkedIn ↗</a>}
                 {shown.website && <a href={url(shown.website)} target="_blank" rel="noopener noreferrer" style={{ color: PRIMARY, textDecoration: "none", fontWeight: 600 }}>{d.websiteL} ↗</a>}
               </div>
-              {(empty || prefill) && <p style={{ margin: "12px 0 0", fontSize: 13, color: "#8a3a10", background: "#fff1e8", border: "1px solid #ffcbab", borderRadius: 10, padding: "8px 12px" }}>{prefill && !empty ? d.fromCV : d.completeProfile}</p>}
+              {(empty || prefill) && <p style={{ margin: "12px 0 0", fontSize: 13, color: "#075f91", background: "#eaf6fc", border: "1px solid #9fd3ea", borderRadius: 10, padding: "8px 12px" }}>{prefill && !empty ? d.fromCV : d.completeProfile}</p>}
             </>
           ) : (
             <form onSubmit={save} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 12 }}>
               <label style={label}>{d.fullName}<input dir="auto" value={f.full_name ?? ""} onChange={(e) => setF({ ...f, full_name: e.target.value })} maxLength={80} style={input} /></label>
               <label style={label}>{d.headline}<input dir="auto" value={f.headline ?? ""} onChange={(e) => setF({ ...f, headline: e.target.value })} maxLength={80} style={input} /></label>
-              <label style={label}>{d.emailL}<input dir="ltr" value={email} disabled style={{ ...input, background: "#f3eee8", color: MUTED }} /></label>
+              <label style={label}>{d.emailL}<input dir="ltr" value={email} disabled style={{ ...input, background: "#f3f2ed", color: MUTED }} /></label>
               <label style={label}>{d.phoneL}<input dir="ltr" type="tel" value={f.phone ?? ""} onChange={(e) => setF({ ...f, phone: e.target.value })} maxLength={30} style={input} /></label>
               <label style={label}>{d.cityL}<input dir="auto" value={f.city ?? ""} onChange={(e) => setF({ ...f, city: e.target.value })} maxLength={60} style={input} /></label>
               <label style={label}>{d.linkedinL}<input dir="ltr" value={f.linkedin ?? ""} onChange={(e) => setF({ ...f, linkedin: e.target.value })} placeholder="linkedin.com/in/…" maxLength={200} style={input} /></label>
               <label style={label}>{d.websiteL}<input dir="ltr" value={f.website ?? ""} onChange={(e) => setF({ ...f, website: e.target.value })} maxLength={200} style={input} /></label>
               <div style={{ gridColumn: "1 / -1", display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <button type="submit" disabled={busy === "save"} style={{ fontSize: 14, fontWeight: 700, padding: "10px 20px", borderRadius: 10, border: "none", background: PRIMARY, color: "#fffefb", cursor: busy ? "wait" : "pointer", fontFamily: "inherit" }}>{busy === "save" ? d.savingP : d.saveProfile}</button>
-                <button type="button" onClick={() => { setEditing(false); setMsg(null); }} style={{ fontSize: 14, fontWeight: 700, padding: "10px 20px", borderRadius: 10, border: "1px solid rgba(32,21,21,0.24)", background: "#fffefb", color: INK, cursor: "pointer", fontFamily: "inherit" }}>{d.cancel}</button>
+                <button type="submit" disabled={busy === "save"} style={{ fontSize: 14, fontWeight: 700, padding: "10px 20px", borderRadius: 10, border: "none", background: PRIMARY, color: "#ffffff", cursor: busy ? "wait" : "pointer", fontFamily: "inherit" }}>{busy === "save" ? d.savingP : d.saveProfile}</button>
+                <button type="button" onClick={() => { setEditing(false); setMsg(null); }} style={{ fontSize: 14, fontWeight: 700, padding: "10px 20px", borderRadius: 10, border: "1px solid rgba(14,26,33,0.24)", background: "#ffffff", color: INK, cursor: "pointer", fontFamily: "inherit" }}>{d.cancel}</button>
               </div>
             </form>
           )}

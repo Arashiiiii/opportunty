@@ -78,7 +78,7 @@ export default function CVListPage() {
       const p = json.cv as { profile?: { firstName?: string; lastName?: string } };
       const name = `${p.profile?.firstName ?? ""} ${p.profile?.lastName ?? ""}`.trim() || file.name.replace(/\.[^.]+$/, "");
       const { data, error } = await supabase.from("cvs").insert({
-        user_id: userId, name, data: json.cv, template: "corso", accent: "#ff4f00", lang: "fr",
+        user_id: userId, name, data: json.cv, template: "corso", accent: "#0079a8", lang: "fr",
         section_order: DEFAULT_SECTION_ORDER, sections_enabled: DEFAULT_SECTIONS_ENABLED,
       }).select("id").single();
       if (error || !data) { setCreateError(error?.message ?? u.uploadFailed); return; }
@@ -104,7 +104,7 @@ export default function CVListPage() {
         name:             "Mon CV",
         data:             EMPTY_CV,
         template,
-        accent:           "#ff4f00",
+        accent:           "#0079a8",
         lang:             "fr",
         section_order:    DEFAULT_SECTION_ORDER,
         sections_enabled: DEFAULT_SECTIONS_ENABLED,
@@ -120,23 +120,23 @@ export default function CVListPage() {
   }, [userId, router]);
 
   if (loading) return (
-    <div style={{ display: "flex", height: "100vh", alignItems: "center", justifyContent: "center", background: "#fffefb" }}>
-      <div style={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid #f2ded1", borderTopColor: "#ff4f00", animation: "spin .7s linear infinite" }} />
+    <div style={{ display: "flex", height: "100vh", alignItems: "center", justifyContent: "center", background: "#ffffff" }}>
+      <div style={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid #cfe5f1", borderTopColor: "#0079a8", animation: "spin .7s linear infinite" }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 
   if (!userId) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#fffefb", fontFamily: "'Inter', system-ui, sans-serif", padding: 24, textAlign: "center" }}>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#ffffff", fontFamily: "'Inter Variable', 'Inter', system-ui, sans-serif", padding: 24, textAlign: "center" }}>
         <div style={{ maxWidth: 420 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#201515", margin: "0 0 10px" }}>{u.needSignInBuild}</h1>
-          <p style={{ fontSize: 14, color: "#6b6259", margin: "0 0 24px" }}>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#0e1a21", margin: "0 0 10px" }}>{u.needSignInBuild}</h1>
+          <p style={{ fontSize: 14, color: "#4a5b66", margin: "0 0 24px" }}>
             {u.needSignInNote}
           </p>
           <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-            <Link href="/login" style={{ padding: "10px 20px", borderRadius: 10, border: "1px solid #e5ded3", color: "#201515", textDecoration: "none", fontSize: 13, fontWeight: 600 }}>{u.signIn}</Link>
-            <Link href="/signup" style={{ padding: "10px 20px", borderRadius: 10, border: "none", background: "#ff4f00", color: "#fff", textDecoration: "none", fontSize: 13, fontWeight: 700 }}>{u.createAccount}</Link>
+            <Link href="/login" style={{ padding: "10px 20px", borderRadius: 10, border: "1px solid #e3e8eb", color: "#0e1a21", textDecoration: "none", fontSize: 13, fontWeight: 600 }}>{u.signIn}</Link>
+            <Link href="/signup" style={{ padding: "10px 20px", borderRadius: 10, border: "none", background: "#0079a8", color: "#fff", textDecoration: "none", fontSize: 13, fontWeight: 700 }}>{u.createAccount}</Link>
           </div>
         </div>
       </div>
@@ -144,14 +144,14 @@ export default function CVListPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#fafbfc", fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#fafbfc", fontFamily: "'Inter Variable', 'Inter', system-ui, sans-serif" }}>
 
       <div style={{ background: "#fff", borderBottom: "1px solid #e5e7eb", padding: "0 28px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <Link href="/" aria-label="opportunity.com" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
             <LogoMark size={26} />
             <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
-              opportunity<span style={{ color: "#ff4f00" }}>.com</span>
+              opportunity<span style={{ color: "#0079a8" }}>.com</span>
             </span>
           </Link>
           <span style={{ color: "#cbd5e1", margin: "0 6px", fontWeight: 300, fontSize: 18 }}>/</span>
@@ -186,7 +186,7 @@ export default function CVListPage() {
             <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading} style={{ padding: "9px 16px", borderRadius: 8, border: "1px solid #e5e7eb", background: "#fff", color: "#0f172a", fontSize: 13, fontWeight: 600, cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.7 : 1 }}>
               {uploading ? u.uploadingCV : u.uploadCV}
             </button>
-            <button type="button" onClick={() => setShowModal(true)} style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: "#ff4f00", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+            <button type="button" onClick={() => setShowModal(true)} style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: "#0079a8", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
               {u.newCV}
             </button>
           </div>
@@ -197,7 +197,7 @@ export default function CVListPage() {
             <div style={{ fontSize: 48, marginBottom: 16, lineHeight: 1 }}>📄</div>
             <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", margin: "0 0 8px" }}>{u.noCVs}</h2>
             <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 24px" }}>{u.noCVsNote}</p>
-            <button type="button" onClick={() => setShowModal(true)} style={{ padding: "10px 26px", borderRadius: 8, border: "none", background: "#ff4f00", color: "#fff", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+            <button type="button" onClick={() => setShowModal(true)} style={{ padding: "10px 26px", borderRadius: 8, border: "none", background: "#0079a8", color: "#fff", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
               {u.createFirst}
             </button>
             <div style={{ marginTop: 12 }}>
@@ -294,7 +294,7 @@ function CVCard({ cv, onDelete }: { cv: CVRow; onDelete: () => void }) {
       <div
         onMouseEnter={() => setHov(true)}
         onMouseLeave={() => setHov(false)}
-        style={{ background: "#fff", border: `1px solid ${hov ? "#ffcbab" : "#e5e7eb"}`, borderRadius: 12, padding: 16, cursor: "pointer", boxShadow: hov ? "0 4px 16px rgba(255,79,0,.10)" : "none" }}
+        style={{ background: "#fff", border: `1px solid ${hov ? "#9fd3ea" : "#e5e7eb"}`, borderRadius: 12, padding: 16, cursor: "pointer", boxShadow: hov ? "0 4px 16px rgba(0,121,168,.10)" : "none" }}
       >
         <div style={{ height: 90, borderRadius: 6, background: "#f8fafc", border: "1px solid #e5e7eb", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8", fontSize: 11 }}>
           {cv.template}
@@ -307,7 +307,7 @@ function CVCard({ cv, onDelete }: { cv: CVRow; onDelete: () => void }) {
           <span>{date}</span>
         </div>
         <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: hov ? "#ff4f00" : "#94a3b8" }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: hov ? "#0079a8" : "#94a3b8" }}>
             Ouvrir l&apos;éditeur →
           </span>
           <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(); }} style={{ fontSize: 12, fontWeight: 600, color: "#b91c1c", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", padding: 0 }}>

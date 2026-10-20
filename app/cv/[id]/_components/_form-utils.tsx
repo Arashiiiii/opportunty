@@ -57,7 +57,7 @@ const BASE_INPUT: CSSProperties = {
 type FocusEl = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
 const onFocus = (e: React.FocusEvent<FocusEl>) => {
-  e.currentTarget.style.borderColor = "#7c3aed";
+  e.currentTarget.style.borderColor = "#0079a8";
   e.currentTarget.style.boxShadow   = "0 0 0 3px rgba(124,58,237,.12)";
 };
 const onBlur = (e: React.FocusEvent<FocusEl>) => {
@@ -138,9 +138,9 @@ export function AddBtn({ label, onClick }: { label: string; onClick: () => void 
         width:        "100%",
         padding:      "9px",
         borderRadius: 8,
-        border:       "1px dashed #c4b5fd",
-        background:   "#f5f3ff",
-        color:        "#7c3aed",
+        border:       "1px dashed #9fd3ea",
+        background:   "#eaf6fc",
+        color:        "#0079a8",
         fontSize:     12,
         fontWeight:   600,
         cursor:       "pointer",
@@ -179,8 +179,8 @@ export function AIBtn({
         padding:     label ? "5px 10px" : "4px 8px",
         borderRadius: 6,
         border:      "1px solid #ddd6fe",
-        background:  loading ? "#ede9fe" : "#f5f3ff",
-        color:       "#6d28d9",
+        background:  loading ? "#ede9fe" : "#eaf6fc",
+        color:       "#075f91",
         fontSize:    label ? 11 : 10.5,
         fontWeight:  600,
         cursor:      loading ? "wait" : "pointer",

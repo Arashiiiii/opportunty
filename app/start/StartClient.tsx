@@ -12,7 +12,7 @@ import { markHandoff } from "../cv/_lib/handoff";
 import type { CVData } from "../cv/_lib/schema";
 import type { Lang } from "../i18n";
 
-const PRIMARY = "#ff4f00";
+const PRIMARY = "#0079a8";
 
 const T: Record<Lang, { h1: string; sub: string; cta: string; busy: string; steps: string[]; no: string; fmt: string; jobs: string; err: string }> = {
   en: { h1: "Upload your CV. Get it tailored to a job.", sub: "Our AI rewrites your CV for the job you want — in about a minute.", cta: "Upload my CV", busy: "Reading your CV…", steps: ["Upload your PDF or Word CV", "Pick a template and edit", "Download it, ready to send"], no: "No CV yet? Start from scratch", fmt: "PDF or Word · free to edit", jobs: "Browse jobs instead", err: "We couldn't read this file. Try another PDF or Word file." },
@@ -52,7 +52,7 @@ export default function StartClient() {
   }
 
   return (
-    <main dir={rtl ? "rtl" : "ltr"} style={{ minHeight: "100dvh", background: "#fffefb", color: "#201515", display: "flex", flexDirection: "column", fontFamily: "inherit" }}>
+    <main dir={rtl ? "rtl" : "ltr"} style={{ minHeight: "100dvh", background: "#ffffff", color: "#0e1a21", display: "flex", flexDirection: "column", fontFamily: "inherit" }}>
       <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px" }}>
           <LogoMark size={28} /><span>opportunity<span style={{ color: PRIMARY }}>.</span></span>
@@ -62,29 +62,29 @@ export default function StartClient() {
 
       <div style={{ flex: 1, width: "100%", maxWidth: 480, margin: "0 auto", padding: "24px 20px 40px", display: "flex", flexDirection: "column", gap: 22 }}>
         <h1 style={{ fontSize: 34, lineHeight: 1.12, letterSpacing: rtl ? 0 : "-1px", margin: 0, fontWeight: 800 }}>{t.h1}</h1>
-        <p style={{ fontSize: 17, lineHeight: 1.5, color: "#605d52", margin: 0 }}>{t.sub}</p>
+        <p style={{ fontSize: 17, lineHeight: 1.5, color: "#26343d", margin: 0 }}>{t.sub}</p>
 
         <input ref={input} type="file" onChange={onFile} style={{ display: "none" }}
           accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
         <button type="button" onClick={() => input.current?.click()} disabled={busy}
-          style={{ width: "100%", padding: "18px 20px", fontSize: 19, fontWeight: 700, fontFamily: "inherit", color: "#fff", background: PRIMARY, border: "none", borderRadius: 14, cursor: busy ? "default" : "pointer", opacity: busy ? 0.75 : 1, boxShadow: "0 6px 18px rgba(255,79,0,0.28)" }}>
+          style={{ width: "100%", padding: "18px 20px", fontSize: 19, fontWeight: 700, fontFamily: "inherit", color: "#fff", background: PRIMARY, border: "none", borderRadius: 14, cursor: busy ? "default" : "pointer", opacity: busy ? 0.75 : 1, boxShadow: "0 6px 18px rgba(0,121,168,0.28)" }}>
           {busy ? t.busy : t.cta}
         </button>
-        <div style={{ fontSize: 13.5, color: "#605d52", textAlign: "center", marginTop: -12 }}>{t.fmt}</div>
+        <div style={{ fontSize: 13.5, color: "#26343d", textAlign: "center", marginTop: -12 }}>{t.fmt}</div>
         {error && <div role="alert" style={{ fontSize: 14.5, color: "#b3261e", background: "#fdeceb", padding: "10px 12px", borderRadius: 10 }}>{error}</div>}
 
         <ol style={{ listStyle: "none", padding: 0, margin: "8px 0 0", display: "flex", flexDirection: "column", gap: 12 }}>
           {t.steps.map((s, i) => (
             <li key={i} style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 16 }}>
-              <span style={{ flex: "0 0 auto", width: 28, height: 28, borderRadius: "50%", background: "#201515", color: "#fffefb", fontWeight: 700, fontSize: 14, display: "grid", placeItems: "center" }}>{i + 1}</span>
+              <span style={{ flex: "0 0 auto", width: 28, height: 28, borderRadius: "50%", background: "#0e1a21", color: "#ffffff", fontWeight: 700, fontSize: 14, display: "grid", placeItems: "center" }}>{i + 1}</span>
               <span>{s}</span>
             </li>
           ))}
         </ol>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center", marginTop: 8, fontSize: 15 }}>
-          <Link href="/cv/builder" style={{ color: "#201515", fontWeight: 600 }}>{t.no}</Link>
-          <Link href="/" style={{ color: "#605d52" }}>{t.jobs}</Link>
+          <Link href="/cv/builder" style={{ color: "#0e1a21", fontWeight: 600 }}>{t.no}</Link>
+          <Link href="/" style={{ color: "#26343d" }}>{t.jobs}</Link>
         </div>
       </div>
     </main>

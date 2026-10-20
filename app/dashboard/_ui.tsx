@@ -8,10 +8,10 @@ import { useUiLang } from "@/app/_lib/useUiLang";
 import { DASH, type DashDict } from "./_dict";
 import { LogoMark } from "../_components/LogoMark";
 
-export const PRIMARY = "#ff4f00";
-export const INK = "#201515";
-export const MUTED = "#605d52";
-export const LINE = "rgba(32,21,21,0.12)";
+export const PRIMARY = "#0079a8";
+export const INK = "#0e1a21";
+export const MUTED = "#26343d";
+export const LINE = "rgba(14,26,33,0.12)";
 
 export function useDash() {
   const [lang] = useUiLang();
@@ -22,8 +22,8 @@ export function Shell({ active, title, sub, children }: { active: "seeker" | "em
   const { d, rtl } = useDash();
   const router = useRouter();
   return (
-    <div dir={rtl ? "rtl" : "ltr"} style={{ minHeight: "100vh", background: "#fffefb", color: INK, fontFamily: "'Inter', system-ui, sans-serif" }}>
-      <header className="dash-head" style={{ position: "sticky", top: 0, zIndex: 10, background: "#fffefb", borderBottom: `1px solid ${LINE}`, height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", gap: 12 }}>
+    <div dir={rtl ? "rtl" : "ltr"} style={{ minHeight: "100vh", background: "#ffffff", color: INK, fontFamily: "'Inter Variable', 'Inter', system-ui, sans-serif" }}>
+      <header className="dash-head" style={{ position: "sticky", top: 0, zIndex: 10, background: "#ffffff", borderBottom: `1px solid ${LINE}`, height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", gap: 12 }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px", color: INK, textDecoration: "none" }}><LogoMark size={28} /><span>opportunity<span style={{ color: PRIMARY }}>.</span></span></Link>
         <nav style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <UiLangSwitch compact />
@@ -49,7 +49,7 @@ export function Kpis({ items }: { items: { label: string; value: string; note: s
         <div key={k.label} style={{ border: `1px solid ${LINE}`, borderRadius: 12, padding: "16px 18px", background: "#fff" }}>
           <div style={{ fontSize: 13, color: MUTED, fontWeight: 600 }}>{k.label}</div>
           <div style={{ fontSize: 34, fontWeight: 500, letterSpacing: "-0.5px", margin: "4px 0 2px", color: k.color ?? INK, fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
-          <div style={{ fontSize: 12.5, color: "#939084" }}>{k.note}</div>
+          <div style={{ fontSize: 12.5, color: "#5f7280" }}>{k.note}</div>
         </div>
       ))}
     </div>
@@ -60,7 +60,7 @@ export function Card({ title, sub, children, style }: { title: string; sub?: str
   return (
     <section style={{ border: `1px solid ${LINE}`, borderRadius: 12, padding: 20, background: "#fff", minWidth: 0, ...style }}>
       <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>{title}</h2>
-      {sub && <p style={{ margin: "2px 0 14px", fontSize: 13, color: "#939084" }}>{sub}</p>}
+      {sub && <p style={{ margin: "2px 0 14px", fontSize: 13, color: "#5f7280" }}>{sub}</p>}
       {!sub && <div style={{ height: 14 }} />}
       {children}
     </section>
@@ -73,14 +73,14 @@ export function Grid({ children }: { children: ReactNode }) {
 
 /** Horizontal bars: label · bar · value. */
 export function BarList({ rows, empty }: { rows: { label: string; value: number; hint?: string }[]; empty: string }) {
-  if (!rows.length) return <div style={{ color: "#939084", fontSize: 14 }}>{empty}</div>;
+  if (!rows.length) return <div style={{ color: "#5f7280", fontSize: 14 }}>{empty}</div>;
   const max = Math.max(...rows.map((r) => r.value), 1);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
       {rows.map((r) => (
         <div key={r.label} style={{ display: "grid", gridTemplateColumns: "minmax(80px, 38%) 1fr auto", alignItems: "center", gap: 10, fontSize: 14 }}>
           <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={r.label} dir="auto">{r.label}</span>
-          <span style={{ height: 10, borderRadius: 5, background: "#f3eee8", overflow: "hidden", display: "block" }}>
+          <span style={{ height: 10, borderRadius: 5, background: "#f3f2ed", overflow: "hidden", display: "block" }}>
             <span style={{ display: "block", height: "100%", width: `${(r.value / max) * 100}%`, background: PRIMARY, borderRadius: 5 }} />
           </span>
           <span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 600, minWidth: 28, textAlign: "end" }}>{r.hint ?? r.value}</span>
@@ -93,16 +93,16 @@ export function BarList({ rows, empty }: { rows: { label: string; value: number;
 /** Vertical columns with a few x labels. */
 export function Columns({ values, labels, empty }: { values: number[]; labels: string[]; empty?: string }) {
   const max = Math.max(...values, 1);
-  if (empty && values.every((v) => v === 0)) return <div style={{ color: "#939084", fontSize: 14 }}>{empty}</div>;
+  if (empty && values.every((v) => v === 0)) return <div style={{ color: "#5f7280", fontSize: 14 }}>{empty}</div>;
   const every = Math.max(1, Math.ceil(values.length / 6));
   return (
     <div dir="ltr">
       <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 150 }}>
         {values.map((v, i) => (
-          <div key={i} title={`${labels[i]}: ${v}`} style={{ flex: 1, minWidth: 2, height: `${Math.max(v ? 4 : 1, (v / max) * 100)}%`, background: v ? PRIMARY : "rgba(32,21,21,0.08)", borderRadius: "3px 3px 0 0" }} />
+          <div key={i} title={`${labels[i]}: ${v}`} style={{ flex: 1, minWidth: 2, height: `${Math.max(v ? 4 : 1, (v / max) * 100)}%`, background: v ? PRIMARY : "rgba(14,26,33,0.08)", borderRadius: "3px 3px 0 0" }} />
         ))}
       </div>
-      <div style={{ display: "flex", gap: 3, marginTop: 6, fontSize: 11, color: "#939084" }}>
+      <div style={{ display: "flex", gap: 3, marginTop: 6, fontSize: 11, color: "#5f7280" }}>
         {labels.map((l, i) => <div key={i} style={{ flex: 1, minWidth: 2, overflow: "visible", whiteSpace: "nowrap", textAlign: "start" }}>{i % every === 0 ? l : ""}</div>)}
       </div>
     </div>
@@ -110,9 +110,9 @@ export function Columns({ values, labels, empty }: { values: number[]; labels: s
 }
 
 export function Table({ head, rows, empty }: { head: string[]; rows: ReactNode[][]; empty: string }) {
-  if (!rows.length) return <div style={{ color: "#939084", fontSize: 14 }}>{empty}</div>;
-  const th: React.CSSProperties = { textAlign: "start", fontSize: 12, fontWeight: 600, color: "#939084", padding: "6px 10px", whiteSpace: "nowrap", borderBottom: `1px solid ${LINE}` };
-  const td: React.CSSProperties = { padding: "10px", fontSize: 14, borderBottom: "1px solid rgba(32,21,21,0.06)", verticalAlign: "middle" };
+  if (!rows.length) return <div style={{ color: "#5f7280", fontSize: 14 }}>{empty}</div>;
+  const th: React.CSSProperties = { textAlign: "start", fontSize: 12, fontWeight: 600, color: "#5f7280", padding: "6px 10px", whiteSpace: "nowrap", borderBottom: `1px solid ${LINE}` };
+  const td: React.CSSProperties = { padding: "10px", fontSize: 14, borderBottom: "1px solid rgba(14,26,33,0.06)", verticalAlign: "middle" };
   return (
     <div style={{ overflowX: "auto" }}>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -129,7 +129,7 @@ export function Pill({ children, color = PRIMARY }: { children: ReactNode; color
 
 export function LinkBtn({ href, children, primary }: { href: string; children: ReactNode; primary?: boolean }) {
   return (
-    <Link href={href} style={{ display: "inline-block", fontSize: 14, fontWeight: 700, padding: "10px 18px", borderRadius: 10, textDecoration: "none", background: primary ? PRIMARY : "#fffefb", color: primary ? "#fffefb" : INK, border: primary ? "none" : "1px solid rgba(32,21,21,0.24)" }}>{children}</Link>
+    <Link href={href} style={{ display: "inline-block", fontSize: 14, fontWeight: 700, padding: "10px 18px", borderRadius: 10, textDecoration: "none", background: primary ? PRIMARY : "#ffffff", color: primary ? "#ffffff" : INK, border: primary ? "none" : "1px solid rgba(14,26,33,0.24)" }}>{children}</Link>
   );
 }
 

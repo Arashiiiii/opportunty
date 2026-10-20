@@ -63,8 +63,8 @@ export function ProfileCard() {
                 width:          80,
                 height:         80,
                 borderRadius:   14,
-                background:     p.photo ? "transparent" : "#f5f3ff",
-                border:         "1px dashed #c4b5fd",
+                background:     p.photo ? "transparent" : "#eaf6fc",
+                border:         "1px dashed #9fd3ea",
                 cursor:         "pointer",
                 position:       "relative",
                 display:        "flex",
@@ -78,7 +78,7 @@ export function ProfileCard() {
                 <img src={p.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               ) : (
                 <div style={{ textAlign: "center", padding: 6 }}>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: "#7c3aed", lineHeight: 1 }}>{initials}</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "#0079a8", lineHeight: 1 }}>{initials}</div>
                   <div style={{ fontSize: 9.5, color: "#9ca3af", fontWeight: 600, marginTop: 4, lineHeight: 1.3 }}>
                     {u.photo}<br />
                     <span style={{ fontWeight: 400 }}>{u.click}</span>

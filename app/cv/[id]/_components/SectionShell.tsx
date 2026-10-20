@@ -175,7 +175,7 @@ export function SectionShell({
               borderRadius: 6,
               border:     `1px solid ${enabled ? "#ddd6fe" : "#e5e7eb"}`,
               background: "#fff",
-              color:      enabled ? "#7c3aed" : "#94a3b8",
+              color:      enabled ? "#0079a8" : "#94a3b8",
               cursor:     "pointer",
               display:    "flex",
               alignItems: "center",

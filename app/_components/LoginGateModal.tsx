@@ -25,22 +25,22 @@ export function LoginGateModal({ onClose, next, title, message }: Props) {
   return (
     <div
       dir={rtl ? "rtl" : "ltr"}
-      style={{ position: "fixed", inset: 0, zIndex: 9000, background: "rgba(32,21,21,0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+      style={{ position: "fixed", inset: 0, zIndex: 9000, background: "rgba(14,26,33,0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div style={{ background: "#fffefb", borderRadius: 16, padding: 32, width: "100%", maxWidth: 380, textAlign: "center", boxShadow: "0 24px 64px rgba(0,0,0,.2)" }}>
+      <div style={{ background: "#ffffff", borderRadius: 16, padding: 32, width: "100%", maxWidth: 380, textAlign: "center", boxShadow: "0 24px 64px rgba(0,0,0,.2)" }}>
         <LogoMark size={40} style={{ margin: "0 auto 16px" }} />
         <h2 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 8px" }}>{title ?? u.gateTitle}</h2>
-        <p style={{ fontSize: 14, color: "#605d52", margin: "0 0 24px", lineHeight: 1.5 }}>
+        <p style={{ fontSize: 14, color: "#26343d", margin: "0 0 24px", lineHeight: 1.5 }}>
           {message ?? u.gateMsg}
         </p>
         {/* Sign in / create account in place: no page change, no password, no mailed link to open. */}
         <div style={{ textAlign: rtl ? "right" : "left" }}><CodeAuth next={next && next.startsWith("/") && !next.startsWith("//") ? next : (typeof window !== "undefined" ? window.location.pathname : "/dashboard")} hideDivider /></div>
         <div style={{ display: "flex", gap: 14, justifyContent: "center", marginTop: 14, fontSize: 13 }}>
-          <Link href={`/login${nextParam}`} style={{ color: "#605d52", textDecoration: "underline" }}>{u.signIn}</Link>
-          <Link href={`/signup${nextParam}`} style={{ color: "#605d52", textDecoration: "underline" }}>{u.createAccount}</Link>
+          <Link href={`/login${nextParam}`} style={{ color: "#26343d", textDecoration: "underline" }}>{u.signIn}</Link>
+          <Link href={`/signup${nextParam}`} style={{ color: "#26343d", textDecoration: "underline" }}>{u.createAccount}</Link>
         </div>
-        <button type="button" onClick={onClose} style={{ marginTop: 16, background: "none", border: "none", color: "#939084", fontSize: 13, cursor: "pointer" }}>{u.notNow}</button>
+        <button type="button" onClick={onClose} style={{ marginTop: 16, background: "none", border: "none", color: "#5f7280", fontSize: 13, cursor: "pointer" }}>{u.notNow}</button>
       </div>
     </div>
   );

@@ -57,8 +57,8 @@ export function TemplateStrip() {
               width:        THUMB_W + 4,
               padding:      3,
               borderRadius: 10,
-              border:       selected ? "1.5px solid #7c3aed" : "1px solid #e5e7eb",
-              background:   selected ? "#f5f3ff" : "#fff",
+              border:       selected ? "1.5px solid #0079a8" : "1px solid #e5e7eb",
+              background:   selected ? "#eaf6fc" : "#fff",
               cursor:       "pointer",
               transition:   "all .15s",
               position:     "relative",
@@ -77,7 +77,7 @@ export function TemplateStrip() {
             </div>
 
             {/* Name */}
-            <div style={{ fontSize: 10, fontWeight: 600, color: selected ? "#7c3aed" : "#0f172a", textAlign: "center", marginTop: 4, lineHeight: 1.2 }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: selected ? "#0079a8" : "#0f172a", textAlign: "center", marginTop: 4, lineHeight: 1.2 }}>
               {tpl.name}
             </div>
 
@@ -86,7 +86,7 @@ export function TemplateStrip() {
               <div style={{
                 position:       "absolute", top: 5, left: 5,
                 width:          16, height: 16, borderRadius: "50%",
-                background:     "#7c3aed", color: "#fff",
+                background:     "#0079a8", color: "#fff",
                 fontSize:       9, fontWeight: 800,
                 display:        "flex", alignItems: "center", justifyContent: "center",
               }}>

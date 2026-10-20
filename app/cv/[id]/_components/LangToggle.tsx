@@ -70,8 +70,8 @@ export function LangToggle() {
                 fontSize:     11,
                 fontWeight:   active ? 700 : 500,
                 fontFamily:   "inherit",
-                color:        active ? "#7c3aed" : "#64748b",
-                background:   active ? "#f5f3ff" : "transparent",
+                color:        active ? "#0079a8" : "#64748b",
+                background:   active ? "#eaf6fc" : "transparent",
                 cursor:       busy ? "wait" : "pointer",
                 textTransform: "uppercase",
                 letterSpacing: ".04em",
@@ -84,12 +84,12 @@ export function LangToggle() {
       </div>
 
       {(busy || toast) && (
-        <div role="status" style={{ position: "fixed", bottom: 20, left: "50%", transform: "translateX(-50%)", zIndex: 9500, background: toast?.kind === "err" ? "#fef2f2" : "#201515", color: toast?.kind === "err" ? "#991b1b" : "#fffefb", border: toast?.kind === "err" ? "1px solid #fecaca" : "none", borderRadius: 10, padding: "10px 16px", fontSize: 13.5, fontWeight: 600, display: "flex", alignItems: "center", gap: 14, boxShadow: "0 8px 28px rgba(0,0,0,.25)", maxWidth: "calc(100vw - 32px)" }}>
+        <div role="status" style={{ position: "fixed", bottom: 20, left: "50%", transform: "translateX(-50%)", zIndex: 9500, background: toast?.kind === "err" ? "#fef2f2" : "#0e1a21", color: toast?.kind === "err" ? "#991b1b" : "#ffffff", border: toast?.kind === "err" ? "1px solid #fecaca" : "none", borderRadius: 10, padding: "10px 16px", fontSize: 13.5, fontWeight: 600, display: "flex", alignItems: "center", gap: 14, boxShadow: "0 8px 28px rgba(0,0,0,.25)", maxWidth: "calc(100vw - 32px)" }}>
           {busy ? <span>{u.translating}</span> : toast?.kind === "err" ? <span>{u.translateFailed}</span> : (
             <>
               <span>{u.translatedTo}</span>
               <button type="button" onClick={() => { if (toast?.prev) { useCVStore.getState().loadCV(toast.prev.cv); setLang(toast.prev.lang); } setToast(null); }}
-                style={{ background: "none", border: "none", color: "#ffb38a", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", fontSize: 13.5, padding: 0 }}>{u.undo}</button>
+                style={{ background: "none", border: "none", color: "#9fd3ea", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", fontSize: 13.5, padding: 0 }}>{u.undo}</button>
             </>
           )}
         </div>

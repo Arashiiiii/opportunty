@@ -25,7 +25,7 @@ export function BuilderShell({ cvId }: { cvId: string | null }) {
   }, []);
 
   return (
-    <div style={{ height: "100dvh", display: "flex", flexDirection: "column", background: "#fafbfc", fontFamily: "'Inter', system-ui, sans-serif", color: "#0f172a" }}>
+    <div style={{ height: "100dvh", display: "flex", flexDirection: "column", background: "#fafbfc", fontFamily: "'Inter Variable', 'Inter', system-ui, sans-serif", color: "#0f172a" }}>
       <Topbar
         cvId={cvId}
         mobileTab={isMobile ? mobileTab : undefined}

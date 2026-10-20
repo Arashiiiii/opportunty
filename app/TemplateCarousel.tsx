@@ -13,7 +13,7 @@ export interface CarouselTemplate { id: string; name: string; sub: string; accen
 
 const GAP = 20;
 const EASE = "transform 450ms cubic-bezier(0.165, 0.84, 0.44, 1)"; // Glide's default animationTimingFunc
-const PRIMARY = "#ff4f00";
+const PRIMARY = "#0079a8";
 
 export function TemplateCarousel({
   templates, onUse, autoplayMs = 4500, compact = false, labels,
@@ -120,10 +120,10 @@ export function TemplateCarousel({
                 aria-label={`${i + 1} of ${templates.length}: ${t.name}`}
                 onClick={() => { if (!moved.current) go(i); }}
                 style={{
-                  flex: `0 0 ${slideW}px`, height: slideH, borderRadius: 10, overflow: "hidden", background: "#fffefb",
-                  border: `2px solid ${isActive ? PRIMARY : "rgba(32,21,21,0.12)"}`,
+                  flex: `0 0 ${slideW}px`, height: slideH, borderRadius: 10, overflow: "hidden", background: "#ffffff",
+                  border: `2px solid ${isActive ? PRIMARY : "rgba(14,26,33,0.12)"}`,
                   transform: `scale(${isActive ? 1 : 0.86})`, opacity: isActive ? 1 : 0.6,
-                  boxShadow: isActive ? "0 18px 40px rgba(255,79,0,0.22), 0 4px 12px rgba(32,21,21,0.12)" : "0 2px 8px rgba(32,21,21,0.08)",
+                  boxShadow: isActive ? "0 18px 40px rgba(0,121,168,0.22), 0 4px 12px rgba(14,26,33,0.12)" : "0 2px 8px rgba(14,26,33,0.08)",
                   transition: dragging ? "none" : "transform 450ms cubic-bezier(0.165,0.84,0.44,1), opacity 450ms, box-shadow 450ms, border-color 450ms",
                 }}
               >
@@ -148,11 +148,11 @@ export function TemplateCarousel({
             className="opp-car-arrow"
             style={{
               position: "absolute", top: compact ? "38%" : "42%", [dir === "prev" ? "left" : "right"]: 4, width: compact ? 34 : 44, height: compact ? 34 : 44, borderRadius: 9999,
-              border: "1px solid rgba(32,21,21,0.15)", background: "#fffefb", boxShadow: "0 4px 14px rgba(32,21,21,0.15)",
+              border: "1px solid rgba(14,26,33,0.15)", background: "#ffffff", boxShadow: "0 4px 14px rgba(14,26,33,0.15)",
               cursor: disabled ? "default" : "pointer", opacity: disabled ? 0.35 : 1, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2,
             }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#201515" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0e1a21" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points={dir === "prev" ? "15 18 9 12 15 6" : "9 18 15 12 9 6"} />
             </svg>
           </button>
@@ -166,12 +166,12 @@ export function TemplateCarousel({
             <span style={{ fontSize: compact ? 16 : 20, fontWeight: 600 }}>{active.name}</span>
             <span style={{ fontSize: 11, fontWeight: 700, color: active.accent, background: `${active.accent}1f`, borderRadius: 9999, padding: "1px 8px" }}>Pro</span>
           </div>
-          <div style={{ fontSize: 13, color: "#939084", margin: compact ? 0 : "2px 0 14px" }}>{active.sub}</div>
+          <div style={{ fontSize: 13, color: "#5f7280", margin: compact ? 0 : "2px 0 14px" }}>{active.sub}</div>
         </div>
         <button
           type="button"
           onClick={() => onUse(active.id)}
-          style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: compact ? "9px 18px" : "12px 28px", borderRadius: 10, border: "none", background: PRIMARY, color: "#fffefb", cursor: "pointer", fontFamily: "inherit" }}
+          style={{ fontSize: 14.4, fontWeight: 700, letterSpacing: "0.144px", padding: compact ? "9px 18px" : "12px 28px", borderRadius: 10, border: "none", background: PRIMARY, color: "#ffffff", cursor: "pointer", fontFamily: "inherit" }}
         >
           {L.use}
         </button>
@@ -187,7 +187,7 @@ export function TemplateCarousel({
             aria-selected={i === index}
             aria-label={`Go to ${t.name}`}
             onClick={() => go(i)}
-            style={{ width: i === index ? 24 : 8, height: 8, borderRadius: 9999, border: "none", padding: 0, cursor: "pointer", background: i === index ? PRIMARY : "rgba(32,21,21,0.2)", transition: "width 250ms, background 250ms" }}
+            style={{ width: i === index ? 24 : 8, height: 8, borderRadius: 9999, border: "none", padding: 0, cursor: "pointer", background: i === index ? PRIMARY : "rgba(14,26,33,0.2)", transition: "width 250ms, background 250ms" }}
           />
         ))}
       </div>
