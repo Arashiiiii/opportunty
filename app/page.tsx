@@ -1,12 +1,7 @@
-import type { Metadata } from "next";
 import HomeClient from "./HomeClient";
-import { SITE_TITLE, SITE_DESCRIPTION } from "@/lib/site";
+import { homeMetadata } from "@/lib/site-i18n";
 
-export const metadata: Metadata = {
-  title: SITE_TITLE,
-  description: SITE_DESCRIPTION,
-  alternates: { canonical: "/" },
-};
+export const metadata = homeMetadata("en");
 
 export default function Home() {
   return <HomeClient />;

@@ -5,7 +5,8 @@
  * the CV builder and checkout. Not to be confused with the CV's own content
  * language (the builder's FR/EN/ع toggle), which is a property of the CV.
  */
-import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { createContext, createElement, useCallback, useContext, useEffect, useSyncExternalStore } from "react";
+import type { ReactNode } from "react";
 import { DICT } from "../i18n";
 import type { Lang } from "../i18n";
 import { UI } from "./ui-dict";
@@ -29,11 +30,24 @@ function subscribe(cb: () => void) {
   return () => { listeners.delete(cb); window.removeEventListener("storage", cb); };
 }
 
+/** Language-prefixed pages (/fr, /ar) pin their language so the server HTML is already in it. */
+const ForcedLang = createContext<Lang | null>(null);
+export function LangProvider({ lang, children }: { lang: Lang; children: ReactNode }) {
+  return createElement(ForcedLang.Provider, { value: lang }, children);
+}
+
+/** Home page URL per language — the language switcher moves between these instead of only flipping state. */
+export const HOME_PATH: Record<Lang, string> = { en: "/", fr: "/fr", ar: "/ar" };
+
 export function useUiLang(): [Lang, (l: Lang) => void] {
-  const lang = useSyncExternalStore(subscribe, read, () => "en" as Lang);
+  const forced = useContext(ForcedLang);
+  const stored = useSyncExternalStore(subscribe, read, () => "en" as Lang);
+  const lang = forced ?? stored;
   const setLang = useCallback((l: Lang) => {
     try { localStorage.setItem(KEY, l); } catch { /* ignore */ }
     listeners.forEach((f) => f());
+    const here = window.location.pathname.replace(/\/$/, "") || "/";
+    if (Object.values(HOME_PATH).includes(here) && HOME_PATH[l] !== here) window.location.assign(HOME_PATH[l]);
   }, []);
   useEffect(() => {
     document.documentElement.lang = lang;

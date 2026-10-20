@@ -22,6 +22,11 @@ export function SiteFooter() {
             <span style={{ fontSize: 15, fontWeight: 700, color: "#ffffff" }}>opportunty<span style={{ color: "#0079a8" }}>.com</span></span>
           </Link>
           <p style={{ fontSize: 14, color: "#b9b0a5", lineHeight: 1.5, margin: "12px 0 0" }}>{f.tagline}</p>
+          <div style={{ display: "flex", gap: 14, marginTop: 12, fontSize: 14 }}>
+            <a href="/" hrefLang="en" lang="en" style={link}>English</a>
+            <a href="/fr" hrefLang="fr" lang="fr" style={link}>Français</a>
+            <a href="/ar" hrefLang="ar" lang="ar" style={link}>العربية</a>
+          </div>
         </div>
         <nav aria-label={f.product} style={col}>
           <div style={head}>{f.product}</div>

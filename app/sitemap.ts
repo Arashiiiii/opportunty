@@ -18,7 +18,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } catch { /* sitemap still serves the static pages */ }
 
   return [
-    page("/", 1, "daily"),
+    { ...page("/", 1, "daily"), alternates: { languages: { en: `${SITE_URL}/`, fr: `${SITE_URL}/fr`, ar: `${SITE_URL}/ar` } } },
+    { ...page("/fr", 0.9, "daily"), alternates: { languages: { en: `${SITE_URL}/`, fr: `${SITE_URL}/fr`, ar: `${SITE_URL}/ar` } } },
+    { ...page("/ar", 0.9, "daily"), alternates: { languages: { en: `${SITE_URL}/`, fr: `${SITE_URL}/fr`, ar: `${SITE_URL}/ar` } } },
     page("/jobs", 0.9, "daily"),
     ...Object.values(COUNTRY_INFO).map((c) => page(`/jobs/country/${c.slug}`, 0.8, "daily")),
     page("/cv/builder", 0.9, "weekly", new Date("2026-10-14")),

@@ -400,7 +400,7 @@ export default function HomeClient() {
   const showEmpty = !cvJob && !tailoring;
 
   return (
-    <div dir={rtl ? "rtl" : "ltr"} style={{ width: "100%", minHeight: "100vh", background: "#ffffff", display: "flex", flexDirection: "column", fontFamily: "'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif", color: "#0e1a21" }}>
+    <div dir={rtl ? "rtl" : "ltr"} lang={lang} style={{ width: "100%", minHeight: "100vh", background: "#ffffff", display: "flex", flexDirection: "column", fontFamily: "'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif", color: "#0e1a21" }}>
 
       <input
         ref={fileInputRef}
