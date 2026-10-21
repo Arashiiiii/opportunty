@@ -6,6 +6,7 @@ import { isEmployer } from "@/app/employers/_role";
 import { CVDataSchema, DEFAULT_SECTION_ORDER, DEFAULT_SECTIONS_ENABLED } from "@/app/cv/_lib/schema";
 import type { CVData, SectionId } from "@/app/cv/_lib/schema";
 import { computeScore, scoreColor, type ScoreResult } from "@/app/cv/_lib/score";
+import { NewCVModal } from "./NewCVModal";
 import { ProfileCard, type Profile } from "./ProfileCard";
 import { BarList, Card, Columns, Grid, Kpis, LinkBtn, Pill, Shell, Table, MUTED, PRIMARY, useDash } from "./_ui";
 
@@ -27,6 +28,7 @@ export default function SeekerDashboard() {
   const { d, lang } = useDash();
   const [data, setData] = useState<Data | null>(null);
   const [failed, setFailed] = useState(false);
+  const [newCvOpen, setNewCvOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -106,7 +108,7 @@ export default function SeekerDashboard() {
               <span style={{ fontSize: 13, color: PRIMARY, fontWeight: 700, marginTop: 4 }}>{d.openCV} →</span>
             </Link>
           ))}
-          <Link href="/cv/builder" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 84, border: "2px dashed rgba(14,26,33,0.24)", borderRadius: 12, textDecoration: "none", color: PRIMARY, fontWeight: 700, fontSize: 14.5 }}>+ {d.newCV}</Link>
+          <button type="button" onClick={() => setNewCvOpen(true)} style={{ background: "none", cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 84, border: "2px dashed rgba(14,26,33,0.24)", borderRadius: 12, textDecoration: "none", color: PRIMARY, fontWeight: 700, fontSize: 14.5 }}>+ {d.newCV}</button>
         </div>
         {data.cvs.length > 5 && <div style={{ marginTop: 12 }}><Link href="/cv" style={{ fontSize: 13.5, color: MUTED, fontWeight: 600 }}>{d.manageAll} →</Link></div>}
       </Card>
@@ -115,7 +117,7 @@ export default function SeekerDashboard() {
       {!latest && (
         <Card title={d.noCV} sub={d.noCVNote}>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <LinkBtn href="/cv/builder" primary>{d.createCV}</LinkBtn>
+            <button type="button" onClick={() => setNewCvOpen(true)} style={{ fontSize: 14, fontWeight: 700, padding: "10px 18px", borderRadius: 10, border: "none", background: PRIMARY, color: "#fff", cursor: "pointer", fontFamily: "inherit" }}>{d.createCV}</button>
             <LinkBtn href="/">{d.browseJobs}</LinkBtn>
           </div>
         </Card>
@@ -179,6 +181,7 @@ export default function SeekerDashboard() {
           </Grid>
         </>
       )}
+      {newCvOpen && <NewCVModal lang={lang} onClose={() => setNewCvOpen(false)} />}
     </Shell>
   );
 }
