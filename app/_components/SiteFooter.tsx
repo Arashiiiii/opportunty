@@ -34,7 +34,7 @@ export function SiteFooter() {
           <Link href="/jobs/country/morocco" style={link}>Morocco</Link>
           <Link href="/jobs/country/france" style={link}>France</Link>
           <Link href="/jobs/country/saudi-arabia" style={link}>Saudi Arabia</Link>
-          <Link href="/cv" style={link}>{f.cvBuilder}</Link>
+          <Link href={lang === "fr" ? "/fr/createur-de-cv-gratuit" : lang === "ar" ? "/ar/free-cv-builder" : "/free-cv-builder"} style={link}>{f.cvBuilder}</Link>
           <Link href="/employers/login" style={link}>{f.employers}</Link>
         </nav>
         <nav aria-label={f.company} style={col}>
