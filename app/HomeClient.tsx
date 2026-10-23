@@ -167,12 +167,12 @@ export default function HomeClient() {
     const cols = "id, title, company, location, job_type, salary_range, tags, description, logo_url, external_url, original_url, created_at";
     (async () => {
       let rows: Job[] | null = null;
-      const byCol = await supabase.from("jobs").select(cols).eq("is_active", true).eq("country", country)
+      const byCol = await supabase.from("jobs").select(cols).eq("is_active", true).eq("Country", country)
         .order("created_at", { ascending: false }).limit(60);
       if (!byCol.error) {
         rows = (byCol.data ?? []) as Job[];
       } else {
-        // `country` column not there yet → filter by guessed country instead.
+        // `Country` query failed → filter by guessed country instead.
         const all = await supabase.from("jobs").select(cols).eq("is_active", true)
           .order("created_at", { ascending: false }).limit(200);
         if (!all.error && all.data) rows = (all.data as Job[]).filter((j) => inferCountry(j.location) === country).slice(0, 60);
