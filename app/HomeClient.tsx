@@ -39,6 +39,7 @@ import { inferCountry } from "./_lib/country";
 import { isEmployer } from "./employers/_role";
 import { LogoMark } from "./_components/LogoMark";
 import { SiteFooter } from "./_components/SiteFooter";
+import { PromoStrip } from "./_components/PromoStrip";
 
 const PRIMARY = "#0079a8";
 
@@ -411,6 +412,7 @@ export default function HomeClient() {
       />
 
       {/* Header */}
+      <PromoStrip />
       <header className="opp-topbar" style={{ position: "sticky", top: 0, zIndex: 20, background: "#ffffff", borderBottom: "1px solid rgba(14,26,33,0.12)", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px" }}><LogoMark size={28} /><span>opportunty<span style={{ color: PRIMARY }}>.</span></span></div>
         <nav style={{ display: "flex", alignItems: "center", gap: 16 }}>
