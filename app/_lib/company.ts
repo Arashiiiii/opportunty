@@ -5,7 +5,7 @@
 export const COMPANY = {
   brand: "opportunty.com",
   domain: "opportunty.com",
-  contactEmail: "contact@opportunty.com",
+  contactEmail: "contact@contact.opportunty.com",
   privacyEmail: "privacy@opportunty.com",
   /** Legal name of the publisher (person or company). */
   publisher: "Reda",

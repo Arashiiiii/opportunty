@@ -30,7 +30,7 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "Organization", "@id": `${SITE_URL}/#org`, name: SITE_NAME, url: SITE_URL,
-      logo: `${SITE_URL}/apple-icon.png`, email: "contact@opportunty.com",
+      logo: `${SITE_URL}/apple-icon.png`, email: "contact@contact.opportunty.com",
     },
     {
       "@type": "WebSite", "@id": `${SITE_URL}/#website`, url: SITE_URL, name: SITE_NAME,
