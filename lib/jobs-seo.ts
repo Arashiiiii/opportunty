@@ -60,9 +60,27 @@ export function metaDescription(j: JobRow): string {
 }
 
 const TYPE_MAP: [RegExp, string][] = [
-  [/full/i, "FULL_TIME"], [/part|temps partiel/i, "PART_TIME"], [/contract|cdd|freelance|interim|intérim/i, "CONTRACTOR"],
-  [/intern|stage|stagiaire/i, "INTERN"], [/temp/i, "TEMPORARY"],
+  [/full|vollzeit|voltijd|temps plein/i, "FULL_TIME"], [/part|temps partiel|teilzeit|deeltijd/i, "PART_TIME"], [/contract|cdd|freelance|interim|intérim|zzp/i, "CONTRACTOR"],
+  [/intern|stage|stagiaire|praktikum|werkstudent/i, "INTERN"], [/temp/i, "TEMPORARY"],
 ];
+
+/**
+ * employmentType for JobPosting. The scraped job_type column is empty, so read it from what the posting
+ * itself says: the title for internships, explicit full/part-time wording anywhere. No match → omit the field
+ * (we never guess).
+ */
+export function employmentTypeOf(j: Pick<JobRow, "job_type" | "title" | "description">): string | undefined {
+  const fromCol = TYPE_MAP.find(([re]) => re.test(j.job_type ?? ""))?.[1];
+  if (fromCol) return fromCol;
+  if (/\b(intern|internship|stagiaire|stage|praktikum|werkstudent|stagiair)\b/i.test(j.title)) return "INTERN";
+  const text = `${j.title} ${j.description ?? ""}`;
+  const full = /\b(full[- ]?time|vollzeit|voltijd|temps plein|cdi)\b/i.test(text);
+  const part = /\b(part[- ]?time|teilzeit|deeltijd|temps partiel)\b/i.test(text);
+  if (full && !part) return "FULL_TIME";
+  if (part && !full) return "PART_TIME";
+  if (/\b(freelance|zzp|cdd)\b/i.test(text) && !full && !part) return "CONTRACTOR";
+  return undefined;
+}
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 export function jobPostingJsonLd(j: JobRow, url: string) {
@@ -70,7 +88,7 @@ export function jobPostingJsonLd(j: JobRow, url: string) {
   const remote = /remote|télétravail|teletravail|عن بعد/i.test(`${j.location ?? ""} ${j.title}`);
   const posted = new Date(j.created_at);
   const validThrough = new Date(posted.getTime() + 45 * 86400_000);
-  const type = TYPE_MAP.find(([re]) => re.test(j.job_type ?? ""))?.[1];
+  const type = employmentTypeOf(j);
   const html = descriptionParagraphs(j.description).map((p) => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`).join("") || `<p>${esc(j.title)} — ${esc(j.company)}</p>`;
   return {
     "@context": "https://schema.org",
