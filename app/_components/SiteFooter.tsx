@@ -35,6 +35,11 @@ export function SiteFooter() {
           <Link href="/jobs/country/france" style={link}>France</Link>
           <Link href="/jobs/country/saudi-arabia" style={link}>Saudi Arabia</Link>
           <Link href={lang === "fr" ? "/fr/createur-de-cv-gratuit" : lang === "ar" ? "/ar/free-cv-builder" : "/free-cv-builder"} style={link}>{f.cvBuilder}</Link>
+          {lang === "fr" && (<>
+            <Link href="/fr/emploi" style={link}>Emploi par ville</Link>
+            <Link href="/fr/modele-cv" style={link}>Exemples de CV</Link>
+            <Link href="/fr/lettre-de-motivation" style={link}>Lettre de motivation</Link>
+          </>)}
           <Link href="/employers/login" style={link}>{f.employers}</Link>
         </nav>
         <nav aria-label={f.company} style={col}>

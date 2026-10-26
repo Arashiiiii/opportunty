@@ -3,6 +3,7 @@ import { SITE_URL } from "@/lib/site";
 import { createPublicClient } from "@/lib/supabase/public";
 import { COUNTRY_INFO, jobPath } from "@/lib/jobs-seo";
 import { CV_LANDING_PATH } from "@/lib/cv-landing";
+import { CITIES, PROFESSIONS } from "@/lib/seo-pages";
 
 export const revalidate = 3600;
 
@@ -29,6 +30,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { ...page(CV_LANDING_PATH.en, 0.9, "monthly", STATIC), alternates: { languages: cvLangs } },
     { ...page(CV_LANDING_PATH.fr, 0.8, "monthly", STATIC), alternates: { languages: cvLangs } },
     { ...page(CV_LANDING_PATH.ar, 0.8, "monthly", STATIC), alternates: { languages: cvLangs } },
+    page("/fr/emploi", 0.8, "daily"),
+    ...CITIES.map((c) => page(`/fr/emploi/${c.slug}`, 0.8, "daily")),
+    page("/fr/modele-cv", 0.8, "monthly", STATIC),
+    ...PROFESSIONS.map((p) => page(`/fr/modele-cv/${p.slug}`, 0.7, "monthly", STATIC)),
+    page("/fr/lettre-de-motivation", 0.8, "monthly", STATIC),
     page("/jobs", 0.9, "daily"),
     ...Object.values(COUNTRY_INFO).map((c) => page(`/jobs/country/${c.slug}`, 0.8, "daily")),
     page("/about", 0.5, "monthly", STATIC),
