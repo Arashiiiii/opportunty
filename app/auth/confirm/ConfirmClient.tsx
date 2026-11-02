@@ -2,7 +2,7 @@
 /**
  * Landing page for the link in our auth emails. The one-time token is only used when the person presses the
  * button here — mail scanners and link previewers open links automatically, and would otherwise burn the token
- * (and the 6-digit code that shares it) before the person ever sees it.
+ * before the person ever sees it.
  */
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -12,9 +12,9 @@ import { useUiLang } from "../../_lib/useUiLang";
 import type { Lang } from "../../i18n";
 
 const T: Record<Lang, { h: string; p: string; btn: string; busy: string; ok: string; bad: string }> = {
-  en: { h: "One last step", p: "Press the button to finish and open your account.", btn: "Confirm and continue", busy: "Checking…", ok: "Done ✓ Redirecting…", bad: "This link was already used or has expired. Go to Sign in and request a new code." },
-  fr: { h: "Dernière étape", p: "Appuyez sur le bouton pour terminer et ouvrir votre compte.", btn: "Confirmer et continuer", busy: "Vérification…", ok: "Terminé ✓ Redirection…", bad: "Ce lien a déjà été utilisé ou a expiré. Allez sur Connexion et demandez un nouveau code." },
-  ar: { h: "خطوة أخيرة", p: "اضغط الزر لإكمال العملية وفتح حسابك.", btn: "تأكيد ومتابعة", busy: "جارٍ التحقق…", ok: "تم ✓ جارٍ التحويل…", bad: "تم استخدام هذا الرابط من قبل أو انتهت صلاحيته. اذهب إلى تسجيل الدخول واطلب رمزاً جديداً." },
+  en: { h: "One last step", p: "Press the button to finish and open your account.", btn: "Confirm and continue", busy: "Checking…", ok: "Done ✓ Redirecting…", bad: "This link was already used or has expired. Go to Sign in and request a new link." },
+  fr: { h: "Dernière étape", p: "Appuyez sur le bouton pour terminer et ouvrir votre compte.", btn: "Confirmer et continuer", busy: "Vérification…", ok: "Terminé ✓ Redirection…", bad: "Ce lien a déjà été utilisé ou a expiré. Allez sur Connexion et demandez un nouveau lien." },
+  ar: { h: "خطوة أخيرة", p: "اضغط الزر لإكمال العملية وفتح حسابك.", btn: "تأكيد ومتابعة", busy: "جارٍ التحقق…", ok: "تم ✓ جارٍ التحويل…", bad: "تم استخدام هذا الرابط من قبل أو انتهت صلاحيته. اذهب إلى تسجيل الدخول واطلب رابطاً جديداً." },
 };
 const TYPES = ["signup", "magiclink", "recovery", "invite", "email_change"] as const;
 type OtpType = (typeof TYPES)[number];

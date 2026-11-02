@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
   const link = type === "reauthentication" || !data.token_hash ? undefined
     : `${siteUrl.replace(/\/$/, "")}/auth/confirm?token_hash=${encodeURIComponent(data.token_hash)}&type=${encodeURIComponent(type)}&next=${encodeURIComponent(nextPath)}`;
 
-  const mail = renderAuthEmail({ type, lang: pickLang(user.user_metadata?.lang), link, code: data.token, siteUrl });
+  const mail = renderAuthEmail({ type, lang: pickLang(user.user_metadata?.lang), link, code: type === "reauthentication" ? data.token : undefined, siteUrl });
   const to = type === "email_change" && user.new_email ? user.new_email : user.email;
 
   let res: Response;

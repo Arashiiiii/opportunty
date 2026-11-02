@@ -21,7 +21,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useCVStore } from "../_store/cv-store";
-import { readLocalDraft, saveLocalDraft } from "../_lib/local-draft";
+import { readLocalDraft, saveLocalDraft, type LocalDraft } from "../_lib/local-draft";
 import { REPORT_KEY } from "../_lib/tailor-report";
 import { DEFAULT_SECTION_ORDER, DEFAULT_SECTIONS_ENABLED } from "../_lib/schema";
 import type { Json } from "../_lib/db-types";
@@ -96,6 +96,20 @@ export default function AnonymousBuilderPage() {
       init("__local__", {});
     }
     setReady(true);
+
+    // Opened from the emailed sign-in link in a browser that has no draft (e.g. Gmail → Chrome, while the CV was
+    // edited inside Instagram): collect the draft that was parked on the server for this email, once.
+    if (!draft || !cvHasContent(draft.cv)) {
+      fetch("/api/drafts/claim", { method: "POST" })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((j: { draft?: LocalDraft | null } | null) => {
+          const d = j?.draft;
+          if (!d || !cvHasContent(d.cv) || cvHasContent(useCVStore.getState().cv)) return; // never overwrite fresh work
+          init("__local__", { cv: d.cv, template: d.template, accent: d.accent, lang: d.lang, order: d.order, enabled: d.enabled, cvName: d.cvName });
+          saveLocalDraft(d);
+        })
+        .catch(() => { /* nothing to claim */ });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
