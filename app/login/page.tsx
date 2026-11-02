@@ -21,6 +21,7 @@ function LoginForm() {
   const [email, setEmail]     = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy]       = useState(false);
+  const [showPw, setShowPw]   = useState(false);
   const [error, setError]     = useState<string | null>(null);
 
   const submit = async (e: React.FormEvent) => {
@@ -62,7 +63,14 @@ function LoginForm() {
         )}
 
         <CodeAuth next={next} />
-        <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {!showPw && (
+          <p style={{ textAlign: "center", margin: "4px 0 0" }}>
+            <button type="button" onClick={() => setShowPw(true)} style={{ background: "none", border: "none", color: "#4a5b66", fontSize: 13, textDecoration: "underline", cursor: "pointer", fontFamily: "inherit" }}>
+              {PW_TOGGLE[lang]}
+            </button>
+          </p>
+        )}
+        {showPw && <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <input type="email" required placeholder={u.email} value={email} onChange={(e) => setEmail(e.target.value)}
             style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #e3e8eb", fontSize: 14, fontFamily: "inherit" }} />
           <input type="password" required placeholder={u.password} value={password} onChange={(e) => setPassword(e.target.value)}
@@ -71,7 +79,7 @@ function LoginForm() {
             style={{ padding: "11px 14px", borderRadius: 10, border: "none", background: "#0079a8", color: "#fff", fontSize: 14, fontWeight: 700, cursor: busy ? "wait" : "pointer", fontFamily: "inherit", opacity: busy ? 0.7 : 1 }}>
             {busy ? u.signingIn : u.signIn}
           </button>
-        </form>
+        </form>}
 
         <p style={{ fontSize: 13, color: "#4a5b66", marginTop: 20, textAlign: "center" }}>
           {u.noAccount} <Link href="/signup" style={{ color: "#0079a8", fontWeight: 600, textDecoration: "none" }}>{u.createOne}</Link>
@@ -89,6 +97,8 @@ function LoginForm() {
     </div>
   );
 }
+
+const PW_TOGGLE = { en: "I have a password — sign in with it", fr: "J'ai un mot de passe — me connecter avec", ar: "لدي كلمة مرور — تسجيل الدخول بها" } as const;
 
 export default function LoginPage() {
   return (
