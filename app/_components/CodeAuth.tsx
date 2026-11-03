@@ -59,8 +59,9 @@ export function CodeAuth({ next = "/dashboard", hideDivider = false }: { next?: 
 
   const send = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (cap.enabled && !cap.token) { setError(cap.failed ? t.fail : t.verifying); return; }
     setBusy(true); setError(null);
+    const captchaToken = cap.enabled ? await cap.getToken() : null;
+    if (cap.enabled && !captchaToken) { setBusy(false); setError(cap.failed ? `${t.fail} (check ${cap.errorCode ?? "?"})` : t.verifying); return; }
     const to = email.trim();
     // Park an unfinished CV on the server so it follows the person into the browser that opens the link.
     try {
@@ -71,7 +72,7 @@ export function CodeAuth({ next = "/dashboard", hideDivider = false }: { next?: 
     } catch { /* best effort: same-browser sign-in still has the local draft */ }
     const { error: err } = await createClient().auth.signInWithOtp({
       email: to,
-      options: { shouldCreateUser: true, data: { lang }, captchaToken: cap.token ?? undefined, emailRedirectTo: `${window.location.origin}${next}` },
+      options: { shouldCreateUser: true, data: { lang }, captchaToken: captchaToken ?? undefined, emailRedirectTo: `${window.location.origin}${next}` },
     });
     setBusy(false);
     cap.reset();

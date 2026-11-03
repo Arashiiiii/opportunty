@@ -37,12 +37,13 @@ function Form({ mode }: { mode: "login" | "signup" }) {
 
   const submit = async (ev: React.FormEvent) => {
     ev.preventDefault();
-    if (cap.enabled && !cap.token) { setError("Verifying you are human… try again in a moment."); return; }
     setBusy(true); setError(null);
+    const captchaToken = cap.enabled ? await cap.getToken() : null;
+    if (cap.enabled && !captchaToken) { setBusy(false); setError(cap.failed ? `Verification failed (check ${cap.errorCode ?? "?"}).` : "Verifying you are human… try again in a moment."); return; }
     if (mode === "signup") {
       const { data, error: err } = await supabase.auth.signUp({
         email, password,
-        options: { captchaToken: cap.token ?? undefined, data: { role: "employer", company_name: company.trim() }, emailRedirectTo: `${window.location.origin}/dashboard/employer` },
+        options: { captchaToken: captchaToken ?? undefined, data: { role: "employer", company_name: company.trim() }, emailRedirectTo: `${window.location.origin}/dashboard/employer` },
       });
       setBusy(false);
       cap.reset();
@@ -50,7 +51,7 @@ function Form({ mode }: { mode: "login" | "signup" }) {
       if (data.session) { router.push("/dashboard/employer"); router.refresh(); return; }
       setDone(true);
     } else {
-      const { data, error: err } = await supabase.auth.signInWithPassword({ email, password, options: { captchaToken: cap.token ?? undefined } });
+      const { data, error: err } = await supabase.auth.signInWithPassword({ email, password, options: { captchaToken: captchaToken ?? undefined } });
       cap.reset();
       if (err) { setBusy(false); setError(err.message); return; }
       if (!isEmployer(data.user)) {

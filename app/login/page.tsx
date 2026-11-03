@@ -28,11 +28,12 @@ function LoginForm() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (cap.enabled && !cap.token) { setError("Verifying you are human… try again in a moment."); return; }
     setBusy(true);
     setError(null);
+    const captchaToken = cap.enabled ? await cap.getToken() : null;
+    if (cap.enabled && !captchaToken) { setBusy(false); setError(cap.failed ? `Verification failed (check ${cap.errorCode ?? "?"}).` : "Verifying you are human… try again in a moment."); return; }
     const supabase = createClient();
-    const { data, error: err } = await supabase.auth.signInWithPassword({ email, password, options: { captchaToken: cap.token ?? undefined } });
+    const { data, error: err } = await supabase.auth.signInWithPassword({ email, password, options: { captchaToken: captchaToken ?? undefined } });
     cap.reset();
     if (err) { setBusy(false); setError(err.message); return; }
     if (isEmployer(data.user)) {

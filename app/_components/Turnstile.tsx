@@ -31,6 +31,10 @@ export function useTurnstile() {
   const enabled = !!SITE_KEY;
   const [token, setToken] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
+  const tokenRef = useRef<string | null>(null);
+  const waiters = useRef<Array<(t: string | null) => void>>([]);
+  const settle = (t: string | null) => { tokenRef.current = t; if (t) { waiters.current.splice(0).forEach((w) => w(t)); } };
   const box = useRef<HTMLDivElement | null>(null);
   const id = useRef<string | null>(null);
 
@@ -42,9 +46,9 @@ export function useTurnstile() {
       id.current = window.turnstile.render(box.current, {
         sitekey: SITE_KEY,
         appearance: "interaction-only", // invisible unless Cloudflare needs the person to tick a box
-        callback: (t: string) => { setToken(t); setFailed(false); },
-        "expired-callback": () => setToken(null),
-        "error-callback": () => { setToken(null); setFailed(true); },
+        callback: (t: string) => { setToken(t); settle(t); setFailed(false); setErrorCode(null); },
+        "expired-callback": () => { setToken(null); settle(null); },
+        "error-callback": (code?: unknown) => { setToken(null); settle(null); waiters.current.splice(0).forEach((w) => w(null)); setFailed(true); setErrorCode(code ? String(code) : "unknown"); return true; },
       });
     }).catch(() => setFailed(true));
   }, []);
@@ -56,10 +60,20 @@ export function useTurnstile() {
 
   // Tokens are single-use: ask for a fresh one after every attempt.
   const reset = useCallback(() => {
-    setToken(null);
+    setToken(null); tokenRef.current = null;
     if (id.current && window.turnstile) { try { window.turnstile.reset(id.current); } catch { /* ignore */ } }
   }, []);
 
+  /** Resolves with a token as soon as one exists (waits up to `ms`), or null if Cloudflare never delivered one. */
+  const getToken = useCallback((ms = 12000): Promise<string | null> => {
+    if (tokenRef.current) return Promise.resolve(tokenRef.current);
+    return new Promise((resolve) => {
+      const w = (t: string | null) => { clearTimeout(timer); resolve(t); };
+      const timer = setTimeout(() => { waiters.current = waiters.current.filter((x) => x !== w); resolve(null); }, ms);
+      waiters.current.push(w);
+    });
+  }, []);
+
   const widget = enabled ? <div ref={attach} style={{ display: "flex", justifyContent: "center", minHeight: 0 }} /> : null;
-  return { enabled, token, failed, reset, widget };
+  return { enabled, token, failed, errorCode, getToken, reset, widget };
 }
