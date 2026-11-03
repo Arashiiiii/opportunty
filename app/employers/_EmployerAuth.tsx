@@ -1,4 +1,5 @@
 "use client";
+import { useTurnstile } from "@/app/_components/Turnstile";
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -27,6 +28,7 @@ function Form({ mode }: { mode: "login" | "signup" }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(wrong ? e.wrongAccount : null);
   const [done, setDone] = useState(false);
+  const cap = useTurnstile();
 
   // Already signed in as an employer → straight to the dashboard.
   useEffect(() => {
@@ -35,18 +37,21 @@ function Form({ mode }: { mode: "login" | "signup" }) {
 
   const submit = async (ev: React.FormEvent) => {
     ev.preventDefault();
+    if (cap.enabled && !cap.token) { setError("Verifying you are human… try again in a moment."); return; }
     setBusy(true); setError(null);
     if (mode === "signup") {
       const { data, error: err } = await supabase.auth.signUp({
         email, password,
-        options: { data: { role: "employer", company_name: company.trim() }, emailRedirectTo: `${window.location.origin}/dashboard/employer` },
+        options: { captchaToken: cap.token ?? undefined, data: { role: "employer", company_name: company.trim() }, emailRedirectTo: `${window.location.origin}/dashboard/employer` },
       });
       setBusy(false);
+      cap.reset();
       if (err) { setError(err.message); return; }
       if (data.session) { router.push("/dashboard/employer"); router.refresh(); return; }
       setDone(true);
     } else {
-      const { data, error: err } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error: err } = await supabase.auth.signInWithPassword({ email, password, options: { captchaToken: cap.token ?? undefined } });
+      cap.reset();
       if (err) { setBusy(false); setError(err.message); return; }
       if (!isEmployer(data.user)) {
         await supabase.auth.signOut();
@@ -93,6 +98,7 @@ function Form({ mode }: { mode: "login" | "signup" }) {
                 {mode === "signup" && <input required dir="auto" placeholder={e.company} value={company} onChange={(x) => setCompany(x.target.value)} style={input} />}
                 <input type="email" required placeholder={e.workEmail} value={email} onChange={(x) => setEmail(x.target.value)} style={input} />
                 <input type="password" required minLength={mode === "signup" ? 6 : undefined} placeholder={mode === "signup" ? e.passwordMin : e.password} value={password} onChange={(x) => setPassword(x.target.value)} style={input} />
+                {cap.widget}
                 <button type="submit" disabled={busy} style={{ padding: "12px 14px", borderRadius: 10, border: "none", background: INK, color: "#ffffff", fontSize: 14, fontWeight: 700, cursor: busy ? "wait" : "pointer", fontFamily: "inherit", opacity: busy ? 0.7 : 1 }}>
                   {mode === "login" ? (busy ? e.signingIn : e.signIn) : (busy ? e.creating : e.createAccount)}
                 </button>

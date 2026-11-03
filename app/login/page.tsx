@@ -8,6 +8,7 @@ import { useUI } from "@/app/_lib/useUiLang";
 import { EMP } from "@/app/employers/_dict";
 import { isEmployer } from "@/app/employers/_role";
 import { CodeAuth } from "@/app/_components/CodeAuth";
+import { useTurnstile } from "@/app/_components/Turnstile";
 import { LogoMark } from "../_components/LogoMark";
 
 function LoginForm() {
@@ -22,14 +23,17 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [busy, setBusy]       = useState(false);
   const [showPw, setShowPw]   = useState(false);
+  const cap = useTurnstile();
   const [error, setError]     = useState<string | null>(null);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (cap.enabled && !cap.token) { setError("Verifying you are human… try again in a moment."); return; }
     setBusy(true);
     setError(null);
     const supabase = createClient();
-    const { data, error: err } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error: err } = await supabase.auth.signInWithPassword({ email, password, options: { captchaToken: cap.token ?? undefined } });
+    cap.reset();
     if (err) { setBusy(false); setError(err.message); return; }
     if (isEmployer(data.user)) {
       // Job seeker and employer accounts are separate: employers use their own sign-in.
@@ -75,6 +79,7 @@ function LoginForm() {
             style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #e3e8eb", fontSize: 14, fontFamily: "inherit" }} />
           <input type="password" required placeholder={u.password} value={password} onChange={(e) => setPassword(e.target.value)}
             style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #e3e8eb", fontSize: 14, fontFamily: "inherit" }} />
+          {cap.widget}
           <button type="submit" disabled={busy}
             style={{ padding: "11px 14px", borderRadius: 10, border: "none", background: "#0079a8", color: "#fff", fontSize: 14, fontWeight: 700, cursor: busy ? "wait" : "pointer", fontFamily: "inherit", opacity: busy ? 0.7 : 1 }}>
             {busy ? u.signingIn : u.signIn}

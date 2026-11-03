@@ -11,12 +11,13 @@ import { createClient } from "@/lib/supabase/client";
 import { useUI } from "@/app/_lib/useUiLang";
 import { readLocalDraft } from "@/app/cv/_lib/local-draft";
 import { cvHasContent } from "@/app/cv/_lib/handoff";
+import { useTurnstile } from "./Turnstile";
 
 type L = "en" | "fr" | "ar";
 const T: Record<L, Record<string, string>> = {
-  en: { cta: "Email me a sign-in link", ctaBusy: "Sending…", email: "Email", sentTitle: "Check your email", sent: "We sent a sign-in link to", sentHelp: "Open the email and press the button. It works on any device, and your CV will be waiting.", spam: "Not there? Check your spam folder.", resend: "Send a new link", resendIn: "Send a new link in", change: "Use another email", google: "Continue with Google", or: "or use a password", orG: "or", wait: "Please wait a minute before asking for another link.", fail: "We couldn't send the email. Please try again.", ok: "Signed in ✓ Redirecting…", hint: "No password and no code — just a link in your inbox." },
-  fr: { cta: "Recevoir un lien de connexion", ctaBusy: "Envoi…", email: "E-mail", sentTitle: "Vérifiez votre boîte mail", sent: "Nous avons envoyé un lien de connexion à", sentHelp: "Ouvrez l'e-mail et appuyez sur le bouton. Cela fonctionne sur n'importe quel appareil, et votre CV vous attendra.", spam: "Rien reçu ? Regardez dans vos spams.", resend: "Renvoyer un lien", resendIn: "Renvoyer un lien dans", change: "Utiliser un autre e-mail", google: "Continuer avec Google", or: "ou utilisez un mot de passe", orG: "ou", wait: "Patientez une minute avant de demander un autre lien.", fail: "L'e-mail n'a pas pu être envoyé. Réessayez.", ok: "Connecté ✓ Redirection…", hint: "Ni mot de passe ni code : juste un lien dans votre boîte mail." },
-  ar: { cta: "أرسل لي رابط تسجيل الدخول", ctaBusy: "جارٍ الإرسال…", email: "البريد الإلكتروني", sentTitle: "تحقق من بريدك", sent: "أرسلنا رابط تسجيل الدخول إلى", sentHelp: "افتح الرسالة واضغط على الزر. يعمل على أي جهاز وستجد سيرتك الذاتية بانتظارك.", spam: "لم تصل؟ تحقق من البريد غير المرغوب.", resend: "إرسال رابط جديد", resendIn: "إرسال رابط جديد بعد", change: "استخدام بريد آخر", google: "المتابعة عبر Google", or: "أو استخدم كلمة مرور", orG: "أو", wait: "انتظر دقيقة قبل طلب رابط آخر.", fail: "تعذّر إرسال الرسالة. حاول مرة أخرى.", ok: "تم تسجيل الدخول ✓ جارٍ التحويل…", hint: "دون كلمة مرور ودون رمز — فقط رابط في بريدك." },
+  en: { cta: "Email me a sign-in link", ctaBusy: "Sending…", email: "Email", sentTitle: "Check your email", sent: "We sent a sign-in link to", sentHelp: "Open the email and press the button. It works on any device, and your CV will be waiting.", spam: "Not there? Check your spam folder.", resend: "Send a new link", resendIn: "Send a new link in", change: "Use another email", google: "Continue with Google", or: "or use a password", orG: "or", wait: "Please wait a minute before asking for another link.", fail: "We couldn't send the email. Please try again.", ok: "Signed in ✓ Redirecting…", verifying: "Verifying you are human… try again in a moment.", hint: "No password and no code — just a link in your inbox." },
+  fr: { cta: "Recevoir un lien de connexion", ctaBusy: "Envoi…", email: "E-mail", sentTitle: "Vérifiez votre boîte mail", sent: "Nous avons envoyé un lien de connexion à", sentHelp: "Ouvrez l'e-mail et appuyez sur le bouton. Cela fonctionne sur n'importe quel appareil, et votre CV vous attendra.", spam: "Rien reçu ? Regardez dans vos spams.", resend: "Renvoyer un lien", resendIn: "Renvoyer un lien dans", change: "Utiliser un autre e-mail", google: "Continuer avec Google", or: "ou utilisez un mot de passe", orG: "ou", wait: "Patientez une minute avant de demander un autre lien.", fail: "L'e-mail n'a pas pu être envoyé. Réessayez.", ok: "Connecté ✓ Redirection…", verifying: "Vérification en cours… réessayez dans un instant.", hint: "Ni mot de passe ni code : juste un lien dans votre boîte mail." },
+  ar: { cta: "أرسل لي رابط تسجيل الدخول", ctaBusy: "جارٍ الإرسال…", email: "البريد الإلكتروني", sentTitle: "تحقق من بريدك", sent: "أرسلنا رابط تسجيل الدخول إلى", sentHelp: "افتح الرسالة واضغط على الزر. يعمل على أي جهاز وستجد سيرتك الذاتية بانتظارك.", spam: "لم تصل؟ تحقق من البريد غير المرغوب.", resend: "إرسال رابط جديد", resendIn: "إرسال رابط جديد بعد", change: "استخدام بريد آخر", google: "المتابعة عبر Google", or: "أو استخدم كلمة مرور", orG: "أو", wait: "انتظر دقيقة قبل طلب رابط آخر.", fail: "تعذّر إرسال الرسالة. حاول مرة أخرى.", ok: "تم تسجيل الدخول ✓ جارٍ التحويل…", verifying: "جارٍ التحقق… حاول بعد لحظة.", hint: "دون كلمة مرور ودون رمز — فقط رابط في بريدك." },
 };
 
 const WEBVIEW = /Instagram|FBAN|FBAV|FB_IAB|Line\/|MicroMessenger|; wv\)/i;
@@ -31,6 +32,7 @@ export function CodeAuth({ next = "/dashboard", hideDivider = false }: { next?: 
   const [cooldown, setCooldown] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [showGoogle, setShowGoogle] = useState(false);
+  const cap = useTurnstile();
 
   useEffect(() => {
     setShowGoogle(process.env.NEXT_PUBLIC_GOOGLE_AUTH === "1" && !WEBVIEW.test(navigator.userAgent));
@@ -57,6 +59,7 @@ export function CodeAuth({ next = "/dashboard", hideDivider = false }: { next?: 
 
   const send = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    if (cap.enabled && !cap.token) { setError(cap.failed ? t.fail : t.verifying); return; }
     setBusy(true); setError(null);
     const to = email.trim();
     // Park an unfinished CV on the server so it follows the person into the browser that opens the link.
@@ -68,9 +71,10 @@ export function CodeAuth({ next = "/dashboard", hideDivider = false }: { next?: 
     } catch { /* best effort: same-browser sign-in still has the local draft */ }
     const { error: err } = await createClient().auth.signInWithOtp({
       email: to,
-      options: { shouldCreateUser: true, data: { lang }, emailRedirectTo: `${window.location.origin}${next}` },
+      options: { shouldCreateUser: true, data: { lang }, captchaToken: cap.token ?? undefined, emailRedirectTo: `${window.location.origin}${next}` },
     });
     setBusy(false);
+    cap.reset();
     if (err) { setError(err.status === 429 || /rate|seconds|too many/i.test(err.message) ? t.wait : t.fail); return; }
     setStep("sent"); setCooldown(60);
   };
@@ -101,6 +105,7 @@ export function CodeAuth({ next = "/dashboard", hideDivider = false }: { next?: 
       {step === "email" ? (
         <form onSubmit={send} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <input type="email" required autoComplete="email" inputMode="email" placeholder={t.email} value={email} onChange={(e) => setEmail(e.target.value)} style={input} />
+          {cap.widget}
           <button type="submit" disabled={busy} style={primary}>{busy ? t.ctaBusy : t.cta}</button>
           <div style={{ fontSize: 12.5, color: "#5f7280" }}>{t.hint}</div>
         </form>
