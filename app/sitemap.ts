@@ -12,11 +12,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const page = (path: string, priority: number, changeFrequency: "daily" | "weekly" | "monthly" | "yearly", lastModified: Date = now) =>
     ({ url: `${SITE_URL}${path}`, lastModified, changeFrequency, priority });
 
+  // A new domain only gets a small crawl budget, so the sitemap lists the jobs most likely to be indexed rather than all
+  // of them: posted in the last 21 days with a substantial description (thin or stale pages stay reachable by links but
+  // are not pushed to Google). Moroccan jobs go first (the core audience), then the newest of the rest, 150 in total.
+  const MAX_JOBS = 150, MAX_MA = 60, MIN_DESC = 1200, MAX_AGE_DAYS = 21;
   let jobs: MetadataRoute.Sitemap = [];
   try {
-    const { data } = await createPublicClient().from("jobs").select("id,title,company,location,updated_at,created_at")
-      .eq("is_active", true).order("created_at", { ascending: false }).limit(5000);
-    jobs = (data ?? []).map((j) => page(jobPath(j), 0.7, "weekly", new Date(j.updated_at ?? j.created_at)));
+    const since = new Date(Date.now() - MAX_AGE_DAYS * 86_400_000).toISOString();
+    const { data } = await createPublicClient().from("jobs").select("id,title,company,location,updated_at,created_at,description,Country")
+      .eq("is_active", true).gte("created_at", since).order("created_at", { ascending: false }).limit(600);
+    const rich = (data ?? []).filter((j) => (j.description ?? "").length >= MIN_DESC);
+    const ma = rich.filter((j) => j.Country === "MA").slice(0, MAX_MA);
+    const maIds = new Set(ma.map((j) => j.id));
+    const rest = rich.filter((j) => !maIds.has(j.id)).slice(0, MAX_JOBS - ma.length);
+    jobs = [...ma, ...rest].map((j) => page(jobPath(j), 0.7, "weekly", new Date(j.updated_at ?? j.created_at)));
   } catch { /* sitemap still serves the static pages */ }
 
   // Fixed dates: a lastmod that changes on every request teaches Google to ignore it.
