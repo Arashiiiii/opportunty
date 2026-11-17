@@ -4,6 +4,7 @@ import { useUiLang } from "../_lib/useUiLang";
 import { FOOTER } from "../_lib/legal-dict";
 import { COMPANY } from "../_lib/company";
 import { LogoMark } from "./LogoMark";
+import { COUNTRY_INFO } from "@/lib/jobs-seo";
 
 const INK = "#0e1a21";
 const col: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 10, minWidth: 140 };
@@ -31,16 +32,20 @@ export function SiteFooter() {
         <nav aria-label={f.product} style={col}>
           <div style={head}>{f.product}</div>
           <Link href="/jobs" style={link}>{f.jobs}</Link>
-          <Link href="/jobs/country/morocco" style={link}>Morocco</Link>
-          <Link href="/jobs/country/france" style={link}>France</Link>
-          <Link href="/jobs/country/saudi-arabia" style={link}>Saudi Arabia</Link>
+          {Object.values(COUNTRY_INFO).map((c) => (
+            <Link key={c.slug} href={`/jobs/country/${c.slug}`} style={link}>{c.name}</Link>
+          ))}
           <Link href={lang === "fr" ? "/fr/createur-de-cv-gratuit" : lang === "ar" ? "/ar/free-cv-builder" : "/free-cv-builder"} style={link}>{f.cvBuilder}</Link>
-          {lang === "fr" && (<>
-            <Link href="/fr/emploi" style={link}>Emploi par ville</Link>
-            <Link href="/fr/modele-cv" style={link}>Exemples de CV</Link>
-            <Link href="/fr/lettre-de-motivation" style={link}>Lettre de motivation</Link>
-          </>)}
           <Link href="/employers/login" style={link}>{f.employers}</Link>
+        </nav>
+        {/* Static, language-independent links: these pages are otherwise reachable only from the sitemap. */}
+        <nav aria-label="Resources" style={col}>
+          <div style={head}>Resources</div>
+          <Link href="/fr/emploi" style={link} hrefLang="fr">Emploi par ville (FR)</Link>
+          <Link href="/fr/modele-cv" style={link} hrefLang="fr">Exemples de CV (FR)</Link>
+          <Link href="/fr/lettre-de-motivation" style={link} hrefLang="fr">Lettre de motivation (FR)</Link>
+          <Link href="/fr/createur-de-cv-gratuit" style={link} hrefLang="fr">Créateur de CV gratuit</Link>
+          <Link href="/ar/free-cv-builder" style={link} hrefLang="ar">منشئ السيرة الذاتية</Link>
         </nav>
         <nav aria-label={f.company} style={col}>
           <div style={head}>{f.company}</div>
