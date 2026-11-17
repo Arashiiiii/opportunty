@@ -4,7 +4,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
 import { PageShell } from "../../_components/LegalShell";
 import { createPublicClient } from "@/lib/supabase/public";
-import { COUNTRY_INFO, JOB_COLUMNS, absolute, countryOf, descriptionParagraphs, idFromSlug, jobPath, jobPostingJsonLd, metaDescription, type JobRow } from "@/lib/jobs-seo";
+import { COUNTRY_INFO, JOB_COLUMNS, isIndexableJob, absolute, countryOf, descriptionParagraphs, idFromSlug, jobPath, jobPostingJsonLd, metaDescription, type JobRow } from "@/lib/jobs-seo";
 
 export const revalidate = 1800;
 
@@ -21,6 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const title = `${job.title} — ${job.company}${job.location ? `, ${job.location}` : ""} | opportunty.com`;
   return {
     title, description: metaDescription(job), alternates: { canonical: jobPath(job) },
+    robots: isIndexableJob(job) ? undefined : { index: false, follow: true },
     openGraph: { type: "article", title, description: metaDescription(job), url: jobPath(job) },
   };
 }

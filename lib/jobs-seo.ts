@@ -13,6 +13,14 @@ export interface JobRow {
 }
 export const JOB_COLUMNS = "id,title,company,location,job_type,salary_range,tags,description,external_url,original_url,logo_url,created_at,updated_at,Country";
 
+/** Thin or stale listings are copies of other boards: keep them usable but out of Google's index so they don't drag the site down. */
+export const THIN_DESCRIPTION = 1200;
+export const STALE_AFTER_DAYS = 30;
+export function isIndexableJob(j: Pick<JobRow, "description" | "created_at">): boolean {
+  if ((j.description ?? "").length < THIN_DESCRIPTION) return false;
+  return Date.now() - new Date(j.created_at).getTime() <= STALE_AFTER_DAYS * 86_400_000;
+}
+
 export const COUNTRY_INFO: Record<CountryCode, { slug: string; name: string; iso: string; demonym: string }> = {
   MA: { slug: "morocco", name: "Morocco", iso: "MA", demonym: "Moroccan" },
   FR: { slug: "france", name: "France", iso: "FR", demonym: "French" },
