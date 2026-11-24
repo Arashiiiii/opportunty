@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
+import { ApplyBox } from "./ApplyBox";
 import { PageShell } from "../../_components/LegalShell";
 import { createPublicClient } from "@/lib/supabase/public";
 import { COUNTRY_INFO, JOB_COLUMNS, isIndexableJob, absolute, countryOf, descriptionParagraphs, idFromSlug, jobPath, jobPostingJsonLd, metaDescription, type JobRow } from "@/lib/jobs-seo";
@@ -55,8 +56,10 @@ export default async function JobPage({ params }: { params: Promise<{ slug: stri
       </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, margin: "0 0 28px" }}>
         {apply && <a href={apply} target="_blank" rel="nofollow noopener noreferrer" style={{ ...btn, background: "#0079a8", color: "#ffffff" }}>Apply on the employer site ↗</a>}
+        {job.employer_id && !apply && <a href="#apply-here" style={{ ...btn, background: "#0079a8", color: "#ffffff" }}>Apply with your CV</a>}
         <Link href="/cv/builder" style={{ ...btn, border: "1px solid rgba(14,26,33,0.24)", color: "#0e1a21" }}>Tailor my CV with AI</Link>
       </div>
+      {job.employer_id && !apply && <ApplyBox jobId={job.id} path={path} />}
       {(job.tags ?? []).length > 0 && (
         <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", display: "flex", flexWrap: "wrap", gap: 8 }}>
           {job.tags!.map((t) => <li key={t} style={{ fontSize: 13, padding: "4px 11px", borderRadius: 9999, border: "1px solid rgba(14,26,33,0.15)", color: "#26343d" }}>{t}</li>)}

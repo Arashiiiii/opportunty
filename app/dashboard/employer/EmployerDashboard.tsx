@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { inferCountry } from "@/app/_lib/country";
 import { isEmployer } from "@/app/employers/_role";
+import { SubNav } from "./_nav";
 import { BarList, Card, Columns, Grid, Kpis, Shell, Table, MUTED, useDash } from "../_ui";
 
 const supabase = createClient();
@@ -49,6 +50,7 @@ export default function EmployerDashboard() {
 
   return (
     <Shell active="employer" title={d.employerTitle} sub={d.employerSub}>
+      <SubNav active="market" />
       <Kpis items={[
         { label: d.eActive, value: String(jobs.length), note: d.eActiveNote },
         { label: d.eNew7, value: String(jobs.filter((j) => age(j) < 7).length), note: d.eNew7Note },

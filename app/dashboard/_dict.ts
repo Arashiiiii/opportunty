@@ -53,7 +53,7 @@ const en: DashDict = {
   perDay: "New listings per day", perDaySub: "Last 30 days", byCountry: "Listings by country", byCountrySub: "Active listings", topCompanies: "Most active companies", topCompaniesSub: "Open listings",
   topSkills: "Skills in demand", topSkillsSub: "Mentions across active listings", byType: "Contract types", byTypeSub: "Active listings", latest: "Latest listings", latestSub: "Newest first",
   title: "Title", location: "Location", type: "Type", posted: "Posted",
-  employerNote: "Posting your own jobs and seeing views and applicants per listing will arrive with employer accounts. Everything here comes from the live job feed.",
+  employerNote: "Everything on this tab comes from the live job feed. Use My jobs to post a job and Applications to follow your candidates.",
   today: "Today", daysAgo: (n) => `${n} d ago`, none: "No data yet.",
   countries: { MA: "Morocco", FR: "France", DE: "Germany", BE: "Belgium", NL: "Netherlands", SA: "Saudi Arabia" },
 };
@@ -84,7 +84,7 @@ const fr: DashDict = {
   perDay: "Nouvelles offres par jour", perDaySub: "30 derniers jours", byCountry: "Offres par pays", byCountrySub: "Offres actives", topCompanies: "Entreprises les plus actives", topCompaniesSub: "Offres ouvertes",
   topSkills: "Compétences recherchées", topSkillsSub: "Mentions dans les offres actives", byType: "Types de contrat", byTypeSub: "Offres actives", latest: "Dernières offres", latestSub: "Les plus récentes d'abord",
   title: "Titre", location: "Lieu", type: "Type", posted: "Publiée",
-  employerNote: "La publication de vos propres offres et les vues/candidats par offre arriveront avec les comptes recruteurs. Tout ici provient du flux d'offres en direct.",
+  employerNote: "Tout cet onglet provient du flux d'offres en direct. Utilisez « Mes offres » pour publier et « Candidatures » pour suivre vos candidats.",
   today: "Aujourd'hui", daysAgo: (n) => `il y a ${n} j`, none: "Pas encore de données.",
   countries: { MA: "Maroc", FR: "France", DE: "Allemagne", BE: "Belgique", NL: "Pays-Bas", SA: "Arabie saoudite" },
 };
@@ -115,7 +115,7 @@ const ar: DashDict = {
   perDay: "وظائف جديدة يومياً", perDaySub: "آخر 30 يوماً", byCountry: "الوظائف حسب الدولة", byCountrySub: "الوظائف النشطة", topCompanies: "الشركات الأكثر نشاطاً", topCompaniesSub: "وظائف مفتوحة",
   topSkills: "المهارات المطلوبة", topSkillsSub: "مرات الذكر في الوظائف النشطة", byType: "أنواع العقود", byTypeSub: "الوظائف النشطة", latest: "أحدث الوظائف", latestSub: "الأحدث أولاً",
   title: "المسمى", location: "الموقع", type: "النوع", posted: "نُشرت",
-  employerNote: "نشر وظائفك ومشاهدات ومتقدمي كل وظيفة سيأتي مع حسابات أصحاب العمل. كل ما هنا من تغذية الوظائف المباشرة.",
+  employerNote: "كل ما في هذا التبويب من تغذية الوظائف المباشرة. استخدم «وظائفي» للنشر و«الطلبات» لمتابعة المرشحين.",
   today: "اليوم", daysAgo: (n) => `منذ ${n} ي`, none: "لا توجد بيانات بعد.",
   countries: { MA: "المغرب", FR: "فرنسا", DE: "ألمانيا", BE: "بلجيكا", NL: "هولندا", SA: "السعودية" },
 };

@@ -20,7 +20,7 @@ const en: EmpDict = {
   wrongAccount: "Please sign in with your employer account.",
   employerAccount: "This is an employer account. Employers sign in from “For employers” on the home page.",
   jobSeeker: "Looking for a job? Job seeker sign in", hiringLink: "Hiring? Employer sign in",
-  perks: ["Live view of the hiring market by country", "Post jobs and track applicants (coming soon)", "Job seekers across 6 countries"],
+  perks: ["Live view of the hiring market by country", "Post jobs and track applicants", "Job seekers across 6 countries"],
 };
 const fr: EmpDict = {
   badge: "Recruteurs", loginTitle: "Connexion recruteur", loginNote: "Accédez à votre tableau de bord de recrutement.",
@@ -33,7 +33,7 @@ const fr: EmpDict = {
   wrongAccount: "Veuillez vous connecter avec votre compte recruteur.",
   employerAccount: "Ceci est un compte recruteur. Les recruteurs se connectent depuis « Recruteurs » sur la page d'accueil.",
   jobSeeker: "Vous cherchez un emploi ? Connexion candidat", hiringLink: "Vous recrutez ? Connexion recruteur",
-  perks: ["Vue en direct du marché de l'emploi par pays", "Publiez des offres et suivez les candidats (bientôt)", "Des candidats dans 6 pays"],
+  perks: ["Vue en direct du marché de l'emploi par pays", "Publiez des offres et suivez les candidats", "Des candidats dans 6 pays"],
 };
 const ar: EmpDict = {
   badge: "لأصحاب العمل", loginTitle: "تسجيل دخول صاحب العمل", loginNote: "ادخل إلى لوحة التوظيف الخاصة بك.",
@@ -46,7 +46,7 @@ const ar: EmpDict = {
   wrongAccount: "يرجى تسجيل الدخول بحساب صاحب العمل.",
   employerAccount: "هذا حساب صاحب عمل. يسجّل أصحاب العمل الدخول من «للشركات» في الصفحة الرئيسية.",
   jobSeeker: "تبحث عن عمل؟ دخول الباحثين عن عمل", hiringLink: "توظّف؟ دخول أصحاب العمل",
-  perks: ["نظرة مباشرة على سوق التوظيف حسب الدولة", "انشر الوظائف وتابع المتقدمين (قريباً)", "باحثون عن عمل في 6 دول"],
+  perks: ["نظرة مباشرة على سوق التوظيف حسب الدولة", "انشر الوظائف وتابع المتقدمين", "باحثون عن عمل في 6 دول"],
 };
 
 export const EMP: Record<Lang, EmpDict> = { en, fr, ar };

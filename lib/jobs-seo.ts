@@ -9,9 +9,9 @@ import { SITE_URL } from "./site";
 export interface JobRow {
   id: string; title: string; company: string; location: string | null; job_type: string | null; salary_range: string | null;
   tags: string[] | null; description: string | null; external_url: string | null; original_url: string | null;
-  logo_url: string | null; created_at: string; updated_at: string | null; Country: string | null;
+  logo_url: string | null; created_at: string; updated_at: string | null; Country: string | null; employer_id?: string | null;
 }
-export const JOB_COLUMNS = "id,title,company,location,job_type,salary_range,tags,description,external_url,original_url,logo_url,created_at,updated_at,Country";
+export const JOB_COLUMNS = "id,title,company,location,job_type,salary_range,tags,description,external_url,original_url,logo_url,created_at,updated_at,Country,employer_id";
 
 /** Thin or stale listings are copies of other boards: keep them usable but out of Google's index so they don't drag the site down. */
 export const THIN_DESCRIPTION = 1200;
